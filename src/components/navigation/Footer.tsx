@@ -45,7 +45,6 @@ const Footer: React.FC = () => {
     { label: "Returns", href: "#" },
     { label: "Product Recalls", href: "#" },
     { label: "Contact Us", href: "#" },
-    { label: "Site Map", href: "#" },
   ];
 
   const socialLinks: SocialLink[] = [
