@@ -1,16 +1,14 @@
-import React from "react";
-import Link from "next/link";
-import { BiPhone } from "react-icons/bi";
 import {
   FaFacebook,
   FaMapMarkerAlt,
   FaPinterest,
   FaTwitter,
 } from "react-icons/fa";
-import { FaLinkedin } from "react-icons/fa6";
+import React from "react";
+import Link from "next/link";
+import { BiPhone } from "react-icons/bi";
 import { MdEmail } from "react-icons/md";
-import { IoChevronUp } from "react-icons/io5";
-import { HiOutlineShoppingBag } from "react-icons/hi";
+import { FaLinkedin } from "react-icons/fa6";
 
 interface SocialLink {
   name: string;
@@ -116,10 +114,9 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="border-b border-strokedark py-12">
+      {/* <div className="border-b border-strokedark py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
-            {/* Logo */}
             <div className="md:col-span-1">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Medilazar
@@ -198,13 +195,13 @@ const Footer: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="bg-card py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-gray-600 text-sm">
-              Copyright © 2023 Medilazar. All Rights Reserved.
+              Copyright &copy; 2025 Medilazar. All Rights Reserved.
             </p>
             <div className="flex flex-wrap gap-6 md:gap-8 justify-center">
               {bottomLinks.map((link) => (

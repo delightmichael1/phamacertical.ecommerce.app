@@ -1,17 +1,23 @@
 import React from "react";
+import { motion } from "framer-motion";
+import useAppStore from "@/stores/AppStore";
+import { useRouter } from "next/navigation";
+import { IoChevronUp } from "react-icons/io5";
+import Button from "@/components/buttons/Button";
 import TopNav from "@/components/navigation/TopNav";
+import { AiOutlineArrowRight } from "react-icons/ai";
 import Footer from "@/components/navigation/Footer";
 import { HiOutlineShoppingBag } from "react-icons/hi";
-import { IoChevronUp } from "react-icons/io5";
-import { AiOutlineArrowRight } from "react-icons/ai";
-import { motion } from "framer-motion";
 
 interface Props {
   children: React.ReactNode;
 }
 
 function AppLayout(props: Props) {
+  const router = useRouter();
+  const cart = useAppStore((state) => state.cart);
   const pageRef = React.useRef<HTMLDivElement>(null);
+
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -50,21 +56,30 @@ function AppLayout(props: Props) {
                 }
                 placeholder="Enter email..."
               />
-              <button
+              <Button
                 type="button"
                 className={
-                  "rounded-full bg-primary text-white p-3 px-6 cursor-pointer flex space-x-2 items-center duration-100"
+                  "rounded-full bg-primary text-white p-3 px-6 cursor-pointer flex space-x-2 items-center w-fit justify-between duration-100"
                 }
               >
                 <span>Subscribe</span>
                 <AiOutlineArrowRight className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>
       </div>
       <Footer />
-      <button className="fixed bottom-6 cursor-pointer left-6 bg-gray-900 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-800 transition shadow-lg">
+      <button
+        id="cart-icon"
+        onClick={() => router.push("/cart")}
+        className="fixed bottom-6 cursor-pointer left-6 bg-gray-900 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-800 transition shadow-lg"
+      >
+        {/* {cart.length > 0 && ( */}
+        <span className="absolute -top-1 -right-1 bg-primary text-white w-6 h-6 flex items-center justify-center rounded-full text-xs">
+          {cart.reduce((acc, item) => acc + (item.quantity ?? 0), 0)}
+        </span>
+        {/* )} */}
         <HiOutlineShoppingBag size={24} />
       </button>
 

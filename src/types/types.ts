@@ -9,6 +9,7 @@ interface IProduct {
   discount: number;
   rating: number;
   inStock: boolean;
+  quantity?: number;
 }
 
 interface IBlogPost {

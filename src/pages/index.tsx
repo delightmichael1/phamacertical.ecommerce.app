@@ -4,6 +4,7 @@ import {
   FaHandHoldingMedical,
 } from "react-icons/fa6";
 import Image from "next/image";
+import { v4 as uuid } from "uuid";
 import React, { useRef } from "react";
 import { GrAdd } from "react-icons/gr";
 import { ImFire } from "react-icons/im";
@@ -142,6 +143,7 @@ function RightSide() {
           >
             {products.map((product) => (
               <Product
+                id={uuid()}
                 key={product.id}
                 product={product}
                 width={listContainerWidth / 3}
@@ -213,6 +215,7 @@ function RightSide() {
           >
             {products.map((product) => (
               <Product
+                id={uuid()}
                 key={product.id}
                 product={product}
                 width={listContainerWidth / 3}
@@ -488,6 +491,7 @@ function LeftSide() {
           >
             {products.map((product) => (
               <Product
+                id={uuid()}
                 key={product.id}
                 product={product}
                 width={listContainerWidth}

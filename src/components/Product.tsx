@@ -1,16 +1,48 @@
 import Image from "next/image";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiSearch } from "react-icons/fi";
 import { FaRegHeart } from "react-icons/fa";
+import useAppStore from "@/stores/AppStore";
 import { RiMenu4Fill } from "react-icons/ri";
+import FlyingToCart from "./ui/FlyingToCart";
 import { HiOutlineShoppingBag } from "react-icons/hi";
+import AddedToCart from "./modals/AddedToCart";
+import { useModal } from "./modals/Modal";
 
 type Props = {
+  id: string;
   width?: number;
   product: IProduct;
 };
 
-const Product: React.FC<Props> = ({ product, width }) => {
+const Product: React.FC<Props> = ({ product, width, id }) => {
+  const { openModal, closeModal } = useModal();
+  const [showFlyingToCart, setShowFlyingToCart] = useState(false);
+
+  const handleAddToCart = () => {
+    setShowFlyingToCart(true);
+    useAppStore.setState((state) => {
+      if (state.cart.find((item) => item.id === product.id)) {
+        state.cart.map((item) => {
+          if (item.id === product.id) {
+            if (!item.quantity) {
+              item.quantity = 1;
+            } else {
+              item.quantity += 1;
+            }
+          }
+        });
+      } else {
+        state.cart.push({ ...product, quantity: 1 });
+      }
+    });
+    setTimeout(() => {
+      setShowFlyingToCart(false);
+      openModal(<AddedToCart closeModal={closeModal} product={product} />);
+    }, 1000);
+  };
+
   return (
     <motion.div
       key={`${product.id}`}
@@ -70,10 +102,20 @@ const Product: React.FC<Props> = ({ product, width }) => {
           ${product.newPrice.toFixed(2)}
         </span>
       </div>
-      <button className="mt-3 text-primary hover:text-white rounded-full hover:bg-primary flex space-x-2 items-center duration-300 w-fit pr-8 cursor-pointer transition-colors">
+      <button
+        id={"addToCart" + id}
+        onClick={handleAddToCart}
+        className="mt-3 text-primary hover:text-white rounded-full hover:bg-primary flex space-x-2 items-center duration-300 w-fit pr-8 cursor-pointer transition-colors"
+      >
         <HiOutlineShoppingBag className="w-10 h-10 p-2 text-white rounded-full bg-primary" />
         <span className="text-sm font-medium">Add to Cart</span>
       </button>
+      {showFlyingToCart && (
+        <FlyingToCart
+          productImage={product.image}
+          buttonId={"addToCart" + id}
+        />
+      )}
     </motion.div>
   );
 };
