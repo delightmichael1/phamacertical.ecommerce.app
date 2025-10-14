@@ -66,11 +66,6 @@ const Product: React.FC<Props> = ({ product, width, id }) => {
           className="w-full h-full object-cover group-hover:scale-105 duration-700 transition-all"
           priority={true}
         />
-        {product.discount && (
-          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
-            -{product.discount}%
-          </span>
-        )}
         <div className="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div
             className="w-10 h-10 p-2.5 text-primary rounded-full bg-white shadow-md cursor-pointer flex items-center justify-center hover:bg-gray-100 transition"
@@ -93,11 +88,9 @@ const Product: React.FC<Props> = ({ product, width, id }) => {
         </div>
       </div>
       <h3 className="mt-4 font-semibold text-lg truncate">{product.name}</h3>
+      <p className="text-sm text-gray-500 truncate">{product.company}</p>
       <p className="text-sm text-gray-500 truncate">{product.category}</p>
       <div className="flex items-center gap-2 mt-2">
-        <span className="text-gray-400 line-through text-sm">
-          ${product.oldPrice.toFixed(2)}
-        </span>
         <span className="text-primary font-bold">
           ${product.newPrice.toFixed(2)}
         </span>

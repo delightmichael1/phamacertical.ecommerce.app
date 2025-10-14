@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import Button from "../buttons/Button";
 import SearchInput from "../input/SearchInput";
+import { BiMenuAltLeft, BiMenuAltRight } from "react-icons/bi";
 
 function TopNav() {
   const [showHeader, setShowHeader] = useState(true);
@@ -42,24 +43,22 @@ function TopNav() {
           className="bg-primary w-full text-white top-0 fixed z-50 shadow-md"
         >
           <div className="p-4 bg-primary">
-            <div className="container mx-auto flex items-center justify-between text-sm space-x-8">
+            <div className="container mx-auto flex items-center justify-between text-sm">
               <Link href="/">
                 <Image
-                  src={"/logo/logo.png"}
+                  src={"/logo/logo.svg"}
                   alt="logo"
                   width={0}
                   height={0}
                   sizes="100vw"
-                  className="w-auto h-full max-h-16"
+                  className="w-auto h-full md:max-h-16 max-h-10"
                 />
               </Link>
 
-              <div className="flex flex-col space-y-2 flex-1 items-center justify-center">
-                <div className="w-full items-center justify-center flex ">
-                  <SearchInput className="text-black" />
-                </div>
+              <div className="flex-col space-y-2 flex-1 items-center justify-center hidden md:flex mx-8">
+                <SearchInput className="text-black" />
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="md:flex items-center space-x-3 hidden">
                 <Link href={"#"}>
                   <FaRegHeart className="p-2 w-10 h-10 hover:scale-105 hover:text-accent duration-300" />
                 </Link>
@@ -70,6 +69,7 @@ function TopNav() {
                   My Medilazar
                 </Button>
               </div>
+              <BiMenuAltRight className="w-7 h-7 md:hidden md:w-0" />
             </div>
           </div>
         </motion.nav>

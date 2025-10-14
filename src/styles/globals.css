@@ -5,7 +5,7 @@
   --accent: #2d7376;
   --card-2: #bcccdc;
   --input: #e0e0e0;
-  --primary: #24aeb1;
+  --primary: #2490eb;
   --secondary: #8eba27;
   --strokedark: #f3f4f8;
   --background: #f2f3f5;
@@ -18,7 +18,7 @@
   --accent: #2d7376;
   --input: #20283f;
   --card-2: #1c2338;
-  --primary: #24aeb1;
+  --primary: #2490eb;
   --secondary: #8eba27;
   --strokedark: #2e3a47;
   --background: #0d0e0d;
@@ -122,30 +122,30 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #24aeb1;
+  background: #2490eb;
   border-radius: 1rem;
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background-color: #24aeb1;
+  background-color: #2490eb;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   cursor: grab;
-  background: #24aeb1;
+  background: #2490eb;
   box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.2);
 }
 
 /* Scroll track styles (Background) */
 ::-webkit-scrollbar-track {
-  background: #2d7376;
+  background: #bcccdc;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-track:hover,
 ::-webkit-scrollbar-track:active {
   cursor: grabbing;
-  background: #2d7376;
+  background: #bcccdc;
 }
 
 input::-webkit-outer-spin-button,

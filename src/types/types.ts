@@ -9,6 +9,7 @@ interface IProduct {
   discount: number;
   rating: number;
   inStock: boolean;
+  company: string;
   quantity?: number;
 }
 

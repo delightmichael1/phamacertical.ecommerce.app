@@ -11,6 +11,7 @@ export const products: IProduct[] = [
     discount: 31,
     rating: 4.5,
     inStock: true,
+    company: "CAAPS",
   },
   {
     id: "2",
@@ -24,6 +25,7 @@ export const products: IProduct[] = [
     discount: 29,
     rating: 4.7,
     inStock: true,
+    company: "CAAPS",
   },
   {
     id: "3",
@@ -37,6 +39,7 @@ export const products: IProduct[] = [
     discount: 30,
     rating: 4.6,
     inStock: true,
+    company: "CAAPS",
   },
   {
     id: "4",
@@ -50,6 +53,7 @@ export const products: IProduct[] = [
     discount: 30,
     rating: 4.8,
     inStock: true,
+    company: "CAAPS",
   },
   {
     id: "5",
@@ -63,6 +67,7 @@ export const products: IProduct[] = [
     discount: 30,
     rating: 4.9,
     inStock: true,
+    company: "CAAPS",
   },
 ];
 

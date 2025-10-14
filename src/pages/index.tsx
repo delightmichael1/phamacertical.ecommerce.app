@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { v4 as uuid } from "uuid";
 import { motion } from "framer-motion";
 import { ImFire } from "react-icons/im";
@@ -6,19 +6,18 @@ import Card from "@/components/ui/Card";
 import Product from "@/components/Product";
 import AppLayout from "@/layouts/AppLayout";
 import { RxHamburgerMenu } from "react-icons/rx";
-import { BiSolidComponent } from "react-icons/bi";
 import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/Dropdown";
-import { categories, composites, products } from "@/utils/demodata";
+import { categories, products } from "@/utils/demodata";
 import Courasel, { CarouselRef } from "@/components/ui/Carousel";
 
 type Props = {
-  filter: Map<string, string>;
-  setFilter: React.Dispatch<React.SetStateAction<Map<string, string>>>;
+  filter: string[];
+  setFilter: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 function Index() {
-  const [filter, setFilter] = React.useState<Map<string, string>>(new Map());
+  const [filter, setFilter] = React.useState<string[]>([]);
   return (
     <AppLayout>
       <div className="w-full bg-background flex flex-col space-y-8">
@@ -45,13 +44,9 @@ const LeftSide: React.FC<Props> = (props) => {
     categoryValue: string
   ) => {
     if (value) {
-      let filter = new Map(props.filter);
-      filter.set(category, categoryValue);
-      props.setFilter(filter);
+      props.setFilter([...props.filter, category]);
     } else {
-      let filter = new Map(props.filter);
-      filter.delete(category);
-      props.setFilter(filter);
+      props.setFilter(props.filter.filter((item) => item !== category));
     }
   };
   return (
@@ -80,7 +75,7 @@ const LeftSide: React.FC<Props> = (props) => {
             >
               <Checkbox
                 label={category.name}
-                checked={props.filter.has(category.name)}
+                checked={props.filter.includes(category.name)}
                 onChange={(value) =>
                   handleCheckboxChange(value, category.name, category.value)
                 }
@@ -125,9 +120,7 @@ const LeftSide: React.FC<Props> = (props) => {
 };
 const RightSide: React.FC<Props> = (props) => {
   const handlDelete = (name: string) => {
-    let filter = new Map(props.filter);
-    filter.delete(name);
-    props.setFilter(filter);
+    props.setFilter(props.filter.filter((item) => item !== name));
   };
   return (
     <div className="w-full flex flex-col space-y-4">
@@ -150,16 +143,15 @@ const RightSide: React.FC<Props> = (props) => {
           />
         </div>
       </div>
-      {props.filter.size > 0 && (
+      {props.filter.length > 0 && (
         <div className="p-4 rounded-lg border border-strokedark bg-card flex flex-col space-y-4">
           <span>Active Filters</span>
           <div className="flex flex-wrap gap-4">
-            {Array.from(props.filter.entries()).map(([key, value]) => (
+            {props.filter.map((value) => (
               <div className="flex items-center space-x-2 text-sm px-2 py-1 rounded-full bg-primary/10">
-                <span>{key}:</span>
                 <span>{value}</span>
                 <button
-                  onClick={() => handlDelete(key)}
+                  onClick={() => handlDelete(value)}
                   className="text-red-500 cursor-pointer"
                 >
                   X
