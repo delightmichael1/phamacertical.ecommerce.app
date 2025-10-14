@@ -24,3 +24,37 @@ interface IBlogPost {
   image: string;
   excerpt: string;
 }
+
+interface INotification {
+  id: string;
+}
+
+interface IDevice {
+  id: string;
+  model: string;
+  platform: string;
+  deviceName: string;
+  operatingSystem: string;
+}
+
+interface IUser {
+  id: string;
+  dob: string;
+  city: string;
+  email: string;
+  gender: string;
+  qrCode: string;
+  avatar: string;
+  address: string;
+  country: string;
+  lastName: string;
+  verified: boolean;
+  firstName: string;
+  nextOfKin: string;
+  createdAt: string;
+  nationalId: string;
+  phoneNumber: string;
+  countryCode: string;
+  nextOfKinNum: string;
+  permissions: string[];
+}

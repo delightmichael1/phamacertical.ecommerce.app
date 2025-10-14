@@ -10,6 +10,7 @@ import FlyingToCart from "./ui/FlyingToCart";
 import AddedToCart from "./modals/AddedToCart";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { VscHeartFilled } from "react-icons/vsc";
+import QuickView from "./modals/QuickView";
 
 type Props = {
   id: string;
@@ -40,8 +41,10 @@ const Product: React.FC<Props> = ({ product, width, id }) => {
       }
     });
     setTimeout(() => {
+      const show = useAppStore.getState().showCartConfirmDialog;
       setShowFlyingToCart(false);
-      openModal(<AddedToCart closeModal={closeModal} product={product} />);
+      if (show)
+        openModal(<AddedToCart closeModal={closeModal} product={product} />);
     }, 1000);
   };
 
@@ -90,18 +93,17 @@ const Product: React.FC<Props> = ({ product, width, id }) => {
               <FaRegHeart className="w-full h-full" />
             )}
           </div>
-          <div
-            className="w-10 h-10 p-2.5 text-primary rounded-full bg-white shadow-md cursor-pointer flex items-center justify-center hover:bg-gray-100 transition"
-            title="Add to compare"
-          >
-            <RiMenu4Fill className="w-full h-full" />
-          </div>
-          <div
+          <button
             className="w-10 h-10 p-2.5 text-primary rounded-full bg-white shadow-md cursor-pointer flex items-center justify-center hover:bg-gray-100 transition"
             title="Quick view"
+            onClick={() =>
+              openModal(
+                <QuickView product={product} onCloseDialog={closeModal} />
+              )
+            }
           >
             <FiSearch className="w-full h-full" />
-          </div>
+          </button>
         </div>
       </div>
       <p className="text-xs text-gray-500 truncate mt-4">

@@ -1,25 +1,16 @@
 import React from "react";
-import Card from "@/components/ui/Card";
 import AppLayout from "@/layouts/AppLayout";
 import { useRouter } from "next/navigation";
-import {
-  BiArrowBack,
-  BiChevronDown,
-  BiChevronUp,
-  BiTrash,
-} from "react-icons/bi";
+import { BiArrowBack } from "react-icons/bi";
 import Button from "@/components/buttons/Button";
-import useAppStore from "@/stores/AppStore";
-import Image from "next/image";
-import Cart from "@/components/ui/Cart";
+import WishList from "@/components/ui/WishList";
 
 function Index() {
   const router = useRouter();
-  const cart = useAppStore((state) => state.cart);
 
   return (
     <AppLayout>
-      <Cart />
+      <WishList />
       <div className="container mx-auto mt-4">
         <Button className="text-black text-xs" onClick={() => router.push("/")}>
           <BiArrowBack />

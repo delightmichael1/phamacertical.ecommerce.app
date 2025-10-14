@@ -37,7 +37,7 @@ function Dropdown(props: Props) {
       </div>
       <div
         className={cn(
-          "absolute top-full right-0 z-10 bg-background border border-strokedark divide-y divide-strokedark rounded-lg shadow w-44 hidden group-hover:block duration-300 transition-all",
+          "absolute top-full right-0 z-10 bg-background border border-strokedark divide-y divide-strokedark/40 rounded-lg shadow w-44 hidden group-hover:block duration-300 transition-all",
           props.classNames?.container
         )}
       >

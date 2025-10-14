@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { v4 as uuid } from "uuid";
 import { motion } from "framer-motion";
 import { ImFire } from "react-icons/im";
@@ -10,6 +10,7 @@ import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/Dropdown";
 import { categories, products } from "@/utils/demodata";
 import Courasel, { CarouselRef } from "@/components/ui/Carousel";
+import useAppStore from "@/stores/AppStore";
 
 type Props = {
   filter: string[];
@@ -18,6 +19,13 @@ type Props = {
 
 function Index() {
   const [filter, setFilter] = React.useState<string[]>([]);
+
+  useEffect(() => {
+    useAppStore.setState((state) => {
+      state.showCartConfirmDialog = true;
+    });
+  }, []);
+
   return (
     <AppLayout>
       <div className="w-full bg-background flex flex-col space-y-8">
@@ -38,11 +46,7 @@ const LeftSide: React.FC<Props> = (props) => {
   const hotListRef = React.useRef<CarouselRef>(null);
   const [listContainerWidth, setListContainerWidth] = React.useState(0);
 
-  const handleCheckboxChange = (
-    value: boolean,
-    category: string,
-    categoryValue: string
-  ) => {
+  const handleCheckboxChange = (value: boolean, category: string) => {
     if (value) {
       props.setFilter([...props.filter, category]);
     } else {
@@ -76,9 +80,7 @@ const LeftSide: React.FC<Props> = (props) => {
               <Checkbox
                 label={category.name}
                 checked={props.filter.includes(category.name)}
-                onChange={(value) =>
-                  handleCheckboxChange(value, category.name, category.value)
-                }
+                onChange={(value) => handleCheckboxChange(value, category.name)}
               />
             </div>
           ))}

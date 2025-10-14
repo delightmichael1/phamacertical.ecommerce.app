@@ -57,7 +57,12 @@ function AddedToCart(props: Props) {
         <div className="flex items-center space-x-2 justify-end mt-6">
           <Button
             className=" bg-primary flex flex-row space-x-2 items-center"
-            onClick={props.closeModal}
+            onClick={() => {
+              useAppStore.setState((state) => {
+                state.showCartConfirmDialog = false;
+              });
+              props.closeModal();
+            }}
           >
             <BiCart />
             <span> Continue Shopping</span>

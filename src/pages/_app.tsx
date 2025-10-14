@@ -1,4 +1,5 @@
 import { ModalProvider } from "@/components/modals/Modal";
+import Toast from "@/components/toast/toast";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -18,6 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
       <ModalProvider>
         <Component {...pageProps} />
+        <Toast />
       </ModalProvider>
     </main>
   );

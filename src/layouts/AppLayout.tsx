@@ -1,10 +1,12 @@
-import React from "react";
+import useAuth from "@/hooks/useAuth";
 import useAppStore from "@/stores/AppStore";
-import { useRouter } from "next/navigation";
 import { IoChevronUp } from "react-icons/io5";
+import Preloader from "@/components/Preloader";
+import React, { useEffect, useState } from "react";
 import TopNav from "@/components/navigation/TopNav";
 import Footer from "@/components/navigation/Footer";
 import { HiOutlineShoppingBag } from "react-icons/hi";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
@@ -12,8 +14,11 @@ interface Props {
 
 function AppLayout(props: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const { getAuthStatus, fetchUser } = useAuth();
   const cart = useAppStore((state) => state.cart);
   const pageRef = React.useRef<HTMLDivElement>(null);
+  const [isFetchingUser, setIsFetchingUser] = useState(false);
 
   const handleScrollToTop = () => {
     window.scrollTo({
@@ -21,10 +26,28 @@ function AppLayout(props: Props) {
       behavior: "smooth",
     });
   };
+
+  const deviceId = useAppStore((state) => state.device?.id);
+
+  useEffect(() => {
+    (async () => {
+      const isAuthenticated = await getAuthStatus();
+      if (!pathname.includes("/auth/") && !isAuthenticated) {
+        router.replace("/auth/signin");
+      }
+      if (isAuthenticated && deviceId) {
+        await fetchUser(setIsFetchingUser);
+      }
+    })();
+    setIsFetchingUser(false);
+  }, [deviceId]);
+
+  if (isFetchingUser) return <Preloader />;
+
   return (
     <div ref={pageRef} className="w-full h-full flex flex-col">
       <TopNav />
-      <div className="mt-32">{props.children}</div>
+      <div className="mt-32 mb-32">{props.children}</div>
       <Footer />
       <button
         id="cart-icon"

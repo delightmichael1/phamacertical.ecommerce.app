@@ -1,19 +1,58 @@
 import Link from "next/link";
 import Image from "next/image";
-import { FaRegHeart } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
-import { HiOutlineShoppingBag } from "react-icons/hi";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { HiOutlineShoppingBag, HiShoppingBag } from "react-icons/hi";
 
 import Button from "../buttons/Button";
+import { IconType } from "react-icons";
+import { useRouter } from "next/navigation";
+import useAppStore from "@/stores/AppStore";
+import { usePathname } from "next/navigation";
 import SearchInput from "../input/SearchInput";
 import { BiMenuAltRight } from "react-icons/bi";
-import useAppStore from "@/stores/AppStore";
+import { IoNotifications, IoNotificationsOutline } from "react-icons/io5";
+import cn from "@/utils/cn";
+
+type ILink = {
+  name: string;
+  href: string;
+  value: number;
+  icon: IconType;
+  active: IconType;
+};
 
 function TopNav() {
-  const { cart, wishList } = useAppStore();
+  const router = useRouter();
+  const pathname = usePathname();
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showHeader, setShowHeader] = useState(true);
+  const { cart, wishList, notications } = useAppStore();
+
+  const links: ILink[] = [
+    {
+      name: "Notifications",
+      href: "/notifications",
+      value: notications.length,
+      icon: IoNotificationsOutline,
+      active: IoNotifications,
+    },
+    {
+      name: "Wish List",
+      href: "/wish-list",
+      value: wishList.reduce((acc, item) => acc + (item.quantity ?? 0), 0),
+      icon: FaRegHeart,
+      active: FaHeart,
+    },
+    {
+      name: "Cart",
+      href: "/cart",
+      value: cart.reduce((acc, item) => acc + (item.quantity ?? 0), 0),
+      icon: HiOutlineShoppingBag,
+      active: HiShoppingBag,
+    },
+  ];
 
   const controlHeader = () => {
     if (typeof window !== "undefined") {
@@ -61,29 +100,30 @@ function TopNav() {
                 <SearchInput className="text-black" />
               </div>
               <div className="md:flex items-center space-x-3 hidden">
-                <Link href={"#"} className="relative p-1">
-                  <div className="absolute -top-1 -right-1 bg-white/70 text-primary w-5 h-5 flex items-center justify-center rounded-full text-xs">
-                    <span>
-                      {wishList.reduce(
-                        (acc, item) => acc + (item.quantity ?? 0),
-                        0
+                {links.map((item) => {
+                  const Icon = pathname === item.href ? item.active : item.icon;
+                  return (
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "relative p-0.5",
+                        pathname === item.href && "bg-white/20 rounded-full"
                       )}
-                    </span>
-                  </div>
-                  <FaRegHeart className="p-2 w-10 h-10 hover:scale-105 hover:text-accent duration-300" />
-                </Link>
-                <Link href={"/cart"} className="relative p-0.5">
-                  <div className="absolute -top-1 -right-1 bg-white/70 text-primary w-5 h-5 flex items-center justify-center rounded-full text-xs">
-                    <span>
-                      {cart.reduce(
-                        (acc, item) => acc + (item.quantity ?? 0),
-                        0
+                      title={item.name}
+                    >
+                      {item.value > 0 && (
+                        <div className="absolute -top-1 -right-1 bg-white/70 text-primary w-5 h-5 flex items-center justify-center rounded-full text-xs">
+                          <span>{item.value}</span>
+                        </div>
                       )}
-                    </span>
-                  </div>
-                  <HiOutlineShoppingBag className="p-2 w-10 h-10 hover:scale-105 hover:text-accent duration-300" />
-                </Link>
-                <Button className="text-sm font-semibold rounded-full px-6">
+                      <Icon className="p-2 w-10 h-10 hover:scale-105 hover:text-accent duration-300" />
+                    </Link>
+                  );
+                })}
+                <Button
+                  onClick={() => router.push("/dashboard")}
+                  className="text-sm font-semibold rounded-full px-6"
+                >
                   My Account
                 </Button>
               </div>
