@@ -2,13 +2,14 @@ import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiSearch } from "react-icons/fi";
+import { useModal } from "./modals/Modal";
 import { FaRegHeart } from "react-icons/fa";
 import useAppStore from "@/stores/AppStore";
 import { RiMenu4Fill } from "react-icons/ri";
 import FlyingToCart from "./ui/FlyingToCart";
-import { HiOutlineShoppingBag } from "react-icons/hi";
 import AddedToCart from "./modals/AddedToCart";
-import { useModal } from "./modals/Modal";
+import { HiOutlineShoppingBag } from "react-icons/hi";
+import { VscHeartFilled } from "react-icons/vsc";
 
 type Props = {
   id: string;
@@ -18,6 +19,7 @@ type Props = {
 
 const Product: React.FC<Props> = ({ product, width, id }) => {
   const { openModal, closeModal } = useModal();
+  const wishList = useAppStore((state) => state.wishList);
   const [showFlyingToCart, setShowFlyingToCart] = useState(false);
 
   const handleAddToCart = () => {
@@ -57,7 +59,7 @@ const Product: React.FC<Props> = ({ product, width, id }) => {
       }
       transition={{ duration: 0.3 }}
     >
-      <div className="relative w-full h-64 overflow-hidden rounded-xl">
+      <div className="relative w-full h-64 overflow-hidden rounded-lg bg-gray-200">
         <Image
           src={product.image}
           alt={product.name}
@@ -70,8 +72,23 @@ const Product: React.FC<Props> = ({ product, width, id }) => {
           <div
             className="w-10 h-10 p-2.5 text-primary rounded-full bg-white shadow-md cursor-pointer flex items-center justify-center hover:bg-gray-100 transition"
             title="Wishlist"
+            onClick={() => {
+              useAppStore.setState((state) => {
+                if (state.wishList.find((item) => item.id === product.id)) {
+                  state.wishList = state.wishList.filter(
+                    (prd) => prd.id !== product.id
+                  );
+                } else {
+                  state.wishList.push({ ...product, quantity: 1 });
+                }
+              });
+            }}
           >
-            <FaRegHeart className="w-full h-full" />
+            {wishList.some((prd) => prd.id === product.id) ? (
+              <VscHeartFilled className="w-full h-full text-red-500" />
+            ) : (
+              <FaRegHeart className="w-full h-full" />
+            )}
           </div>
           <div
             className="w-10 h-10 p-2.5 text-primary rounded-full bg-white shadow-md cursor-pointer flex items-center justify-center hover:bg-gray-100 transition"
@@ -87,8 +104,10 @@ const Product: React.FC<Props> = ({ product, width, id }) => {
           </div>
         </div>
       </div>
-      <h3 className="mt-4 font-semibold text-lg truncate">{product.name}</h3>
-      <p className="text-sm text-gray-500 truncate">{product.company}</p>
+      <p className="text-xs text-gray-500 truncate mt-4">
+        From {product.company}
+      </p>
+      <h3 className="font-semibold text-lg truncate">{product.name}</h3>
       <p className="text-sm text-gray-500 truncate">{product.category}</p>
       <div className="flex items-center gap-2 mt-2">
         <span className="text-primary font-bold">

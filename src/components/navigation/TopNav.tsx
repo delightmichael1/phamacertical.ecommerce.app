@@ -7,11 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import Button from "../buttons/Button";
 import SearchInput from "../input/SearchInput";
-import { BiMenuAltLeft, BiMenuAltRight } from "react-icons/bi";
+import { BiMenuAltRight } from "react-icons/bi";
+import useAppStore from "@/stores/AppStore";
 
 function TopNav() {
-  const [showHeader, setShowHeader] = useState(true);
+  const { cart, wishList } = useAppStore();
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [showHeader, setShowHeader] = useState(true);
 
   const controlHeader = () => {
     if (typeof window !== "undefined") {
@@ -59,14 +61,30 @@ function TopNav() {
                 <SearchInput className="text-black" />
               </div>
               <div className="md:flex items-center space-x-3 hidden">
-                <Link href={"#"}>
+                <Link href={"#"} className="relative p-1">
+                  <div className="absolute -top-1 -right-1 bg-white/70 text-primary w-5 h-5 flex items-center justify-center rounded-full text-xs">
+                    <span>
+                      {wishList.reduce(
+                        (acc, item) => acc + (item.quantity ?? 0),
+                        0
+                      )}
+                    </span>
+                  </div>
                   <FaRegHeart className="p-2 w-10 h-10 hover:scale-105 hover:text-accent duration-300" />
                 </Link>
-                <Link href={"/cart"}>
+                <Link href={"/cart"} className="relative p-0.5">
+                  <div className="absolute -top-1 -right-1 bg-white/70 text-primary w-5 h-5 flex items-center justify-center rounded-full text-xs">
+                    <span>
+                      {cart.reduce(
+                        (acc, item) => acc + (item.quantity ?? 0),
+                        0
+                      )}
+                    </span>
+                  </div>
                   <HiOutlineShoppingBag className="p-2 w-10 h-10 hover:scale-105 hover:text-accent duration-300" />
                 </Link>
                 <Button className="text-sm font-semibold rounded-full px-6">
-                  My Medilazar
+                  My Account
                 </Button>
               </div>
               <BiMenuAltRight className="w-7 h-7 md:hidden md:w-0" />

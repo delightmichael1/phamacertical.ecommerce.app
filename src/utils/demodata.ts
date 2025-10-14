@@ -19,7 +19,7 @@ export const products: IProduct[] = [
     category: "Vitamins",
     description:
       "High-potency Omega 3 supplement for heart, brain, and eye health.",
-    image: "/demo/image1.jpg",
+    image: "/demo/image1.png",
     oldPrice: 25.99,
     newPrice: 18.5,
     discount: 29,
@@ -33,7 +33,7 @@ export const products: IProduct[] = [
     category: "Vitamins",
     description:
       "Supports immune system and bone health with potent Vitamin D3.",
-    image: "/demo/image1.jpg",
+    image: "/demo/image2.png",
     oldPrice: 19.99,
     newPrice: 13.99,
     discount: 30,
