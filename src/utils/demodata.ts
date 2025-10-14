@@ -68,23 +68,47 @@ export const products: IProduct[] = [
 
 export const categories = [
   {
-    name: "Category 1",
+    name: "Dispensary Drugs",
     value: "category-1",
   },
   {
-    name: "Category 2",
+    name: "Cardiovascular drugs",
     value: "category-2",
   },
   {
-    name: "Category 3",
+    name: "AntiInfectives",
     value: "category-3",
   },
   {
-    name: "Category 4",
+    name: "NSAIDs",
     value: "category-4",
   },
   {
-    name: "Category 5",
+    name: "Antiretrovirals",
+    value: "category-5",
+  },
+  {
+    name: "Endocrine and Metabollic Drugs",
+    value: "category-5",
+  },
+  {
+    name: "CNS Drugs",
+    value: "category-5",
+  },
+  {
+    name: "Respiratory Drugs",
+    value: "category-5",
+  },
+  {
+    name: "GastroIntestinal Drugs",
+    value: "category-5",
+  },
+  {
+    name: "Hematologic Drugs",
+    value: "category-5",
+  },
+  {
+    name: "Opthalmic ,ENT and Dermatological",
     value: "category-5",
   },
 ];

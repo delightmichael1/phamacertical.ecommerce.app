@@ -80,8 +80,8 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-white border-t border-strokedark">
-      <div className="border-b border-strokedark py-8">
+    <footer className="bg-white border-t border-strokedark mt-8">
+      {/* <div className="border-b border-strokedark py-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="flex items-start gap-4">
@@ -112,7 +112,7 @@ const Footer: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* <div className="border-b border-strokedark py-12">
         <div className="container mx-auto px-4">
@@ -203,7 +203,7 @@ const Footer: React.FC = () => {
             <p className="text-gray-600 text-sm">
               Copyright &copy; 2025 Medilazar. All Rights Reserved.
             </p>
-            <div className="flex flex-wrap gap-6 md:gap-8 justify-center">
+            {/* <div className="flex flex-wrap gap-6 md:gap-8 justify-center">
               {bottomLinks.map((link) => (
                 <Link
                   key={link.label}
@@ -213,7 +213,7 @@ const Footer: React.FC = () => {
                   {link.label}
                 </Link>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
