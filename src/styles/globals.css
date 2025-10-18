@@ -51,6 +51,7 @@
   --font-mono: var(--font-geist-mono);
   --font-manrope: "Manrope";
   --text-xxs: 0.6rem;
+  --animate-shimmer: shimmer 2s infinite linear;
 }
 
 ::selection {
@@ -75,6 +76,27 @@ body {
 @media only screen and (max-width: 640px) {
   ::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@utility shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    theme("colors.gray.200") 0%,
+    theme("colors.gray.300") 20%,
+    theme("colors.gray.200") 40%,
+    theme("colors.gray.200") 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 

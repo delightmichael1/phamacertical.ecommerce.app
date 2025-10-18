@@ -9,12 +9,8 @@ export const useAxios = () => {
   const options: CreateAxiosDefaults = {
     baseURL: process.env.NEXT_PUBLIC_BASEURL,
     headers: {
-      "X-Platform": "admin",
+      "X-Platform": "retailer",
       "X-Device-Id": device?.id,
-      "X-Device-Model": device?.model,
-      "X-Device-OS": device?.operatingSystem,
-      "X-Device-Name": device?.deviceName,
-      "X-Device-Platform": device?.platform,
       "Content-Type": "application/json",
     },
   };

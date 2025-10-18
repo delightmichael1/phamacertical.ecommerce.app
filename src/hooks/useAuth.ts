@@ -1,12 +1,12 @@
-// import useSocketState from "./useSocketState";
-
 import { useAxios } from "./useAxios";
+import { Device } from "@capacitor/device";
 import useAppStore from "@/stores/AppStore";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast/toast";
 import useSessionTokens from "./useSessionTokens";
-import usePreferenceStorage from "./usePreferenceStorage";
+import { useSocketState } from "./useSocketState";
 import useUserStore from "@/stores/useUserStore";
+import usePreferenceStorage from "./usePreferenceStorage";
 import useNonPersistedStore from "@/stores/useNonPersistedStore";
 
 const useAuth = () => {
@@ -14,14 +14,17 @@ const useAuth = () => {
   const { axios, secureAxios } = useAxios();
   const { getPreference } = usePreferenceStorage();
   const { addTokens, removeTokens } = useSessionTokens();
-  // const deviceID = useAppStore((state) => state.device?.id);
-  // const connectToServer = useSocketState((state) => state.connectToServer);
+  const deviceID = useAppStore((state) => state.device?.id);
+  const connectToServer = useSocketState((state) => state.connect);
 
-  const signup = async (values: any, type: "email" | "google") => {
+  const signup = async (values: any) => {
     try {
-      await axios.post("/user/signup", values, { headers: { "x-Type": type } });
-      router.replace("/auth/signin");
+      const response = await axios.post("/user/signup", values);
+      if (response.data.accessToken)
+        addTokens(response.data.accessToken, response.data.refreshToken);
+      return response.data.accessToken;
     } catch (error: any) {
+      console.log("@@@@@@@@", error);
       toast({
         title: "Error",
         description: `${
@@ -29,6 +32,7 @@ const useAuth = () => {
         }`,
         variant: "error",
       });
+      return "";
     }
   };
 
@@ -40,8 +44,13 @@ const useAuth = () => {
     try {
       // const response = await axios.post("/user/signin", values);
       // addTokens(response.data.accessToken, response.data.refreshToken);
-      addTokens(values.code, values.password);
-      router.replace("/");
+      // router.replace("/");
+      addTokens(values.licenseNumber, values.password);
+      if (values.licenseNumber === "supplier") {
+        router.push("/supplier");
+      } else {
+        router.replace("/");
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -58,12 +67,13 @@ const useAuth = () => {
   const fetchUser = async (
     setIsFetchingUser: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
-    // const socket = useSocketState.getState().socket;
+    const socket = useSocketState.getState().socket;
     setIsFetchingUser(true);
     try {
       // const response = await secureAxios.get("/user");
+      // console.log("Fetch user: ", response.data);
       // if (!socket?.connected && deviceID)
-      // connectToServer(response.data.user.id, deviceID);
+      //   connectToServer(response.data.user.id, deviceID);
       // useUserStore.setState({ ...response.data.user });
       // useNonPersistedStore.setState({ hasFetchedUser: true });
     } catch (error: any) {
@@ -89,17 +99,11 @@ const useAuth = () => {
   };
 
   const getDeviceInfo = async () => {
-    // const model = (await Device.getInfo()).model;
-    // const deviceName = (await Device.getInfo()).name ?? "unknown";
-    // const deviceId = (await Device.getId()).identifier;
-    // const platform = (await Device.getInfo()).platform;
-    // const operatingSystem = (await Device.getInfo()).operatingSystem;
-
-    const model = "unknown";
-    const deviceName = "unknown";
-    const deviceId = "unknown";
-    const platform = "unknown";
-    const operatingSystem = "unknown";
+    const model = (await Device.getInfo()).model;
+    const deviceName = (await Device.getInfo()).name ?? "unknown";
+    const deviceId = (await Device.getId()).identifier;
+    const platform = (await Device.getInfo()).platform;
+    const operatingSystem = (await Device.getInfo()).operatingSystem;
 
     useAppStore.setState((state) => {
       state.device = {
@@ -127,7 +131,7 @@ const useAuth = () => {
   const signout = async (setIsLoading?: (value: boolean) => void) => {
     if (setIsLoading) setIsLoading(true);
     try {
-      await secureAxios.post("/user/signout");
+      // await secureAxios.post("/user/signout");
     } catch (error: any) {
       console.log(error);
     } finally {

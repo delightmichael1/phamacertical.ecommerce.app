@@ -13,6 +13,49 @@ interface IProduct {
   quantity?: number;
 }
 
+interface IOrder {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  date: string;
+  items: IOrderItem[];
+  total: number;
+  subtotal: number;
+  tax?: number;
+  shipping?: number;
+  status: "pending" | "processing" | "completed" | "cancelled";
+  paymentMethod: "credit card" | "debit card" | "paypal" | "cash on delivery";
+  paymentStatus?: "paid" | "unpaid" | "refunded";
+  shippingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  billingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  trackingNumber?: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface IOrderItem {
+  productId: string;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+  subtotal: number;
+  discount?: number;
+}
+
 interface IBlogPost {
   id: number;
   title: string;

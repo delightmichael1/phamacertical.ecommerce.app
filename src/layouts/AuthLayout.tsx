@@ -41,14 +41,16 @@ function AuthLayout(props: Props) {
       className="w-full h-full grid grid-cols-1 lg:grid-cols-2 overflow-hidden"
       style={{ height: `${height}px` }}
     >
-      <Image
-        src={"/images/bluebg.jpg"}
-        alt="image"
-        width={0}
-        height={0}
-        sizes="100vw"
-        className="w-full h-full object-cover object-center"
-      />
+      <div className="w-full h-full items-center justify-center flex bg-[url('/images/bluebg.jpg')] bg-center bg-cover bg-no-repeat">
+        <Image
+          src={"/logo/logo.svg"}
+          alt="logo"
+          width={0}
+          height={0}
+          sizes="100vw"
+          className="w-60 h-fit"
+        />
+      </div>
       {props.children}
     </div>
   );

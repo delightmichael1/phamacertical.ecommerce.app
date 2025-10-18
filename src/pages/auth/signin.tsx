@@ -9,7 +9,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import Button from "@/components/buttons/Button";
 import Checkbox from "@/components/input/Checkbox";
 import TextField from "@/components/input/TextField";
-import { AuthValidationSchema } from "@/types/schema";
+import { SignInValidationSchema } from "@/types/schema";
 
 const FormControls = React.memo(
   ({
@@ -22,7 +22,7 @@ const FormControls = React.memo(
     isSubmitting: boolean;
   }) => (
     <>
-      <div className="flex w-full items-center justify-between">
+      <div className="flex justify-between items-center w-full">
         <Checkbox
           checked={rememberMe}
           onChange={onRememberMeChange}
@@ -35,11 +35,11 @@ const FormControls = React.memo(
       <Button
         isLoading={isSubmitting}
         type="submit"
-        className="w-full bg-primary"
+        className="bg-primary w-full h-10"
       >
         Sign in
       </Button>
-      <p className="text-default-500 text-center text-sm">
+      <p className="text-default-500 text-sm text-center">
         Don&apos;t have an account?{" "}
         <Link href="/auth/signup" className="text-primary">
           Sign up
@@ -54,7 +54,7 @@ function Signin() {
   const [rememberMe, setRememberMe] = React.useState(true);
 
   const handleSubmit = async (values: {
-    code: string;
+    licenseNumber: string;
     password: string;
     rememberMe: boolean;
   }) => {
@@ -71,21 +71,21 @@ function Signin() {
         initial={{ opacity: 0, scale: 0.5 }}
         whileInView={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", duration: 1 }}
-        className="w-full max-w-[30rem] mx-auto h-full flex flex-col items-center justify-center gap-6"
+        className="flex flex-col justify-center items-center gap-6 mx-auto w-full max-w-[30rem] h-full"
       >
-        <span className="text-2xl font-bold">WELCOME BACK</span>
+        <span className="font-bold text-2xl">WELCOME BACK</span>
         <Formik
-          initialValues={{ code: "", password: "", rememberMe: true }}
-          validationSchema={AuthValidationSchema}
+          initialValues={{ licenseNumber: "", password: "", rememberMe: true }}
+          validationSchema={SignInValidationSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
             <Form className="flex flex-col items-center gap-6 w-full">
               <TextField
-                label="Code"
-                type="code"
-                name="code"
-                placeholder="Enter your code"
+                label="License Number"
+                type="text"
+                name="licenseNumber"
+                placeholder="Enter your id"
                 icon={<BiKey size={20} />}
               />
               <TextField

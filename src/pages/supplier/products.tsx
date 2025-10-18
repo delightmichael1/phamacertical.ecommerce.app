@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import { motion } from "framer-motion";
-import { ImFire } from "react-icons/im";
 import Card from "@/components/ui/Card";
+import React, { useEffect } from "react";
 import Product from "@/components/Product";
-import AppLayout from "@/layouts/AppLayout";
+import useAppStore from "@/stores/AppStore";
 import { RxHamburgerMenu } from "react-icons/rx";
 import Checkbox from "@/components/input/Checkbox";
 import Dropdown from "@/components/dropdown/Dropdown";
 import { categories, products } from "@/utils/demodata";
-import Courasel, { CarouselRef } from "@/components/ui/Carousel";
-import useAppStore from "@/stores/AppStore";
-import { useAxios } from "@/hooks/useAxios";
-import { CardSkeleton } from "@/components/ui/Shimmer";
+import DashboardLayout from "@/layouts/DashboardLayout";
+import Button from "@/components/buttons/Button";
+import { RiAddLargeLine } from "react-icons/ri";
 
 type Props = {
   filter: string[];
@@ -29,7 +27,11 @@ function Index() {
   }, []);
 
   return (
-    <AppLayout>
+    <DashboardLayout
+      title="Products"
+      description="Manage your products"
+      isSupplier
+    >
       <div className="flex flex-col space-y-8 bg-background w-full">
         <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto w-full h-fit container">
           <div className="w-full lg:w-1/4">
@@ -40,14 +42,11 @@ function Index() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </DashboardLayout>
   );
 }
 
 const LeftSide: React.FC<Props> = (props) => {
-  const hotListRef = React.useRef<CarouselRef>(null);
-  const [listContainerWidth, setListContainerWidth] = React.useState(0);
-
   const handleCheckboxChange = (value: boolean, category: string) => {
     if (value) {
       props.setFilter([...props.filter, category]);
@@ -74,10 +73,10 @@ const LeftSide: React.FC<Props> = (props) => {
           <h2>Categories</h2>
         </div>
         <div className="p-4">
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <div
               className="p-2 py-3 rounded-lg hover:text-primary text-sm cursor-pointer"
-              key={index}
+              key={category.value}
             >
               <Checkbox
                 label={category.name}
@@ -88,65 +87,10 @@ const LeftSide: React.FC<Props> = (props) => {
           ))}
         </div>
       </Card>
-      <Card
-        variants={{
-          whileInView: { opacity: 1, x: 0 },
-          initial: { opacity: 0, x: -200 },
-          exit: { opacity: 0, x: -200 },
-          transition: { duration: 1, type: "spring" },
-        }}
-        className="p-0"
-      >
-        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <ImFire className="w-6 h-6" />
-          <h2>Hot Deals Day</h2>
-        </div>
-        <div className="p-4">
-          <Courasel
-            ref={hotListRef}
-            itemsLength={products.length}
-            isAutoSlide
-            setListContainerWidth={setListContainerWidth}
-          >
-            {products.map((product) => (
-              <Product
-                id={uuid()}
-                key={product.id}
-                product={product}
-                width={listContainerWidth}
-              />
-            ))}
-          </Courasel>
-        </div>
-      </Card>
     </div>
   );
 };
 const RightSide: React.FC<Props> = (props) => {
-  const { secureAxios } = useAxios();
-  const [isLoading, setIsLoading] = useState(true);
-  const [dxProducts, setdxProducts] = useState<IProduct[]>([]);
-
-  useEffect(() => {
-    handleGetProducts();
-  }, []);
-
-  const handleGetProducts = async () => {
-    setIsLoading(true);
-    // console.log("##########################");
-    // try {
-    //   await secureAxios.get("/products");
-    // } catch (error) {
-    //   console.log("@@@@@@@", error);
-    // } finally {
-    //   setIsLoading(false)
-    // }
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 5000);
-    console.log("##########################");
-  };
-
   const handlDelete = (name: string) => {
     props.setFilter(props.filter.filter((item) => item !== name));
   };
@@ -169,6 +113,10 @@ const RightSide: React.FC<Props> = (props) => {
               "Price: High to Low",
             ]}
           />
+          <Button className="bg-primary rounded-lg text-sm">
+            <RiAddLargeLine className="w-4 h-4" />
+            <span>Add New</span>
+          </Button>
         </div>
       </div>
       {props.filter.length > 0 && (
@@ -190,21 +138,20 @@ const RightSide: React.FC<Props> = (props) => {
         </div>
       )}
       <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {!isLoading &&
-          products.map((product, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, type: "spring" }}
-            >
-              <Product key={product.id} product={product} id={uuid()} />
-            </motion.div>
-          ))}
-        {isLoading &&
-          Array.from({ length: 6 }).map((_, index) => (
-            <CardSkeleton key={index} />
-          ))}
+        {products.map((product) => (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, type: "spring" }}
+          >
+            <Product
+              key={product.id}
+              product={product}
+              id={uuid()}
+              isSupplier
+            />
+          </motion.div>
+        ))}
       </div>
     </div>
   );

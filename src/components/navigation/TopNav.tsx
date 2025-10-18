@@ -81,10 +81,10 @@ function TopNav() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -80, opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="bg-primary w-full text-white top-0 fixed z-50 shadow-md"
+          className="top-0 z-50 fixed bg-primary shadow-md w-full text-white"
         >
-          <div className="p-4 bg-primary">
-            <div className="container mx-auto flex items-center justify-between text-sm">
+          <div className="bg-primary p-4">
+            <div className="flex justify-between items-center mx-auto text-sm container">
               <Link href="/">
                 <Image
                   src={"/logo/logo.svg"}
@@ -92,19 +92,20 @@ function TopNav() {
                   width={0}
                   height={0}
                   sizes="100vw"
-                  className="w-auto h-full md:max-h-16 max-h-10"
+                  className="w-auto h-full max-h-10 md:max-h-16"
                 />
               </Link>
 
-              <div className="flex-col space-y-2 flex-1 items-center justify-center hidden md:flex mx-8">
+              <div className="hidden md:flex flex-col flex-1 justify-center items-center space-y-2 mx-8">
                 <SearchInput className="text-black" />
               </div>
-              <div className="md:flex items-center space-x-3 hidden">
+              <div className="hidden md:flex items-center space-x-3">
                 {links.map((item) => {
                   const Icon = pathname === item.href ? item.active : item.icon;
                   return (
                     <Link
                       href={item.href}
+                      key={item.name}
                       className={cn(
                         "relative p-0.5",
                         pathname === item.href && "bg-white/20 rounded-full"
@@ -112,22 +113,22 @@ function TopNav() {
                       title={item.name}
                     >
                       {item.value > 0 && (
-                        <div className="absolute -top-1 -right-1 bg-white/70 text-primary w-5 h-5 flex items-center justify-center rounded-full text-xs">
+                        <div className="-top-1 -right-1 absolute flex justify-center items-center bg-white/70 rounded-full w-5 h-5 text-primary text-xs">
                           <span>{item.value}</span>
                         </div>
                       )}
-                      <Icon className="p-2 w-10 h-10 hover:scale-105 hover:text-accent duration-300" />
+                      <Icon className="p-2 w-10 h-10 hover:text-accent hover:scale-105 duration-300" />
                     </Link>
                   );
                 })}
                 <Button
                   onClick={() => router.push("/dashboard")}
-                  className="text-sm font-semibold rounded-full px-6"
+                  className="px-6 rounded-full font-semibold text-sm"
                 >
                   My Account
                 </Button>
               </div>
-              <BiMenuAltRight className="w-7 h-7 md:hidden md:w-0" />
+              <BiMenuAltRight className="md:hidden w-7 md:w-0 h-7" />
             </div>
           </div>
         </motion.nav>

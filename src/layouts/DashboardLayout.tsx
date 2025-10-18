@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 interface Props {
   title: string;
   description: string;
+  isSupplier?: boolean;
   children: React.ReactNode;
 }
 
@@ -53,19 +54,19 @@ function DashboardLayout(props: Props) {
   return (
     <div
       ref={pageRef}
-      className="w-full h-full flex flex-col overflow-hidden"
+      className="flex flex-col w-full h-full overflow-hidden"
       style={{ height: `${pageHeight}px` }}
     >
-      <DashboardTopNav />
-      <div className="flex w-full h-full">
-        <DashboardSideBar />
+      <DashboardTopNav isSupplier={props.isSupplier} />
+      <div className="flex w-full h-full overflow-hidden">
+        <DashboardSideBar isSupplier={props.isSupplier} />
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, type: "spring" }}
-          className="w-full h-full flex flex-col overflow-y-auto p-4"
+          className="flex flex-col p-4 pb-24 w-full h-full overflow-y-auto"
         >
-          <div className="flex flex-col container mx-auto mb-4">
+          <div className="flex flex-col mx-auto mb-4 container">
             <h1 className="text-2xl">{props.title}</h1>
             <span className="text-gray-500">{props.description}</span>
           </div>

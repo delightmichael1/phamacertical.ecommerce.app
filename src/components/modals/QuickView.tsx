@@ -9,6 +9,7 @@ import { toast } from "../toast/toast";
 interface Props {
   product: IProduct | null;
   onCloseDialog: () => void;
+  isSupplier?: boolean;
 }
 
 function QuickView(props: Props) {
@@ -45,71 +46,76 @@ function QuickView(props: Props) {
   };
 
   return (
-    <div className="w-full grid grid-cols-2 gap-8 p-4 pt-6 max-w-[60rem]">
+    <div className="gap-8 grid grid-cols-2 p-4 pt-6 w-full max-w-[60rem]">
       <Image
         src={selectedProduct?.image ?? ""}
         alt={selectedProduct?.name ?? ""}
         width={0}
         height={0}
         sizes="100vw"
-        className="w-full aspect-square object-cover rounded-xl bg-gray-300"
+        className="bg-gray-300 rounded-xl w-full object-cover aspect-square"
       />
       <div className="flex flex-col space-y-4 w-full">
         <span>{selectedProduct?.company}</span>
-        <h2 className="text-2xl font-bold">{selectedProduct?.name}</h2>
+        <h2 className="font-bold text-2xl">{selectedProduct?.name}</h2>
         <p className="text-sm">{selectedProduct?.description}</p>
-        <span className="text-xl font-bold text-primary">
+        <span className="font-bold text-primary text-xl">
           ${selectedProduct?.newPrice}
         </span>
-        <div className="flex border border-strokedark rounded-lg divider divider-strokedark overflow-hidden w-fit">
-          <input
-            type="number"
-            value={
-              selectedProduct?.quantity?.toString().replace(/[^0-9]/g, "") ?? 1
-            }
-            onChange={(e) => {
-              if (selectedProduct)
-                setSelectedProduct({
-                  ...selectedProduct,
-                  quantity: Number(e.target.value),
-                });
-            }}
-            className="w-16 p-2 px-4 outline-none"
-          />
-          <div className="flex flex-col divide divide-strokedark">
-            <BiChevronUp
-              className="w-8 h-6 hover:bg-primary/20 cursor-pointer p-1"
-              onClick={() => {
+        {!props.isSupplier && (
+          <div className="flex border border-strokedark rounded-lg w-fit overflow-hidden divider divider-strokedark">
+            <input
+              type="number"
+              value={
+                selectedProduct?.quantity?.toString().replace(/[^0-9]/g, "") ??
+                1
+              }
+              onChange={(e) => {
                 if (selectedProduct)
                   setSelectedProduct({
                     ...selectedProduct,
-                    quantity: selectedProduct.quantity
-                      ? selectedProduct.quantity + 1
-                      : 1,
+                    quantity: Number(e.target.value),
                   });
               }}
+              className="p-2 px-4 outline-none w-16"
             />
-            <BiChevronDown
-              onClick={() => {
-                if (selectedProduct)
-                  setSelectedProduct({
-                    ...selectedProduct,
-                    quantity:
-                      selectedProduct.quantity && selectedProduct.quantity > 1
-                        ? selectedProduct.quantity - 1
+            <div className="flex flex-col divide-strokedark divide">
+              <BiChevronUp
+                className="hover:bg-primary/20 p-1 w-8 h-6 cursor-pointer"
+                onClick={() => {
+                  if (selectedProduct)
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      quantity: selectedProduct.quantity
+                        ? selectedProduct.quantity + 1
                         : 1,
-                  });
-              }}
-              className="w-8 h-6 hover:bg-primary/20 cursor-pointer p-1"
-            />
+                    });
+                }}
+              />
+              <BiChevronDown
+                onClick={() => {
+                  if (selectedProduct)
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      quantity:
+                        selectedProduct.quantity && selectedProduct.quantity > 1
+                          ? selectedProduct.quantity - 1
+                          : 1,
+                    });
+                }}
+                className="hover:bg-primary/20 p-1 w-8 h-6 cursor-pointer"
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button className="bg-primary" onClick={handleAddToCart}>
-            <HiOutlineShoppingBag className="w-5 h-5" />
-            <span>Add to cart</span>
-          </Button>
-        </div>
+        )}
+        {!props.isSupplier && (
+          <div className="flex items-center space-x-2">
+            <Button className="bg-primary" onClick={handleAddToCart}>
+              <HiOutlineShoppingBag className="w-5 h-5" />
+              <span>Add to cart</span>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

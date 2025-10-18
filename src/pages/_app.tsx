@@ -1,13 +1,17 @@
-import { ModalProvider } from "@/components/modals/Modal";
-import Toast from "@/components/toast/toast";
-import "@/styles/globals.css";
-import type { AppProps } from "next/app";
-import Head from "next/head";
 import React from "react";
+import Head from "next/head";
+import "@/styles/globals.css";
+import Script from "next/script";
+import type { AppProps } from "next/app";
+import Toast from "@/components/toast/toast";
+import { ModalProvider } from "@/components/modals/Modal";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <main className="bg-background w-full font-manrope overflow-x-hidden">
+    <main
+      className="bg-background w-full overflow-x-hidden font-manrope text-xs"
+      suppressHydrationWarning
+    >
       <Head>
         <title>PharmNex</title>
         <meta
@@ -21,6 +25,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
         <Toast />
       </ModalProvider>
+      <Script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" />
+      <Script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" />
     </main>
   );
 }
