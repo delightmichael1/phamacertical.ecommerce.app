@@ -83,7 +83,7 @@ const Product: React.FC<Props> = (props) => {
               className="flex justify-center items-center bg-white hover:bg-gray-100 shadow-md p-2.5 rounded-full w-10 h-10 text-primary transition cursor-pointer"
               title="Wishlist"
               onClick={() => {
-                useAppStore.setState((state) => {
+                usePersistedStore.setState((state) => {
                   if (
                     state.wishList.find((item) => item.id === props.product.id)
                   ) {
