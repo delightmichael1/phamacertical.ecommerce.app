@@ -18,7 +18,7 @@ function Button(props: Props) {
       onClick={props.onClick}
       disabled={props.disabled || props.isLoading}
       className={cn(
-        "relative flex items-center justify-center space-x-2 px-6 py-2 overflow-hidden rounded-2xl font-medium text-white backdrop-blur-xl cursor-pointer bg-gradient-to-b from-white/30 to-white/10 border border-white/40 shadow-[inset_1px_1px_0px_rgba(255,255,255,0.4),_0_4px_20px_rgba(0,0,0,0.2)] hover:from-white/40 hover:to-white/20 hover:shadow-[inset_1px_1px_0px_rgba(255,255,255,0.6),_0_6px_24px_rgba(0,0,0,0.25)] active:scale-[0.97] transition-all duration-300 ease-out select-none",
+        "relative flex justify-center items-center space-x-2 bg-gradient-to-b from-white/30 hover:from-white/40 to-white/10 hover:to-white/20 shadow-[inset_1px_1px_0px_rgba(255,255,255,0.4),_0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[inset_1px_1px_0px_rgba(255,255,255,0.6),_0_6px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl px-6 py-2 border border-white/40 rounded-2xl overflow-hidden font-medium text-white active:scale-[0.97] transition-all duration-300 ease-out cursor-pointer select-none",
         props.className,
         props.disabled && "opacity-50 pointer-events-none",
         props.isLoading && "opacity-50 pointer-events-none"

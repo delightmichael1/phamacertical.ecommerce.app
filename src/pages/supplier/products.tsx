@@ -1,16 +1,27 @@
 import { v4 as uuid } from "uuid";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import debounce from "lodash.debounce";
 import Card from "@/components/ui/Card";
-import React, { useEffect } from "react";
 import Product from "@/components/Product";
 import useAppStore from "@/stores/AppStore";
-import { RxHamburgerMenu } from "react-icons/rx";
-import Checkbox from "@/components/input/Checkbox";
-import Dropdown from "@/components/dropdown/Dropdown";
-import { categories, products } from "@/utils/demodata";
-import DashboardLayout from "@/layouts/DashboardLayout";
-import Button from "@/components/buttons/Button";
+import { useAxios } from "@/hooks/useAxios";
+import { categories } from "@/utils/demodata";
 import { RiAddLargeLine } from "react-icons/ri";
+import Button from "@/components/buttons/Button";
+import { RxHamburgerMenu } from "react-icons/rx";
+import { toast } from "@/components/toast/toast";
+import useUserStore from "@/stores/useUserStore";
+import React, { useEffect, useState } from "react";
+import Checkbox from "@/components/input/Checkbox";
+import { useModal } from "@/components/modals/Modal";
+import Dropdown from "@/components/dropdown/Dropdown";
+import DashboardLayout from "@/layouts/DashboardLayout";
+import AddProduct from "@/components/modals/AddProduct";
+import Image from "next/image";
+import Loader from "@/components/Loader";
+import useProductsRoutes from "@/hooks/useProductsRoutes";
+import Preloader from "@/components/Preloader";
+import { CardSkeleton } from "@/components/ui/Shimmer";
 
 type Props = {
   filter: string[];
@@ -32,7 +43,7 @@ function Index() {
       description="Manage your products"
       isSupplier
     >
-      <div className="flex flex-col space-y-8 bg-background w-full">
+      <div className="flex flex-col space-y-8 w-full">
         <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto w-full h-fit container">
           <div className="w-full lg:w-1/4">
             <LeftSide filter={filter} setFilter={setFilter} />
@@ -73,10 +84,10 @@ const LeftSide: React.FC<Props> = (props) => {
           <h2>Categories</h2>
         </div>
         <div className="p-4">
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <div
               className="p-2 py-3 rounded-lg hover:text-primary text-sm cursor-pointer"
-              key={category.value}
+              key={index}
             >
               <Checkbox
                 label={category.name}
@@ -91,13 +102,37 @@ const LeftSide: React.FC<Props> = (props) => {
   );
 };
 const RightSide: React.FC<Props> = (props) => {
+  const { openModal } = useModal();
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const { getProducts } = useProductsRoutes();
+  const [isLoading, setIsLoading] = useState(false);
+  const products = useAppStore((state) => state.products);
+  const [sort, setSort] = useState<"Newest" | "Oldest">("Newest");
+  const id = useUserStore((state) =>
+    state.role.includes("super") ? state.id : state.administrator
+  );
+
   const handlDelete = (name: string) => {
     props.setFilter(props.filter.filter((item) => item !== name));
   };
+
+  const debouncedSearch = React.useCallback(
+    debounce(async (filter: string[]) => {
+      if (id) getProducts(sort, page, filter, [id], setIsLoading, setPages);
+    }, 500),
+    [id, page, sort]
+  );
+
+  React.useEffect(() => {
+    debouncedSearch(props.filter);
+    return debouncedSearch.cancel;
+  }, [props.filter, debouncedSearch, id, page, sort]);
+
   return (
-    <div className="flex flex-col space-y-4 w-full">
+    <div className="flex flex-col space-y-4 w-full h-full">
       <div className="flex justify-between items-center space-x-4 text-lg">
-        <span>Showing {products.length} products</span>
+        <span>Showing {products?.length ?? 0} products</span>
         <div className="flex items-center space-x-4">
           <span>Sort by:</span>
           <Dropdown
@@ -106,14 +141,13 @@ const RightSide: React.FC<Props> = (props) => {
               trigger:
                 "text-primary w-56 justify-between border border-primary px-4 py-2 rounded-lg text-sm",
             }}
-            options={[
-              "Newest",
-              "Oldest",
-              "Price: Low to High",
-              "Price: High to Low",
-            ]}
+            onClick={(value) => setSort(value as "Newest" | "Oldest")}
+            options={["Newest", "Oldest"]}
           />
-          <Button className="bg-primary rounded-lg text-sm">
+          <Button
+            className="bg-primary rounded-lg text-sm"
+            onClick={() => openModal(<AddProduct />)}
+          >
             <RiAddLargeLine className="w-4 h-4" />
             <span>Add New</span>
           </Button>
@@ -138,21 +172,53 @@ const RightSide: React.FC<Props> = (props) => {
         </div>
       )}
       <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {products.map((product) => (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, type: "spring" }}
-          >
-            <Product
-              key={product.id}
-              product={product}
-              id={uuid()}
-              isSupplier
-            />
-          </motion.div>
-        ))}
+        {!isLoading &&
+          products.map((product, index) => (
+            <AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0.5, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0.5, scale: 0.9 }}
+                transition={{ duration: 1, type: "spring" }}
+                key={index}
+              >
+                <Product
+                  key={product.id}
+                  product={product}
+                  id={uuid()}
+                  isSupplier
+                />
+              </motion.div>
+            </AnimatePresence>
+          ))}
+        {isLoading &&
+          Array.from({ length: 6 }).map((_, index) => (
+            <AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0.5, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0.5, scale: 0.9 }}
+                transition={{ duration: 1, type: "spring" }}
+              >
+                <CardSkeleton key={index} />
+              </motion.div>
+            </AnimatePresence>
+          ))}
       </div>
+      {!isLoading && products.length === 0 && (
+        <div className="flex flex-col justify-center items-center space-y-4 w-full h-full">
+          <Image
+            src="/svgs/empty-cart.svg"
+            alt="empty cart"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="rounded-xl w-full max-w-[20rem] object-cover aspect-square"
+          />
+          <span className="font-bold text-2xl">Your product list is empty</span>
+        </div>
+      )}
+      {/* <Pagination pages={pages} page={page} setPage={setPage} /> */}
     </div>
   );
 };

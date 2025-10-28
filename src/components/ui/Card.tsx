@@ -14,7 +14,7 @@ function Card(props: Props) {
       <motion.div
         {...props.variants}
         className={cn(
-          "bg-card rounded-xl p-4 shadow-md shadow-black/10",
+          "bg-card shadow-black/10 shadow-none p-4 rounded-xl text-card-foreground",
           props.className
         )}
       >

@@ -5,46 +5,47 @@ import router from "next/router";
 import Button from "../buttons/Button";
 import useAppStore from "@/stores/AppStore";
 import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
+import usePersistedStore from "@/stores/PersistedStored";
 
 function WishList() {
-  const wishList = useAppStore((state) => state.wishList);
+  const wishList = usePersistedStore((state) => state.wishList);
 
   return (
-    <div className="flex lg:flex-row flex-col space-y-4 lg:space-y-0 lg:space-x-4 container mx-auto">
-      <Card className="w-3/4 p-0">
-        <div className="p-4 border-b border-strokedark w-full">
-          <h1 className="text-xl font-bold">Shopping Wish List</h1>
+    <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto container">
+      <Card className="p-0 w-3/4">
+        <div className="p-4 border-strokedark border-b w-full">
+          <h1 className="font-bold text-xl">Shopping Wish List</h1>
         </div>
-        <div className="flex flex-col p-4 w-full space-y-6 divide">
+        <div className="flex flex-col space-y-6 p-4 w-full divide">
           {wishList.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between w-full"
+              className="flex justify-between items-center w-full"
             >
               <div className="flex items-center space-x-4">
                 <Image
                   src={item.image}
-                  alt={item.name}
+                  alt={item.title}
                   width={0}
                   height={0}
                   sizes="100vw"
-                  className="w-full max-w-[10rem] aspect-square object-cover rounded-xl"
+                  className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
                 />
                 <div className="flex flex-col space-y-2">
-                  <span className="text-lg font-bold">{item.name}</span>
-                  <span className="text-xl text-primary">${item.newPrice}</span>
+                  <span className="font-bold text-lg">{item.title}</span>
+                  <span className="text-primary text-xl">${item.price}</span>
                   <span className="text-xs">{item.description}</span>
                 </div>
               </div>
               <div className="flex items-center space-x-10">
-                <div className="flex border border-strokedark rounded-lg divider divider-strokedark overflow-hidden">
+                <div className="flex border border-strokedark rounded-lg overflow-hidden divider divider-strokedark">
                   <input
                     type="number"
                     value={
                       item.quantity?.toString().replace(/[^0-9]/g, "") ?? 1
                     }
                     onChange={(e) => {
-                      useAppStore.setState((state) => {
+                      usePersistedStore.setState((state) => {
                         state.wishList.map((item) => {
                           if (item.id === item.id) {
                             item.quantity = Number(e.target.value);
@@ -52,13 +53,13 @@ function WishList() {
                         });
                       });
                     }}
-                    className="w-16 p-2 px-4 outline-none"
+                    className="p-2 px-4 outline-none w-16"
                   />
-                  <div className="flex flex-col divide divide-strokedark">
+                  <div className="flex flex-col divide-strokedark divide">
                     <BiChevronUp
-                      className="w-8 h-6 hover:bg-primary/20 cursor-pointer p-1"
+                      className="hover:bg-primary/20 p-1 w-8 h-6 cursor-pointer"
                       onClick={() =>
-                        useAppStore.setState((state) => {
+                        usePersistedStore.setState((state) => {
                           state.wishList.map((wishList) => {
                             if (wishList.id === item.id) {
                               if (wishList.quantity) {
@@ -73,7 +74,7 @@ function WishList() {
                     />
                     <BiChevronDown
                       onClick={() =>
-                        useAppStore.setState((state) => {
+                        usePersistedStore.setState((state) => {
                           state.wishList.map((wishList) => {
                             if (
                               wishList.id === item.id &&
@@ -85,14 +86,14 @@ function WishList() {
                           });
                         })
                       }
-                      className="w-8 h-6 hover:bg-primary/20 cursor-pointer p-1"
+                      className="hover:bg-primary/20 p-1 w-8 h-6 cursor-pointer"
                     />
                   </div>
                 </div>
                 <BiTrash
-                  className="w-8 h-8 hover:bg-primary/20 cursor-pointer p-1 rounded-full duration-300 hover:text-red-500"
+                  className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-red-500 duration-300 cursor-pointer"
                   onClick={() =>
-                    useAppStore.setState((state) => {
+                    usePersistedStore.setState((state) => {
                       state.wishList = state.wishList.filter(
                         (itx) => itx.id !== item.id
                       );
@@ -103,24 +104,24 @@ function WishList() {
             </div>
           ))}
           {wishList.length === 0 && (
-            <div className="flex flex-col items-center justify-center space-y-4 py-10 px-4">
+            <div className="flex flex-col justify-center items-center space-y-4 px-4 py-10">
               <Image
                 src="/svgs/empty-cart.svg"
                 alt="empty wish list"
                 width={0}
                 height={0}
                 sizes="100vw"
-                className="w-full max-w-[20rem] aspect-square object-cover rounded-xl"
+                className="rounded-xl w-full max-w-[20rem] object-cover aspect-square"
               />
-              <span className="text-2xl font-bold">
+              <span className="font-bold text-2xl">
                 Your wish list is empty
               </span>
             </div>
           )}
         </div>
       </Card>
-      <Card className="w-1/4 p-6 h-fit pb-10">
-        <div className="flex items-center justify-between">
+      <Card className="p-6 pb-10 w-1/4 h-fit">
+        <div className="flex justify-between items-center">
           <span className="text-gray-500">Items:</span>
           <span>
             {wishList
@@ -128,33 +129,33 @@ function WishList() {
               .toFixed(0)}
           </span>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <span className="text-gray-500">Total (tax excl.):</span>
           <span>
             $
             {wishList
               .reduce((acc, item) => {
-                const itemCost = item.newPrice * (item.quantity ?? 1);
+                const itemCost = item.price * (item.quantity ?? 1);
                 return acc + itemCost;
               }, 0)
               .toFixed(2)}
           </span>
         </div>
-        <hr className="border-strokedark my-4" />
-        <div className="flex items-center justify-between font-bold">
+        <hr className="my-4 border-strokedark" />
+        <div className="flex justify-between items-center font-bold">
           <span className="text-gray-500">Total (tax inc.):</span>
           <span>
             $
             {wishList
               .reduce((acc, item) => {
-                const itemCost = item.newPrice * (item.quantity ?? 1);
+                const itemCost = item.price * (item.quantity ?? 1);
                 return acc + itemCost;
               }, 0)
               .toFixed(2)}
           </span>
         </div>
         <Button
-          className="w-full mt-4 bg-primary"
+          className="bg-primary mt-4 w-full"
           disabled={wishList.length === 0}
           onClick={() => {
             if (wishList.length > 0) {

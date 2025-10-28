@@ -2,27 +2,23 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 interface AppStore {
-  cart: IProduct[];
-  orders: IOrder[];
+  users: IUser[];
+  deviceId: string;
   accessToken: string;
-  refreshToken: string;
-  wishList: IProduct[];
   products: IProduct[];
-  device: IDevice | undefined;
   notications: INotification[];
   showCartConfirmDialog: boolean;
+  selectedProduct: IProduct | undefined;
 }
 
 const useAppStore = create<AppStore>()(
   immer((set, get) => ({
-    cart: [],
-    orders: [],
-    wishList: [],
+    users: [],
+    deviceId: "",
     products: [],
     notications: [],
     accessToken: "",
-    refreshToken: "",
-    device: undefined,
+    selectedProduct: undefined,
     showCartConfirmDialog: true,
   }))
 );

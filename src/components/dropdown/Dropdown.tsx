@@ -4,7 +4,7 @@ import { LuChevronUp } from "react-icons/lu";
 
 interface Props {
   options: string[];
-  onClick?: () => void;
+  onClick?: (e: string) => void;
   className?: string;
   classNames?: {
     base?: string;
@@ -21,7 +21,7 @@ function Dropdown(props: Props) {
     <div
       ref={dropref}
       className={cn(
-        "relative inline-block group",
+        "group inline-block relative",
         props.className,
         props.classNames?.base
       )}
@@ -37,17 +37,17 @@ function Dropdown(props: Props) {
       </div>
       <div
         className={cn(
-          "absolute top-full right-0 z-10 bg-background border border-strokedark divide-y divide-strokedark/40 rounded-lg shadow w-44 hidden group-hover:block duration-300 transition-all",
+          "hidden group-hover:block top-full right-0 z-10 absolute bg-background shadow border border-strokedark rounded-lg divide-y divide-strokedark/40 w-44 transition-all duration-300",
           props.classNames?.container
         )}
       >
         {props.options.map((option) => (
           <div
-            className="px-4 py-2 text-sm text-gray-500 cursor-pointer hover:bg-primary/10"
+            className="hover:bg-primary/10 px-4 py-2 text-gray-500 text-sm cursor-pointer"
             key={option}
             onClick={() => {
               setSelectedValue(option);
-              props.onClick && props.onClick();
+              props.onClick && props.onClick(option);
             }}
           >
             {option}

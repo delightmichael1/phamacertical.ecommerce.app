@@ -1,16 +1,14 @@
 interface IProduct {
   id: string;
-  name: string;
-  category: string;
-  description?: string;
+  title: string;
+  price: number;
   image: string;
-  oldPrice: number;
-  newPrice: number;
-  discount: number;
-  rating: number;
-  inStock: boolean;
-  company: string;
-  quantity?: number;
+  category: string;
+  supplier: string;
+  quantity: number;
+  description: string;
+  expiryDate: string;
+  isDeleted: boolean;
 }
 
 interface IOrder {
@@ -74,30 +72,22 @@ interface INotification {
 
 interface IDevice {
   id: string;
-  model: string;
-  platform: string;
-  deviceName: string;
-  operatingSystem: string;
 }
 
 interface IUser {
   id: string;
-  dob: string;
   city: string;
+  role: string;
   email: string;
-  gender: string;
-  qrCode: string;
-  avatar: string;
+  phone: string;
+  logo?: string;
   address: string;
-  country: string;
-  lastName: string;
+  fullname: string;
+  license?: string;
   verified: boolean;
-  firstName: string;
-  nextOfKin: string;
-  createdAt: string;
-  nationalId: string;
-  phoneNumber: string;
-  countryCode: string;
-  nextOfKinNum: string;
-  permissions: string[];
+  companyName: string;
+  emailStatus: string;
+  administrator: string;
+  licenseNumber?: string;
+  licenseStatus?: "pending" | "approved" | "rejected";
 }

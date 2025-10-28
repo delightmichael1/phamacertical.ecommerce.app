@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import Card from "@/components/ui/Card";
-import useAppStore from "@/stores/AppStore";
+import React, { useMemo, useState } from "react";
 import Dropdown from "@/components/dropdown/Dropdown";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import SearchInput from "@/components/input/SearchInput";
-import Image from "next/image";
+import usePersistedStore from "@/stores/PersistedStored";
 
 function Orders() {
-  const orders = useAppStore((state) => state.orders);
+  const orders = usePersistedStore((state) => state.orders);
   const [sortBy, setSortBy] = useState("Newest");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -179,7 +179,7 @@ function Orders() {
           </>
         )}
 
-        <Card className="w-full h-full overflow-y-auto">
+        <div className="w-full h-full overflow-y-auto">
           {orders.length === 0 ? (
             <div className="flex flex-col justify-center items-center space-y-4 w-full h-[90%]">
               <Image
@@ -321,7 +321,7 @@ function Orders() {
               )} */}
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </DashboardLayout>
   );

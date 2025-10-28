@@ -5,6 +5,7 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlineShoppingBag, HiShoppingBag } from "react-icons/hi";
 
+import cn from "@/utils/cn";
 import Button from "../buttons/Button";
 import { IconType } from "react-icons";
 import { useRouter } from "next/navigation";
@@ -12,8 +13,8 @@ import useAppStore from "@/stores/AppStore";
 import { usePathname } from "next/navigation";
 import SearchInput from "../input/SearchInput";
 import { BiMenuAltRight } from "react-icons/bi";
+import usePersistedStore from "@/stores/PersistedStored";
 import { IoNotifications, IoNotificationsOutline } from "react-icons/io5";
-import cn from "@/utils/cn";
 
 type ILink = {
   name: string;
@@ -26,49 +27,56 @@ type ILink = {
 function TopNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const { notications } = useAppStore();
+  const { cart, wishList } = usePersistedStore();
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showHeader, setShowHeader] = useState(true);
-  const { cart, wishList, notications } = useAppStore();
 
   const links: ILink[] = [
     {
       name: "Notifications",
-      href: "/notifications",
+      href: "/shop/notifications",
       value: notications.length,
       icon: IoNotificationsOutline,
       active: IoNotifications,
     },
     {
       name: "Wish List",
-      href: "/wish-list",
+      href: "/shop/wish-list",
       value: wishList.reduce((acc, item) => acc + (item.quantity ?? 0), 0),
       icon: FaRegHeart,
       active: FaHeart,
     },
     {
       name: "Cart",
-      href: "/cart",
+      href: "/shop/cart",
       value: cart.reduce((acc, item) => acc + (item.quantity ?? 0), 0),
       icon: HiOutlineShoppingBag,
       active: HiShoppingBag,
     },
   ];
 
-  const controlHeader = () => {
-    if (typeof window !== "undefined") {
-      if (window.scrollY > lastScrollY && window.scrollY > 80) {
+  const controlHeader = (mainContainer: HTMLElement | null) => {
+    if (mainContainer) {
+      const currentScroll = mainContainer.scrollTop;
+      if (currentScroll > lastScrollY + 100) {
         setShowHeader(false);
       } else {
         setShowHeader(true);
       }
-      setLastScrollY(window.scrollY);
+      setLastScrollY(currentScroll);
     }
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", controlHeader);
+    const mainContainer = document.getElementById("main");
+    mainContainer?.addEventListener("scroll", () =>
+      controlHeader(mainContainer)
+    );
     return () => {
-      window.removeEventListener("scroll", controlHeader);
+      mainContainer?.addEventListener("scroll", () =>
+        controlHeader(mainContainer)
+      );
     };
   }, [lastScrollY]);
 
@@ -81,13 +89,13 @@ function TopNav() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -80, opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="top-0 z-50 fixed bg-primary shadow-md w-full text-white"
+          className="top-0 z-50 fixed backdrop-blur-lg w-full text-white"
         >
-          <div className="bg-primary p-4">
+          <div className="p-4">
             <div className="flex justify-between items-center mx-auto text-sm container">
-              <Link href="/">
+              <Link href="/shop">
                 <Image
-                  src={"/logo/logo.svg"}
+                  src={"/logo/logo-dark.svg"}
                   alt="logo"
                   width={0}
                   height={0}
@@ -113,17 +121,17 @@ function TopNav() {
                       title={item.name}
                     >
                       {item.value > 0 && (
-                        <div className="-top-1 -right-1 absolute flex justify-center items-center bg-white/70 rounded-full w-5 h-5 text-primary text-xs">
+                        <div className="-top-1 -right-1 absolute flex justify-center items-center bg-primary/70 rounded-full w-5 h-5 text-white text-xs">
                           <span>{item.value}</span>
                         </div>
                       )}
-                      <Icon className="p-2 w-10 h-10 hover:text-accent hover:scale-105 duration-300" />
+                      <Icon className="p-2 w-10 h-10 text-primary hover:text-accent hover:scale-105 duration-300" />
                     </Link>
                   );
                 })}
                 <Button
-                  onClick={() => router.push("/dashboard")}
-                  className="px-6 rounded-full font-semibold text-sm"
+                  onClick={() => router.push("/shop/dashboard")}
+                  className="bg-primary px-6 rounded-full font-semibold text-sm"
                 >
                   My Account
                 </Button>

@@ -1,11 +1,11 @@
-import AppLayout from "@/layouts/AppLayout";
+import ShopLayout from "@/layouts/ShopLayout";
 import React from "react";
 
 function Index() {
   return (
-    <AppLayout>
+    <ShopLayout>
       <></>
-    </AppLayout>
+    </ShopLayout>
   );
 }
 

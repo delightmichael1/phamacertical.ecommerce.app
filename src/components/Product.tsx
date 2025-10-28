@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FiSearch } from "react-icons/fi";
+import { BsTrash3 } from "react-icons/bs";
 import { useModal } from "./modals/Modal";
 import QuickView from "./modals/QuickView";
 import { FaRegHeart } from "react-icons/fa";
@@ -9,7 +9,11 @@ import useAppStore from "@/stores/AppStore";
 import FlyingToCart from "./ui/FlyingToCart";
 import AddedToCart from "./modals/AddedToCart";
 import { VscHeartFilled } from "react-icons/vsc";
+import { FiEdit2, FiSearch } from "react-icons/fi";
+import UpdateProduct from "./modals/UpdateProduct";
+import DeleteProduct from "./modals/DeleteProduct";
 import { HiOutlineShoppingBag } from "react-icons/hi";
+import usePersistedStore from "@/stores/PersistedStored";
 
 type Props = {
   id: string;
@@ -20,12 +24,12 @@ type Props = {
 
 const Product: React.FC<Props> = (props) => {
   const { openModal, closeModal } = useModal();
-  const wishList = useAppStore((state) => state.wishList);
+  const wishList = usePersistedStore((state) => state.wishList);
   const [showFlyingToCart, setShowFlyingToCart] = useState(false);
 
   const handleAddToCart = () => {
     setShowFlyingToCart(true);
-    useAppStore.setState((state) => {
+    usePersistedStore.setState((state) => {
       if (state.cart.find((item) => item.id === props.product.id)) {
         state.cart.map((item) => {
           if (item.id === props.product.id) {
@@ -53,7 +57,7 @@ const Product: React.FC<Props> = (props) => {
   return (
     <motion.div
       key={`${props.product.id}`}
-      className="group flex-shrink-0 bg-white shadow-sm hover:shadow-black/30 hover:shadow-md p-4 rounded-lg w-full transition-shadow duration-300"
+      className="group flex-shrink-0 bg-white p-4 rounded-lg w-full transition-shadow duration-300"
       style={
         props.width
           ? {
@@ -67,7 +71,7 @@ const Product: React.FC<Props> = (props) => {
       <div className="relative bg-gray-200 rounded-lg w-full h-64 overflow-hidden">
         <Image
           src={props.product.image}
-          alt={props.product.name}
+          alt={props.product.title}
           width={400}
           height={400}
           className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
@@ -114,16 +118,48 @@ const Product: React.FC<Props> = (props) => {
           >
             <FiSearch className="w-full h-full" />
           </button>
+          {props.isSupplier && (
+            <button
+              className="flex justify-center items-center bg-white hover:bg-gray-100 shadow-md p-2.5 rounded-full w-10 h-10 text-primary transition cursor-pointer"
+              title="Edit"
+              onClick={() =>
+                openModal(
+                  <UpdateProduct
+                    selectedProduct={props.product}
+                    closeModal={closeModal}
+                  />
+                )
+              }
+            >
+              <FiEdit2 className="w-full h-full" />
+            </button>
+          )}
+          {props.isSupplier && (
+            <button
+              className="flex justify-center items-center bg-white hover:bg-gray-100 shadow-md p-2.5 rounded-full w-10 h-10 text-primary transition cursor-pointer"
+              title="Delete"
+              onClick={() =>
+                openModal(
+                  <DeleteProduct
+                    product={props.product}
+                    closeModal={closeModal}
+                  />
+                )
+              }
+            >
+              <BsTrash3 className="w-full h-full" />
+            </button>
+          )}
         </div>
       </div>
       <p className="mt-4 text-gray-500 text-xs truncate">
-        From {props.product.company}
+        From {props.product.supplier}
       </p>
-      <h3 className="font-semibold text-lg truncate">{props.product.name}</h3>
+      <h3 className="font-semibold text-lg truncate">{props.product.title}</h3>
       <p className="text-gray-500 text-sm truncate">{props.product.category}</p>
       <div className="flex items-center gap-2 mt-2">
         <span className="font-bold text-primary">
-          ${props.product.newPrice.toFixed(2)}
+          ${props.product.price.toFixed(2)}
         </span>
       </div>
       {!props.isSupplier && (

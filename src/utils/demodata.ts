@@ -1,7 +1,7 @@
 export const categories = [
   {
     name: "Dispensary Drugs",
-    value: "category-1",
+    value: "Dispensary Drugs",
   },
   {
     name: "Cardiovascular drugs",
@@ -65,79 +65,6 @@ export const composites = [
   {
     name: "Recycled Paper",
     value: "recycled-paper",
-  },
-];
-
-export const products: IProduct[] = [
-  {
-    id: "1",
-    name: categories[Math.floor(Math.random() * categories.length)].name,
-    category: "Supplements",
-    description:
-      "Supports joint health and mobility with Glucosamine, Chondroitin, and MSM.",
-    image: "/demo/image1.jpg",
-    oldPrice: 29.0,
-    newPrice: 20.01,
-    discount: 31,
-    rating: 4.5,
-    inStock: true,
-    company: "CAAPS",
-  },
-  {
-    id: "2",
-    name: "Omega 3 Fish Oil Softgels",
-    category: categories[Math.floor(Math.random() * categories.length)].name,
-    description:
-      "High-potency Omega 3 supplement for heart, brain, and eye health.",
-    image: "/demo/image1.png",
-    oldPrice: 25.99,
-    newPrice: 18.5,
-    discount: 29,
-    rating: 4.7,
-    inStock: true,
-    company: "CAAPS",
-  },
-  {
-    id: "3",
-    name: "Vitamin D3 5000 IU",
-    category: categories[Math.floor(Math.random() * categories.length)].name,
-    description:
-      "Supports immune system and bone health with potent Vitamin D3.",
-    image: "/demo/image2.png",
-    oldPrice: 19.99,
-    newPrice: 13.99,
-    discount: 30,
-    rating: 4.6,
-    inStock: true,
-    company: "CAAPS",
-  },
-  {
-    id: "4",
-    name: "Magnesium Glycinate Capsules",
-    category: categories[Math.floor(Math.random() * categories.length)].name,
-    description:
-      "Highly absorbable magnesium for muscle recovery and sleep support.",
-    image: "/demo/image1.jpg",
-    oldPrice: 27.99,
-    newPrice: 19.59,
-    discount: 30,
-    rating: 4.8,
-    inStock: true,
-    company: "CAAPS",
-  },
-  {
-    id: "5",
-    name: "Collagen Peptides Powder",
-    category: categories[Math.floor(Math.random() * categories.length)].name,
-    description:
-      "Hydrolyzed collagen for skin, hair, nails, and joint support.",
-    image: "/demo/image1.jpg",
-    oldPrice: 39.99,
-    newPrice: 27.99,
-    discount: 30,
-    rating: 4.9,
-    inStock: true,
-    company: "CAAPS",
   },
 ];
 

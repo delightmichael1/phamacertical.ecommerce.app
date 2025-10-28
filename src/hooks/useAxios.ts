@@ -1,16 +1,28 @@
+import { useEffect } from "react";
+import { Device } from "@capacitor/device";
 import useAppStore from "@/stores/AppStore";
-import useSessionTokens from "./useSessionTokens";
+import useAuthSession from "./useAuthSession";
+import useUserStore from "@/stores/useUserStore";
 import { default as axiosInstance, CreateAxiosDefaults } from "axios";
 
 export const useAxios = () => {
-  const device = useAppStore((state) => state.device);
-  const { addTokens, getRefreshToken, removeTokens } = useSessionTokens();
+  const { getCookie, signOut, signIn } = useAuthSession();
+  const role = useUserStore((state) => state.role ?? "");
+  const deviceId = useAppStore((state) => state.deviceId);
+
+  useEffect(() => {
+    Device.getId().then((device) => {
+      useAppStore.setState((state) => {
+        state.deviceId = device.identifier;
+      });
+    });
+  }, []);
 
   const options: CreateAxiosDefaults = {
     baseURL: process.env.NEXT_PUBLIC_BASEURL,
     headers: {
-      "X-Platform": "retailer",
-      "X-Device-Id": device?.id,
+      "X-Platform": role.includes("supplier") ? "supplier" : "retailer",
+      "X-Device-Id": deviceId,
       "Content-Type": "application/json",
     },
   };
@@ -40,7 +52,7 @@ export const useAxios = () => {
             return secureAxios(prevRequest);
           }
         } catch (refreshError) {
-          removeTokens();
+          signOut();
           return Promise.reject(refreshError);
         }
       }
@@ -50,18 +62,14 @@ export const useAxios = () => {
 
   const refreshToken = async () => {
     try {
-      let aToken = useAppStore.getState().accessToken;
-      await getRefreshToken().then(async (rToken) => {
-        const response = await axios.get("/user/refresh", {
-          headers: { Authorization: `Bearer ${rToken}` },
-        });
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-        addTokens(accessToken, newRefreshToken);
-        aToken = accessToken;
+      const response = await axios.get("/user/refresh", {
+        headers: { Authorization: `Bearer ${getCookie()?.value}` },
       });
-      return aToken;
+      useAppStore.setState({ accessToken: response.data.accessToken });
+      signIn(async () => response.data.refreshToken);
+      return response.data.accessToken;
     } catch (error) {
-      removeTokens();
+      signOut();
       throw error;
     }
   };

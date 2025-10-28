@@ -3,35 +3,24 @@ import { ApexOptions } from "apexcharts";
 import useAppStore from "@/stores/AppStore";
 import React, { useEffect, useMemo } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { products } from "@/utils/demodata";
-import { StarRating } from "@/components/StarRating";
+import usePersistedStore from "@/stores/PersistedStored";
 
 function Index() {
-  const dxproducts = useAppStore((state) => state.products);
-  const orders = useAppStore((state) => state.orders);
-
-  useEffect(() => {
-    useAppStore.setState((state) => {
-      state.products = products;
-    });
-  }, []);
+  const orders = usePersistedStore((state) => state.orders);
+  const products = useAppStore((state) => state.products);
 
   const analytics = useMemo(() => {
-    const totalProducts = dxproducts.length;
-    const inStockProducts = dxproducts.filter((p) => p.inStock).length;
+    const totalProducts = products.length;
+    const inStockProducts = products.filter((p) => p.quantity).length;
     const outOfStockProducts = totalProducts - inStockProducts;
 
-    const categoryCount = dxproducts.reduce((acc, product) => {
+    const categoryCount = products.reduce((acc, product) => {
       acc[product.category] = (acc[product.category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    const topRatedProducts = [...dxproducts]
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 5);
-
-    const companyCount = dxproducts.reduce((acc, product) => {
-      acc[product.company] = (acc[product.company] || 0) + 1;
+    const companyCount = products.reduce((acc, product) => {
+      acc[product.supplier] = (acc[product.supplier] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -43,8 +32,8 @@ function Index() {
       "500+": 0,
     };
 
-    dxproducts.forEach((product) => {
-      const price = product.newPrice;
+    products.forEach((product) => {
+      const price = product.price;
       if (price <= 50) priceRanges["0-50"]++;
       else if (price <= 100) priceRanges["51-100"]++;
       else if (price <= 200) priceRanges["101-200"]++;
@@ -52,36 +41,27 @@ function Index() {
       else priceRanges["500+"]++;
     });
 
-    // Average discount
-    const avgDiscount =
-      dxproducts.reduce((sum, p) => sum + p.discount, 0) / totalProducts || 0;
-
-    // Average rating
-    const avgRating =
-      dxproducts.reduce((sum, p) => sum + p.rating, 0) / totalProducts || 0;
-
     return {
       totalProducts,
       inStockProducts,
       outOfStockProducts,
       categoryCount,
-      topRatedProducts,
       companyCount,
       priceRanges,
-      avgDiscount,
-      avgRating,
       totalOrders: orders.length,
     };
-  }, [dxproducts, orders]);
+  }, [products, orders]);
 
   const categoryChartOptions: ApexOptions = {
     chart: { type: "donut" },
+    colors: ["#845ec2", "#845ec2", "#845ec2", "#845ec2", "#845ec2"],
     labels: Object.keys(analytics.categoryCount),
     series: Object.values(analytics.categoryCount),
   };
 
   const priceRangeChartOptions: ApexOptions = {
     chart: { type: "bar" },
+    colors: ["#845ec2", "#845ec2", "#845ec2", "#845ec2", "#845ec2"],
     xaxis: { categories: Object.keys(analytics.priceRanges) },
     series: [{ data: Object.values(analytics.priceRanges) }],
   };
@@ -129,7 +109,7 @@ function Index() {
       if (categoryChart) categoryChart.destroy();
       if (priceChart) priceChart.destroy();
     };
-  }, [orders, categoryChartOptions, priceRangeChartOptions, dxproducts]);
+  }, [orders, categoryChartOptions, priceRangeChartOptions, products]);
 
   return (
     <DashboardLayout
@@ -160,16 +140,14 @@ function Index() {
 
           <Card className="p-6">
             <div className="flex flex-col space-y-2">
-              <span className="text-gray-500 text-sm">Average Rating</span>
-              <span className="font-bold text-3xl">
-                {analytics.avgRating.toFixed(1)}
-              </span>
+              <span className="text-gray-500 text-sm">Pending Orders</span>
+              <span className="font-bold text-3xl">0</span>
             </div>
           </Card>
 
           <Card className="p-6">
             <div className="flex flex-col space-y-2">
-              <span className="text-gray-500 text-sm">Total Orders</span>
+              <span className="text-gray-500 text-sm">Fulfilled Orders</span>
               <span className="font-bold text-blue-600 text-3xl">
                 {analytics.totalOrders}
               </span>
@@ -188,51 +166,6 @@ function Index() {
             <div id="pricechart" className="w-full h-fit"></div>
           </Card>
         </div>
-
-        {/* Top Rated Products */}
-        <Card className="p-6">
-          <h3 className="mb-4 font-bold text-xl">Top Rated Products</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-strokedark border-b">
-                  <th className="p-3 text-left">Product</th>
-                  <th className="p-3 text-left">Category</th>
-                  <th className="p-3 text-left">Price</th>
-                  <th className="p-3 text-left">Rating</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.topRatedProducts.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="hover:bg-gray-50 border-strokedark border-b"
-                  >
-                    <td className="p-3">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="rounded w-12 h-12 object-cover"
-                        />
-                        <span className="font-medium">{product.name}</span>
-                      </div>
-                    </td>
-                    <td className="p-3">{product.category}</td>
-                    <td className="p-3">
-                      <span className="font-semibold">${product.newPrice}</span>
-                    </td>
-                    <td className="p-3">
-                      <span className="flex items-center">
-                        <StarRating rating={product.rating} />
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
       </div>
     </DashboardLayout>
   );

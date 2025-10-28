@@ -59,27 +59,37 @@ const Toast = () => {
       transition={{ duration: 1, type: "spring" }}
       className={`${
         show ? "block" : "hidden"
-      } absolute left-0 right-0 top-8 z-[1000000] flex h-fit items-center justify-center break-normal bg-transparent px-4 text-xs text-white`}
+      } absolute left-1/2 translate-x-[-50%] w-fit top-8 z-[1000000] flex h-fit items-center justify-center break-normal bg-transparent px-4 text-xs text-white`}
     >
       <div
         onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
         onTouchStart={handleTouchStart}
-        className={`${content?.variant === "success" ? "bg-green-600" : "bg-red-500"} relative flex min-w-[20rem] flex-col space-y-1 rounded-2xl bg-gray-800 p-2 px-6 shadow`}
+        className={`${
+          content?.variant === "success" ? "bg-green-600" : "bg-red-500"
+        } relative flex min-w-[20rem] flex-col space-y-1 rounded-2xl bg-gray-800 p-2 px-6 shadow`}
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isSwiping ? "none" : "transform 0.3s ease",
         }}
       >
         <div
-          className={`${content?.variant === "success" ? "bg-green-800" : "bg-red-700"} absolute -left-4 -top-4 rounded-full bg-gray-800 p-2`}
+          className={`${
+            content?.variant === "success" ? "bg-green-800" : "bg-red-700"
+          } absolute -left-4 -top-4 rounded-full bg-gray-800 p-2`}
         >
-          {content?.variant === "success" ? <VscVerifiedFilled className="h-6 w-6" /> : <BiSolidErrorCircle className="h-6 w-6" />}
+          {content?.variant === "success" ? (
+            <VscVerifiedFilled className="w-6 h-6" />
+          ) : (
+            <BiSolidErrorCircle className="w-6 h-6" />
+          )}
         </div>
-        <span className="w-full text-center text-lg capitalize">{content?.title ? content.title : content?.variant}</span>
+        <span className="w-full text-lg text-center capitalize">
+          {content?.title ? content.title : content?.variant}
+        </span>
         <span className="w-full text-center">{content?.description}</span>
         <HiXMark
-          className="absolute right-0 top-0 h-8 w-8 cursor-pointer p-2"
+          className="top-0 right-0 absolute p-2 w-8 h-8 cursor-pointer"
           onClick={() =>
             useToastState.setState((state) => {
               state.show = false;
@@ -109,7 +119,7 @@ const useToastState = create<ToastState>()(
     show: false,
     content: undefined,
     toast: (content) => set({ content, show: true }),
-  })),
+  }))
 );
 
 export default Toast;

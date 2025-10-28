@@ -3,14 +3,15 @@
 :root {
   --card: #ffffff;
   --accent: #2d7376;
-  --card-2: #bcccdc;
+  --card-2: #dcb0ff;
   --input: #e0e0e0;
-  --primary: #2490eb;
+  --primary: #845ec2;
   --secondary: #8eba27;
   --strokedark: #dadadf;
-  --background: #f2f3f5;
+  --background: #ffffff;
+  --card-foreground: #000000;
   --foreground: #171717;
-  --background-2: #202a39;
+  --background-2: #dcb0ff;
 }
 
 .dark {
@@ -37,6 +38,7 @@
   --color-foreground: var(--foreground);
   --color-strokedark: var(--strokedark);
   --color-background-2: var(--background-2);
+  --color-card-foreground: var(--card-foreground);
   --color-meta-1: #dc3545;
   --color-meta-2: #eff2f7;
   --color-meta-3: #10b981;
@@ -50,6 +52,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-manrope: "Manrope";
+  --font-poppins: "Poppins";
   --text-xxs: 0.6rem;
   --animate-shimmer: shimmer 2s infinite linear;
 }
@@ -64,6 +67,11 @@
     font-family: "Manrope";
     src: url("/fonts/Manrope.ttf");
     font-weight: 600;
+  }
+  @font-face {
+    font-family: "Poppins";
+    src: url("/fonts/Poppins.ttf");
+    font-weight: 500;
   }
 }
 
@@ -144,17 +152,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2490eb;
+  background: #845ec2;
   border-radius: 1rem;
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background-color: #2490eb;
+  background-color: #845ec2;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   cursor: grab;
-  background: #2490eb;
+  background: #845ec2;
   box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.2);
 }
 
@@ -198,4 +206,113 @@ input[type="number"] {
 button:active {
   transform: scale(0.95);
   transition: transform 0.2s ease-in-out;
+}
+
+/* From Uiverse.io by dovatgabriel */
+.newtons-cradle {
+  --uib-size: 50px;
+  --uib-speed: 1.2s;
+  --uib-color: #474554;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--uib-size);
+  height: var(--uib-size);
+}
+
+.newtons-cradle__dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 25%;
+  transform-origin: center top;
+}
+
+.newtons-cradle__dot::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 25%;
+  border-radius: 50%;
+  background-color: var(--uib-color);
+}
+
+.newtons-cradle__dot:first-child {
+  animation: swing var(--uib-speed) linear infinite;
+}
+
+.newtons-cradle__dot:last-child {
+  animation: swing2 var(--uib-speed) linear infinite;
+}
+
+@keyframes swing {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: ease-out;
+  }
+
+  25% {
+    transform: rotate(70deg);
+    animation-timing-function: ease-in;
+  }
+
+  50% {
+    transform: rotate(0deg);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes swing2 {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: linear;
+  }
+
+  50% {
+    transform: rotate(0deg);
+    animation-timing-function: ease-out;
+  }
+
+  75% {
+    transform: rotate(-70deg);
+    animation-timing-function: ease-in;
+  }
+}
+
+/* From Uiverse.io by andrew-manzyk */
+.spinner {
+  background-image: linear-gradient(rgb(186, 66, 255) 35%, rgb(0, 225, 255));
+  width: 100px;
+  height: 100px;
+  animation: spinning82341 1.7s linear infinite;
+  text-align: center;
+  border-radius: 50px;
+  filter: blur(1px);
+  box-shadow: 0px -5px 20px 0px rgb(186, 66, 255),
+    0px 5px 20px 0px rgb(0, 225, 255);
+}
+
+.spinner1 {
+  background-color: rgb(219, 218, 218);
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  /* filter: blur(10px); */
+}
+
+@keyframes spinning82341 {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+input:autofill,
+input:autofill:hover,
+input:autofill:focus,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  transition: background-color 600000s 0s, color 600000s 0s;
 }

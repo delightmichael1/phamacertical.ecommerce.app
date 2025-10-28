@@ -1,26 +1,26 @@
 import cn from "@/utils/cn";
 import Lottie from "lottie-react";
-import useAuth from "@/hooks/useAuth";
 import Button from "../buttons/Button";
 import React, { useState } from "react";
 import Warning from "../../../public/lottie/error.json";
+import useAuthSession from "@/hooks/useAuthSession";
 
 type Props = {
   closeModal: () => void;
 };
 
 function Logout(props: Props) {
-  const { signout } = useAuth();
+  const { signOut } = useAuthSession();
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <div className="p-6 flex items-center justify-center w-full flex-col space-y-4 py-10">
+    <div className="flex flex-col items-center space-y-4 p-6 py-10 w-full h-full overflow-y-auto">
       <Lottie animationData={Warning} loop={false} className="w-40 h-fit" />
       <span>You are about to logout.</span>
       <span>Press continue to logout now.</span>
-      <div className="flex items-center w-full space-x-2">
+      <div className="flex items-center space-x-2 w-full">
         {!isLoading && (
-          <Button className="text-black w-full" onClick={props.closeModal}>
+          <Button className="w-full text-black" onClick={props.closeModal}>
             Cancel
           </Button>
         )}
@@ -28,7 +28,7 @@ function Logout(props: Props) {
           isLoading={isLoading}
           className={cn("bg-red-500 w-full max-w-1/2", isLoading && "ml-auto")}
           onClick={async () => {
-            await signout(setIsLoading);
+            signOut();
             props.closeModal();
           }}
         >

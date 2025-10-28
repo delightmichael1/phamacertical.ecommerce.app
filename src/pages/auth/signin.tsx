@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import useAuth from "@/hooks/useAuth";
 import { Form, Formik } from "formik";
 import { BiKey } from "react-icons/bi";
 import { motion } from "framer-motion";
@@ -10,6 +9,10 @@ import Button from "@/components/buttons/Button";
 import Checkbox from "@/components/input/Checkbox";
 import TextField from "@/components/input/TextField";
 import { SignInValidationSchema } from "@/types/schema";
+import useAuthSession from "@/hooks/useAuthSession";
+import { useAxios } from "@/hooks/useAxios";
+import { toast } from "@/components/toast/toast";
+import useAppStore from "@/stores/AppStore";
 
 const FormControls = React.memo(
   ({
@@ -28,7 +31,7 @@ const FormControls = React.memo(
           onChange={onRememberMeChange}
           label="Remember me"
         />
-        <Link href="#" className="text-sm">
+        <Link href="/auth/forgot-password" className="text-sm">
           Forgot password?
         </Link>
       </div>
@@ -50,15 +53,31 @@ const FormControls = React.memo(
 );
 
 function Signin() {
-  const { signin } = useAuth();
+  const { axios } = useAxios();
+  const { signIn } = useAuthSession();
   const [rememberMe, setRememberMe] = React.useState(true);
 
   const handleSubmit = async (values: {
-    licenseNumber: string;
+    id: string;
     password: string;
     rememberMe: boolean;
   }) => {
-    await signin(values);
+    try {
+      const response = await axios.post("/user/signin", values);
+      useAppStore.setState((state) => {
+        state.accessToken = response.data.accessToken;
+      });
+      return response.data.refreshToken;
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response
+          ? error.response.data.message
+          : error.message,
+        variant: "error",
+      });
+      return "";
+    }
   };
 
   const handleRememberMeChange = React.useCallback((value: boolean) => {
@@ -75,23 +94,25 @@ function Signin() {
       >
         <span className="font-bold text-2xl">WELCOME BACK</span>
         <Formik
-          initialValues={{ licenseNumber: "", password: "", rememberMe: true }}
+          initialValues={{ id: "", password: "", rememberMe: true }}
           validationSchema={SignInValidationSchema}
-          onSubmit={handleSubmit}
+          onSubmit={(e) => signIn(() => handleSubmit(e), { replace: true })}
         >
           {({ isSubmitting }) => (
             <Form className="flex flex-col items-center gap-6 w-full">
               <TextField
-                label="License Number"
+                label="Identification Number"
                 type="text"
-                name="licenseNumber"
-                placeholder="Enter your id"
+                name="id"
+                placeholder="eg 123abc"
+                className="bg-white/40"
                 icon={<BiKey size={20} />}
               />
               <TextField
                 label="Password"
                 type="password"
                 name="password"
+                className="bg-white/40"
                 placeholder="Enter your password"
                 icon={<LuLock size={20} />}
               />

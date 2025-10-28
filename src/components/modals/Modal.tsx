@@ -79,17 +79,17 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
         exit={{ opacity: 0 }}
         transition={{ duration: 1, type: "spring" }}
         className={cn(
-          "fixed top-0 left-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-[100] w-full h-full"
+          "top-0 left-0 z-[100] fixed flex justify-center items-center bg-black/50 backdrop-blur-lg w-full h-full"
         )}
         onClick={handleBackdropClick}
       >
-        <div className="bg-card rounded-xl p-4 shadow-md shadow-black/10 relative min-w-xl">
-          <Button
+        <div className="relative bg-card shadow-black/10 shadow-md p-4 rounded-xl min-w-xl">
+          <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-fit rounded-ful text-red-500 bg-red-500/10 px-2"
+            className="top-4 right-4 absolute flex justify-center items-center hover:bg-red-500/10 px-2 py-2 rounded-full w-10 max-w-10 h-10 hover:text-red-500 duration-300 cursor-pointer"
           >
-            <FaXmark />
-          </Button>
+            <FaXmark className="min-w-4 h-4" />
+          </button>
           {children}
         </div>
       </motion.div>

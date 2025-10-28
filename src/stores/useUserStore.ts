@@ -1,34 +1,27 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 const useUserStore = create<IUser>()(
-  persist(
-    immer((set, get) => ({
-      id: "",
-      dob: "",
-      role: "",
-      email: "",
-      rating: 0,
-      qrCode: "",
-      gender: "",
-      avatar: "",
-      address: "",
-      country: "",
-      lastName: "",
-      createdAt: "",
-      firstName: "",
-      nextOfKin: "",
-      nationalId: "",
-      verified: false,
-      countryCode: "",
-      phoneNumber: "",
-      permissions: [],
-      nextOfKinNum: "",
-      city: "undefined",
-      currentLocation: undefined,
-    })),
-    { name: "user-storage" }
+  immer(
+    () =>
+      ({
+        id: "",
+        city: "",
+        role: "",
+        email: "",
+        phone: "",
+        logo: "",
+        address: "",
+        fullName: "",
+        fullname: "",
+        license: "",
+        verified: false,
+        companyName: "",
+        emailStatus: "",
+        administrator: "",
+        licenseNumber: "",
+        licenseStatus: "pending",
+      } as IUser)
   )
 );
 

@@ -13,7 +13,38 @@ export const AuthValidationSchema = yup.object().shape({
   address: yup.string().required("Address is required"),
 });
 
+export const UserValidationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  phone: yup.string().required("Phone is required"),
+  fullName: yup.string().required("Full name is required"),
+  city: yup.string().required("City is required"),
+  address: yup.string().required("Address is required"),
+});
+
+export const ProductValidationSchema = yup.object().shape({
+  title: yup.string().required("Title is required"),
+  price: yup.number().required("Price is required"),
+  category: yup.string().required("Category is required"),
+  description: yup.string().required("Description is required"),
+  quantity: yup.string().required("Quantity is required"),
+  expiryDate: yup.string().required("Expiry date is required"),
+});
+
 export const SignInValidationSchema = yup.object().shape({
   password: yup.string().required("Password is required"),
-  licenseNumber: yup.string().required("License number is required"),
+  id: yup.string().required("Identification number is required"),
+});
+
+export const ForgotPasswordValidationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Please enter a valid email address")
+    .required("Email is required"),
+});
+
+export const ResetPasswordValidationSchema = yup.object().shape({
+  password: yup.string().required("Password is required"),
 });

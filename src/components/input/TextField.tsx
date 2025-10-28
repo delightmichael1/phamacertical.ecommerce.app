@@ -23,19 +23,19 @@ const TextField: React.FC<Props> = ({ isRequired = true, ...props }) => {
     <label
       htmlFor={props.id}
       className={cn(
-        "flex border border-strokedark rounded-lg w-full",
+        "flex border border-strokedark hover:border-primary rounded-xl w-full duration-300",
         props.classNames?.base,
         props.className,
         meta.touched && meta.error && "border-red-500 text-red-500"
       )}
     >
-      <div className="p-4 flex border-r border-strokedark items-center justify-center">
+      <div className="flex justify-center items-center p-4 text-primary">
         {props.icon}
       </div>
       <div className="flex items-center space-x-2 p-2 w-full">
         <div className="flex flex-col space-y-1 w-full">
           <div className="flex items-center space-x-2 text-xs">
-            <span>{props.label}</span>
+            <span className="text-gray-500">{props.label}</span>
             {props.isRequired && <span className="text-red-500">*</span>}
             {meta.touched && meta.error && <span>: {meta.error}</span>}
           </div>
@@ -51,7 +51,7 @@ const TextField: React.FC<Props> = ({ isRequired = true, ...props }) => {
                 : props.type
             }
             className={cn(
-              "flex-1 outline-none bg-transparent",
+              "flex-1 bg-transparent outline-none",
               props.classNames?.input
             )}
           />

@@ -1,26 +1,26 @@
-import React, { useState } from "react";
+import jsPDF from "jspdf";
+import cn from "@/utils/cn";
 import Link from "next/link";
-import useAuth from "@/hooks/useAuth";
+import Image from "next/image";
 import { Form, Formik } from "formik";
-import { BiKey, BiRename } from "react-icons/bi";
 import { motion } from "framer-motion";
+import React, { useState } from "react";
 import { LuLock } from "react-icons/lu";
+import { BiRename } from "react-icons/bi";
+import { useAxios } from "@/hooks/useAxios";
+import useAppStore from "@/stores/AppStore";
+import { useRouter } from "next/navigation";
 import AuthLayout from "@/layouts/AuthLayout";
+import { toast } from "@/components/toast/toast";
 import Button from "@/components/buttons/Button";
+import { FaCity, FaFilePdf } from "react-icons/fa6";
 import TextField from "@/components/input/TextField";
 import { AuthValidationSchema } from "@/types/schema";
-import Image from "next/image";
-import { FaCity, FaFilePdf } from "react-icons/fa6";
-import { GrDocumentImage } from "react-icons/gr";
+import Dropdown from "@/components/dropdown/Dropdown";
+import { MdOutlineMail, MdPhone } from "react-icons/md";
 import { HiMiniXMark, HiOutlineDocument } from "react-icons/hi2";
 import { IoDocumentAttachSharp, IoLocationOutline } from "react-icons/io5";
-import { toast } from "@/components/toast/toast";
-import jsPDF from "jspdf";
-import { MdOutlineMail, MdPhone } from "react-icons/md";
-import { useAxios } from "@/hooks/useAxios";
-import { useRouter } from "next/navigation";
-import useAppStore from "@/stores/AppStore";
-import cn from "@/utils/cn";
+import useAuthSession from "@/hooks/useAuthSession";
 
 type UploadedFile = {
   url: string;
@@ -49,17 +49,20 @@ const FormControls = React.memo(
   )
 );
 
+const accountTypes = ["retailer", "supplier"];
+
 function Signup() {
   const router = useRouter();
-  const { signup } = useAuth();
+  const { signIn } = useAuthSession();
   const { axios } = useAxios();
   const [step, setStep] = useState(1);
   const [values, setValues] = useState<any>(null);
-  const device = useAppStore((state) => state.device);
+  const deviceId = useAppStore((state) => state.deviceId);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<string>("");
   const [finalPdf, setFinalPdf] = useState<Blob | null>(null);
   const [uploadMode, setUploadMode] = useState<UploadMode>("pdf");
+  const [type, setType] = useState<"retailer" | "supplier">("retailer");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const handleSubmitForm = async (values: any) => {
@@ -67,31 +70,57 @@ function Signup() {
     setStep(2);
   };
 
+  const signUp = async (values: any) => {
+    try {
+      const response = await axios.post("/user/signup", values, {
+        headers: {
+          "X-Platform": type,
+        },
+      });
+      return {
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+      };
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `${
+          !error.response ? error.message : error.response.data.message
+        }`,
+        variant: "error",
+      });
+      return {
+        accessToken: "",
+        refreshToken: "",
+      };
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    const success = await signup(values);
-    if (success !== "") {
+    const res = await signUp(values);
+    if (res.accessToken !== "") {
       let pdf: Blob | null = finalPdf;
       if (uploadMode === "images") {
         pdf = await convertImagesToPdf(uploadedFiles.map((file) => file.url));
       }
       await axios
         .post(
-          "/user/license",
+          "/admin/license",
           {
             license: pdf,
           },
           {
             headers: {
-              Authorization: `Bearer ${success}`,
-              "X-Platform": "retailer",
-              "X-Device-Id": device?.id,
+              Authorization: `Bearer ${res.accessToken}`,
+              "X-Platform": type,
+              "X-Device-Id": deviceId,
               "Content-Type": "multipart/form-data",
             },
           }
         )
         .then((res) => {
-          router.replace("/");
+          router.replace(type === "supplier" ? "/supplier" : "/shop");
           toast({
             title: "Success",
             description: res.data.message,
@@ -99,7 +128,6 @@ function Signup() {
           });
         })
         .catch((error) => {
-          console.log(error);
           toast({
             title: "Error",
             description: error.response?.data?.message || error.message,
@@ -108,6 +136,7 @@ function Signup() {
         });
     }
     setIsSubmitting(false);
+    return res.refreshToken;
   };
 
   const generatePdfPreview = async (pdfBlob: Blob): Promise<string> => {
@@ -280,19 +309,39 @@ function Signup() {
           >
             {({ isSubmitting }) => (
               <Form className="flex flex-col items-center gap-6 w-full">
+                <div className="flex justify-between items-center space-x-4 w-full">
+                  <span>Account Type</span>
+                  <Dropdown
+                    options={accountTypes}
+                    onClick={(e) => setType(e as "retailer" | "supplier")}
+                    classNames={{
+                      base: "border border-strokedark rounded-lg py-2 px-4 capitalize",
+                    }}
+                  />
+                </div>
                 <>
                   <TextField
                     label="Company Name"
                     type="text"
                     name="companyName"
                     placeholder="Enter company name"
+                    className="bg-white/40"
                     icon={<BiRename size={20} />}
+                  />
+                  <TextField
+                    label="Full Name"
+                    type="fullName"
+                    name="fullName"
+                    placeholder="Enter full name"
+                    icon={<BiRename size={20} />}
+                    className="bg-white/40"
                   />
                   <TextField
                     label="License Number"
                     type="text"
                     name="licenseNumber"
                     placeholder="Enter company license number"
+                    className="bg-white/40"
                     icon={<HiOutlineDocument size={20} />}
                   />
                   <TextField
@@ -300,6 +349,7 @@ function Signup() {
                     type="email"
                     name="email"
                     placeholder="Enter company license number"
+                    className="bg-white/40"
                     icon={<MdOutlineMail size={20} />}
                   />
                   <TextField
@@ -307,12 +357,14 @@ function Signup() {
                     type="tel"
                     name="phone"
                     placeholder="Enter phone number"
+                    className="bg-white/40"
                     icon={<MdPhone size={20} />}
                   />
                   <TextField
                     label="City"
                     type="text"
                     name="city"
+                    className="bg-white/40"
                     placeholder="Enter city"
                     icon={<FaCity size={20} />}
                   />
@@ -320,12 +372,14 @@ function Signup() {
                     label="Address"
                     type="text"
                     name="address"
+                    className="bg-white/40"
                     placeholder="Enter address"
                     icon={<IoLocationOutline size={20} />}
                   />
                   <TextField
                     label="Password"
                     type="password"
+                    className="bg-white/40"
                     name="password"
                     placeholder="Enter your password"
                     icon={<LuLock size={20} />}
@@ -468,7 +522,7 @@ function Signup() {
               )}
             </motion.div>
             <Button
-              onClick={handleSubmit}
+              onClick={() => signIn(() => handleSubmit(), { replace: true })}
               isLoading={isSubmitting}
               type="submit"
               className="bg-primary w-full h-10"

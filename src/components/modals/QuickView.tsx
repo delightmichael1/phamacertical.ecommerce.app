@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Button from "../buttons/Button";
-import useAppStore from "@/stores/AppStore";
+import { toast } from "../toast/toast";
 import React, { useEffect, useState } from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi";
+import usePersistedStore from "@/stores/PersistedStored";
 import { BiChevronDown, BiChevronUp } from "react-icons/bi";
-import { toast } from "../toast/toast";
 
 interface Props {
   product: IProduct | null;
@@ -21,7 +21,7 @@ function QuickView(props: Props) {
 
   const handleAddToCart = () => {
     if (!selectedProduct) return;
-    useAppStore.setState((state) => {
+    usePersistedStore.setState((state) => {
       if (state.cart.find((item) => item.id === selectedProduct?.id)) {
         state.cart.map((item) => {
           if (item.id === selectedProduct?.id) {
@@ -46,21 +46,21 @@ function QuickView(props: Props) {
   };
 
   return (
-    <div className="gap-8 grid grid-cols-2 p-4 pt-6 w-full max-w-[60rem]">
+    <div className="gap-8 grid grid-cols-2 p-4 pt-6 w-full max-w-[60rem] h-full overflow-y-auto">
       <Image
         src={selectedProduct?.image ?? ""}
-        alt={selectedProduct?.name ?? ""}
+        alt={selectedProduct?.title ?? ""}
         width={0}
         height={0}
         sizes="100vw"
         className="bg-gray-300 rounded-xl w-full object-cover aspect-square"
       />
       <div className="flex flex-col space-y-4 w-full">
-        <span>{selectedProduct?.company}</span>
-        <h2 className="font-bold text-2xl">{selectedProduct?.name}</h2>
+        <span>{selectedProduct?.supplier}</span>
+        <h2 className="font-bold text-2xl">{selectedProduct?.title}</h2>
         <p className="text-sm">{selectedProduct?.description}</p>
         <span className="font-bold text-primary text-xl">
-          ${selectedProduct?.newPrice}
+          ${selectedProduct?.price}
         </span>
         {!props.isSupplier && (
           <div className="flex border border-strokedark rounded-lg w-fit overflow-hidden divider divider-strokedark">
