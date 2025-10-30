@@ -1,27 +1,25 @@
+import Image from "next/image";
 import { v4 as uuid } from "uuid";
-import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash.debounce";
 import Card from "@/components/ui/Card";
 import Product from "@/components/Product";
 import useAppStore from "@/stores/AppStore";
-import { useAxios } from "@/hooks/useAxios";
-import { categories } from "@/utils/demodata";
 import { RiAddLargeLine } from "react-icons/ri";
 import Button from "@/components/buttons/Button";
 import { RxHamburgerMenu } from "react-icons/rx";
-import { toast } from "@/components/toast/toast";
 import useUserStore from "@/stores/useUserStore";
 import React, { useEffect, useState } from "react";
 import Checkbox from "@/components/input/Checkbox";
 import { useModal } from "@/components/modals/Modal";
 import Dropdown from "@/components/dropdown/Dropdown";
+import { CardSkeleton } from "@/components/ui/Shimmer";
+import { AnimatePresence, motion } from "framer-motion";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AddProduct from "@/components/modals/AddProduct";
-import Image from "next/image";
-import Loader from "@/components/Loader";
 import useProductsRoutes from "@/hooks/useProductsRoutes";
-import Preloader from "@/components/Preloader";
-import { CardSkeleton } from "@/components/ui/Shimmer";
+import { useAxios } from "@/hooks/useAxios";
+import { toast } from "@/components/toast/toast";
+import Pagination from "@/components/Pagination";
 
 type Props = {
   filter: string[];
@@ -58,6 +56,37 @@ function Index() {
 }
 
 const LeftSide: React.FC<Props> = (props) => {
+  const { secureAxios } = useAxios();
+  const [catePages, setCatePages] = useState(1);
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [isFetchingCategories, setIsFetchingCategories] = useState(false);
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  const getCategories = async () => {
+    setIsFetchingCategories(true);
+    await secureAxios
+      .get("/shop/categories?page=" + catePages)
+      .then((res) => {
+        console.log("Categories ", res.data);
+        if (res.data.categories) {
+          setCategories(res.data.categories);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.message ?? err.message,
+          variant: "error",
+        });
+      })
+      .finally(() => {
+        setIsFetchingCategories(false);
+      });
+  };
+
   const handleCheckboxChange = (value: boolean, category: string) => {
     if (value) {
       props.setFilter([...props.filter, category]);
@@ -96,6 +125,28 @@ const LeftSide: React.FC<Props> = (props) => {
               />
             </div>
           ))}
+          {categories.length === 0 && (
+            <div className="flex flex-col justify-center items-center space-y-4 px-4 py-10">
+              <Image
+                src={"/svgs/empty-cart.svg"}
+                alt="No Data"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="w-full max-w-40 h-fit"
+              />
+              <span>No Categories</span>
+            </div>
+          )}
+          {!isFetchingCategories && (
+            <div className="flex justify-end">
+              <Pagination
+                pageNumber={catePages}
+                contentsLength={categories.length}
+                setPageNumber={setCatePages}
+              />
+            </div>
+          )}
         </div>
       </Card>
     </div>

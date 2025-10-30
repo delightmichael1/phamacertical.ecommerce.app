@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
   const controlHeader = (mainContainer: HTMLElement | null) => {
     if (mainContainer) {
       const currentScroll = mainContainer.scrollTop;
-      if (currentScroll > lastScrollY + 100) {
+      if (currentScroll > lastScrollY) {
         setShowFooter(false);
       } else {
         setShowFooter(true);

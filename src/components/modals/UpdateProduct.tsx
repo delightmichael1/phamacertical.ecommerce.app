@@ -7,7 +7,6 @@ import DropZone from "../input/DropZone";
 import TextField from "../input/TextField";
 import { useAxios } from "@/hooks/useAxios";
 import useAppStore from "@/stores/AppStore";
-import { categories } from "@/utils/demodata";
 import SelectField from "../input/SelectField";
 import { HiNumberedList } from "react-icons/hi2";
 import React, { useEffect, useState } from "react";
@@ -27,10 +26,12 @@ function UpdateProduct(props: Props) {
   const { closeModal } = useModal();
   const { secureAxios } = useAxios();
   const [height, setHeight] = useState(0);
-  const [isUpdateImage, setUpdateImage] = useState(false);
   const [image, setImage] = useState<File | null>(null);
+  const [isUpdateImage, setUpdateImage] = useState(false);
+  const [categories, setCategories] = useState<ICategory[]>([]);
 
   useEffect(() => {
+    getCategories();
     const handleResize = () => {
       setHeight(window.innerHeight);
     };
@@ -40,6 +41,24 @@ function UpdateProduct(props: Props) {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const getCategories = async () => {
+    await secureAxios
+      .get("/shop/categories?page=1")
+      .then((res) => {
+        console.log("Categories ", res.data);
+        if (res.data.categories) {
+          setCategories(res.data.categories);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.message ?? err.message,
+          variant: "error",
+        });
+      });
+  };
 
   const handleSubmit = async (values: any) => {
     if (!props.selectedProduct) return;
@@ -155,7 +174,7 @@ function UpdateProduct(props: Props) {
                 options={categories.map((category) => {
                   return {
                     label: category.name,
-                    value: category.name,
+                    value: category.id,
                   };
                 })}
               />

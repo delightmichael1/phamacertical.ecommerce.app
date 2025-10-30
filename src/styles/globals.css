@@ -1,17 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --card: #ffffff;
-  --accent: #2d7376;
-  --card-2: #dcb0ff;
-  --input: #e0e0e0;
-  --primary: #845ec2;
-  --secondary: #8eba27;
-  --strokedark: #dadadf;
   --background: #ffffff;
-  --card-foreground: #000000;
-  --foreground: #171717;
-  --background-2: #dcb0ff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+
+  --primary: #19287e;
+  --primary-foreground: #ffffff;
+  --accent: #1e40af;
+  --accent-foreground: #ffffff;
+
+  --secondary: #f59e0b;
+  --secondary-foreground: #ffffff;
+  --card-2: #c3dbfa;
+  --background-2: #c5daf7;
+
+  --input: #e2e8f0;
+  --strokedark: #cbd5e1;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+
+  --primary-light: #1e3a8a;
+  --primary-dark: #030712;
+  --border: #e2e8f0;
+  --divider: #e2e8f0;
 }
 
 .dark {
@@ -39,6 +57,19 @@
   --color-strokedark: var(--strokedark);
   --color-background-2: var(--background-2);
   --color-card-foreground: var(--card-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-border: var(--border);
+  --color-divider: var(--divider);
   --color-meta-1: #dc3545;
   --color-meta-2: #eff2f7;
   --color-meta-3: #10b981;
@@ -152,17 +183,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #845ec2;
+  background: #19287e;
   border-radius: 1rem;
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background-color: #845ec2;
+  background-color: #19287e;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   cursor: grab;
-  background: #845ec2;
+  background: #19287e;
   box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.2);
 }
 

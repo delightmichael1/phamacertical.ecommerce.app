@@ -68,10 +68,10 @@ function ShopLayout(props: Props) {
       <AnimatePresence>
         {showScrollButton && (
           <motion.button
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ duration: 0.3, type: "spring" }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.1, type: "spring" }}
             onClick={handleScrollToTop}
             className="right-6 bottom-6 fixed flex justify-center items-center bg-gray-900 hover:bg-gray-800 shadow-lg rounded-full w-12 h-12 text-white transition cursor-pointer"
           >

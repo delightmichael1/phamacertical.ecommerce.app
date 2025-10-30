@@ -21,6 +21,7 @@ import { MdOutlineMail, MdPhone } from "react-icons/md";
 import { HiMiniXMark, HiOutlineDocument } from "react-icons/hi2";
 import { IoDocumentAttachSharp, IoLocationOutline } from "react-icons/io5";
 import useAuthSession from "@/hooks/useAuthSession";
+import Checkbox from "@/components/input/Checkbox";
 
 type UploadedFile = {
   url: string;
@@ -309,16 +310,6 @@ function Signup() {
           >
             {({ isSubmitting }) => (
               <Form className="flex flex-col items-center gap-6 w-full">
-                <div className="flex justify-between items-center space-x-4 w-full">
-                  <span>Account Type</span>
-                  <Dropdown
-                    options={accountTypes}
-                    onClick={(e) => setType(e as "retailer" | "supplier")}
-                    classNames={{
-                      base: "border border-strokedark rounded-lg py-2 px-4 capitalize",
-                    }}
-                  />
-                </div>
                 <>
                   <TextField
                     label="Company Name"
@@ -384,8 +375,23 @@ function Signup() {
                     placeholder="Enter your password"
                     icon={<LuLock size={20} />}
                   />
+                  <div className="gap-4 grid grid-cols-2 w-full">
+                    <Checkbox
+                      label="Retailer"
+                      checked={type === "retailer"}
+                      onChange={(checked) =>
+                        setType(checked ? "retailer" : "supplier")
+                      }
+                    />
+                    <Checkbox
+                      label="Supplier"
+                      checked={type === "supplier"}
+                      onChange={(checked) =>
+                        setType(checked ? "supplier" : "retailer")
+                      }
+                    />
+                  </div>
                 </>
-
                 <FormControls isSubmitting={isSubmitting} />
               </Form>
             )}

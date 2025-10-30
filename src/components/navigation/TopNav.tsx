@@ -59,7 +59,7 @@ function TopNav() {
   const controlHeader = (mainContainer: HTMLElement | null) => {
     if (mainContainer) {
       const currentScroll = mainContainer.scrollTop;
-      if (currentScroll > lastScrollY + 100) {
+      if (currentScroll > lastScrollY) {
         setShowHeader(false);
       } else {
         setShowHeader(true);

@@ -1,3 +1,5 @@
+import cn from "@/utils/cn";
+import Image from "next/image";
 import { v4 as uuid } from "uuid";
 import { motion } from "framer-motion";
 import debounce from "lodash.debounce";
@@ -6,9 +8,12 @@ import Card from "@/components/ui/Card";
 import Product from "@/components/Product";
 import { FaUserTag } from "react-icons/fa6";
 import useAppStore from "@/stores/AppStore";
+import { useAxios } from "@/hooks/useAxios";
 import ShopLayout from "@/layouts/ShopLayout";
-import { categories } from "@/utils/demodata";
+import { LuRefreshCcw } from "react-icons/lu";
 import useUserStore from "@/stores/useUserStore";
+import { toast } from "@/components/toast/toast";
+import Pagination from "@/components/Pagination";
 import { RxHamburgerMenu } from "react-icons/rx";
 import Checkbox from "@/components/input/Checkbox";
 import React, { useEffect, useState } from "react";
@@ -18,15 +23,15 @@ import useProductsRoutes from "@/hooks/useProductsRoutes";
 import Courasel, { CarouselRef } from "@/components/ui/Carousel";
 
 type Props = {
-  filter: string[];
-  suppliers: string[];
-  setFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  setSuppliers: React.Dispatch<React.SetStateAction<string[]>>;
+  filter: ICategory[];
+  suppliers: ICategory[];
+  setFilter: React.Dispatch<React.SetStateAction<ICategory[]>>;
+  setSuppliers: React.Dispatch<React.SetStateAction<ICategory[]>>;
 };
 
 function Index() {
-  const [filter, setFilter] = React.useState<string[]>([]);
-  const [suppliers, setSuppliers] = useState<string[]>([]);
+  const [filter, setFilter] = React.useState<ICategory[]>([]);
+  const [suppliers, setSuppliers] = useState<ICategory[]>([]);
 
   useEffect(() => {
     useAppStore.setState((state) => {
@@ -61,12 +66,26 @@ function Index() {
 }
 
 const LeftSide: React.FC<Props> = (props) => {
+  const { secureAxios } = useAxios();
+  const [pages, setPages] = useState(1);
+  const [catePages, setCatePages] = useState(1);
   const hotListRef = React.useRef<CarouselRef>(null);
-  const [suppliers, setSuppliers] = useState<any[]>([]);
   const products = useAppStore((state) => state.products);
+  const [suppliers, setSuppliers] = useState<ICategory[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [isFetchingSuppliers, setIsFetchingSuppliers] = useState(false);
+  const [isFetchingCategories, setIsFetchingCategories] = useState(false);
   const [listContainerWidth, setListContainerWidth] = React.useState(0);
 
-  const handleCheckboxChange = (value: boolean, category: string) => {
+  useEffect(() => {
+    getSuppliers();
+  }, [pages]);
+
+  useEffect(() => {
+    getCategories();
+  }, [catePages]);
+
+  const handleCheckboxChange = (value: boolean, category: ICategory) => {
     if (value) {
       props.setFilter([...props.filter, category]);
     } else {
@@ -74,18 +93,62 @@ const LeftSide: React.FC<Props> = (props) => {
     }
   };
 
-  const handleSupplierCheckboxChange = (value: boolean, category: string) => {
+  const handleSupplierCheckboxChange = (
+    value: boolean,
+    category: ICategory
+  ) => {
     if (value) {
-      props.setFilter([...props.filter, category]);
+      props.setSuppliers([...props.suppliers, category]);
     } else {
-      props.setFilter(props.filter.filter((item) => item !== category));
+      props.setSuppliers(props.suppliers.filter((item) => item !== category));
     }
+  };
+
+  const getCategories = async () => {
+    setIsFetchingCategories(true);
+    await secureAxios
+      .get("/shop/categories?page=" + catePages)
+      .then((res) => {
+        console.log("Categories ", res.data);
+        if (res.data.categories) {
+          setCategories(res.data.categories);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.message ?? err.message,
+          variant: "error",
+        });
+      })
+      .finally(() => {
+        setIsFetchingCategories(false);
+      });
+  };
+
+  const getSuppliers = async () => {
+    setIsFetchingSuppliers(true);
+    await secureAxios
+      .get("/shop/suppliers?page=" + pages)
+      .then((res) => {
+        if (res.data.suppliers) setSuppliers(res.data.suppliers);
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.message ?? err.message,
+          variant: "error",
+        });
+      })
+      .finally(() => {
+        setIsFetchingSuppliers(false);
+      });
   };
 
   return (
     <div className="flex flex-col space-y-6 w-full">
       <Card
-        className="bg-primary/70 p-0 text-white"
+        className="bg-primary-light p-0 text-white"
         variants={{
           whileInView: { opacity: 1, x: 0 },
           initial: { opacity: 0, x: -200 },
@@ -97,8 +160,17 @@ const LeftSide: React.FC<Props> = (props) => {
         }}
       >
         <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <RxHamburgerMenu className="w-6 h-6" />
-          <h2>Categories</h2>
+          <div className="flex items-center space-x-4">
+            <RxHamburgerMenu className="w-6 h-6" />
+            <h2>Categories</h2>
+          </div>
+          <LuRefreshCcw
+            className={cn(
+              "p-1.5 w-8 h-8 cursor-pointer",
+              isFetchingCategories && "animate-spin"
+            )}
+            onClick={() => getCategories()}
+          />
         </div>
         <div className="p-4">
           {categories.map((category, index) => (
@@ -108,15 +180,37 @@ const LeftSide: React.FC<Props> = (props) => {
             >
               <Checkbox
                 label={category.name}
-                checked={props.filter.includes(category.name)}
-                onChange={(value) => handleCheckboxChange(value, category.name)}
+                checked={props.filter.includes(category)}
+                onChange={(value) => handleCheckboxChange(value, category)}
               />
             </div>
           ))}
+          {categories.length === 0 && (
+            <div className="flex flex-col justify-center items-center space-y-4 px-4 py-10">
+              <Image
+                src={"/svgs/empty-cart.svg"}
+                alt="No Data"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="w-full max-w-40 h-fit"
+              />
+              <span>No Categories</span>
+            </div>
+          )}
+          {!isFetchingCategories && (
+            <div className="flex justify-end">
+              <Pagination
+                pageNumber={catePages}
+                contentsLength={categories.length}
+                setPageNumber={setCatePages}
+              />
+            </div>
+          )}
         </div>
       </Card>
       <Card
-        className="bg-primary/70 p-0 text-white"
+        className="bg-primary-light p-0 text-white"
         variants={{
           whileInView: { opacity: 1, x: 0 },
           initial: { opacity: 0, x: -200 },
@@ -127,9 +221,18 @@ const LeftSide: React.FC<Props> = (props) => {
           },
         }}
       >
-        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <FaUserTag className="w-6 h-6" />
-          <h2>Supliers</h2>
+        <div className="flex justify-between items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
+          <div className="flex items-center space-x-4">
+            <FaUserTag className="w-6 h-6" />
+            <h2>Suppliers</h2>
+          </div>
+          <LuRefreshCcw
+            className={cn(
+              "p-1.5 w-8 h-8 cursor-pointer",
+              isFetchingSuppliers && "animate-spin"
+            )}
+            onClick={() => getSuppliers()}
+          />
         </div>
         <div className="p-4">
           {suppliers.map((supplier, index) => (
@@ -139,13 +242,35 @@ const LeftSide: React.FC<Props> = (props) => {
             >
               <Checkbox
                 label={supplier.name}
-                checked={props.suppliers.includes(supplier.name)}
+                checked={props.suppliers.includes(supplier)}
                 onChange={(value) =>
-                  handleSupplierCheckboxChange(value, supplier.name)
+                  handleSupplierCheckboxChange(value, supplier)
                 }
               />
             </div>
           ))}
+          {suppliers.length === 0 && (
+            <div className="flex flex-col justify-center items-center space-y-4 px-4 py-10">
+              <Image
+                src={"/svgs/empty-cart.svg"}
+                alt="No Data"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="w-full max-w-40 h-fit"
+              />
+              <span>No Suppliers</span>
+            </div>
+          )}
+          {!isFetchingSuppliers && (
+            <div className="flex justify-end">
+              <Pagination
+                pageNumber={pages}
+                contentsLength={suppliers.length}
+                setPageNumber={setPages}
+              />
+            </div>
+          )}
         </div>
       </Card>
       <Card
@@ -155,7 +280,7 @@ const LeftSide: React.FC<Props> = (props) => {
           exit: { opacity: 0, x: -200 },
           transition: { duration: 1, type: "spring" },
         }}
-        className="bg-primary/70 p-0 text-white"
+        className="bg-primary-light p-0 text-white"
       >
         <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
           <ImFire className="w-6 h-6" />
@@ -185,9 +310,16 @@ const RightSide: React.FC<Props> = (props) => {
   const [sort, setSort] = useState<"Newest" | "Oldest">("Newest");
 
   const debouncedSearch = React.useCallback(
-    debounce(async (filter: string[], suppliers: string[]) => {
+    debounce(async (filter: ICategory[], suppliers: ICategory[]) => {
       if (id)
-        getProducts(sort, page, filter, suppliers, setIsLoading, setPages);
+        getProducts(
+          sort,
+          page,
+          filter.map((item) => item.id),
+          suppliers.map((item) => item.id),
+          setIsLoading,
+          setPages
+        );
     }, 500),
     [id, page, sort]
   );
@@ -195,10 +327,14 @@ const RightSide: React.FC<Props> = (props) => {
   React.useEffect(() => {
     debouncedSearch(props.filter, props.suppliers);
     return debouncedSearch.cancel;
-  }, [props.filter, debouncedSearch, id, page, sort]);
+  }, [props.filter, props.suppliers, debouncedSearch, id, page, sort]);
 
-  const handlDelete = (name: string) => {
-    props.setFilter(props.filter.filter((item) => item !== name));
+  const handlDelete = (category: ICategory) => {
+    props.setFilter(props.filter.filter((item) => item !== category));
+  };
+
+  const handlDeleteSupplier = (suppier: ICategory) => {
+    props.setSuppliers(props.suppliers.filter((item) => item !== suppier));
   };
 
   return (
@@ -224,9 +360,27 @@ const RightSide: React.FC<Props> = (props) => {
           <div className="flex flex-wrap gap-4">
             {props.filter.map((value) => (
               <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
-                <span>{value}</span>
+                <span>{value.name}</span>
                 <button
                   onClick={() => handlDelete(value)}
+                  className="text-red-500 cursor-pointer"
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {props.suppliers.length > 0 && (
+        <div className="flex flex-col space-y-4 bg-card p-4 border border-strokedark rounded-lg">
+          <span>Active Suppliers</span>
+          <div className="flex flex-wrap gap-4">
+            {props.suppliers.map((value) => (
+              <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
+                <span>{value.name}</span>
+                <button
+                  onClick={() => handlDeleteSupplier(value)}
                   className="text-red-500 cursor-pointer"
                 >
                   X

@@ -91,3 +91,8 @@ interface IUser {
   licenseNumber?: string;
   licenseStatus?: "pending" | "approved" | "rejected";
 }
+
+interface ICategory {
+  name: string;
+  id: string;
+}
