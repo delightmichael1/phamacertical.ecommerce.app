@@ -19,6 +19,7 @@ type Props = {
   id: string;
   width?: number;
   product: IProduct;
+  isOrder?: boolean;
   isSupplier?: boolean;
 };
 
@@ -162,7 +163,14 @@ const Product: React.FC<Props> = (props) => {
           ${props.product.price.toFixed(2)}
         </span>
       </div>
-      {!props.isSupplier && (
+      {props.isOrder && (
+        <div className="pt-5">
+          <span className="bg-primary mt-10 px-4 py-1 rounded-full font-bold text-white text-sm">
+            Quantity: {props.product.quantity}
+          </span>
+        </div>
+      )}
+      {!props.isSupplier && !props.isOrder && (
         <button
           id={"addToCart" + props.id}
           onClick={handleAddToCart}
@@ -172,7 +180,7 @@ const Product: React.FC<Props> = (props) => {
           <span className="font-medium text-sm">Add to Cart</span>
         </button>
       )}
-      {!props.isSupplier && showFlyingToCart && (
+      {!props.isSupplier && !props.isOrder && showFlyingToCart && (
         <FlyingToCart
           productImage={props.product.image}
           buttonId={"addToCart" + props.id}

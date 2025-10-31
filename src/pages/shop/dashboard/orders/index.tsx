@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { FaEye } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 import { useAxios } from "@/hooks/useAxios";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
@@ -10,6 +12,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
 
 function Orders() {
+  const router = useRouter();
   const { secureAxios } = useAxios();
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("Newest");
@@ -32,6 +35,7 @@ function Orders() {
       const response = await secureAxios.get(
         `/shop/orders?page=${page}&sort=${fxsort}&limit=20`
       );
+      console.log(response.data);
       if (!response.data.orders || response.data.orders.length === 0) {
         usePersistedStore.setState((state) => {
           state.orders = [];
@@ -92,11 +96,11 @@ function Orders() {
             </div>
           )}
           {orders?.length > 0 && (
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col space-y-4 mt-4">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="bg-gray-50 rounded-xl w-full">
                   <thead>
-                    <tr className="bg-gray-50 border-strokedark border-b">
+                    <tr className="border-border border-b">
                       <th className="p-3 font-semibold text-sm text-left">
                         Order ID
                       </th>
@@ -126,7 +130,7 @@ function Orders() {
                       filteredOrders.map((order) => (
                         <tr
                           key={order.id}
-                          className="hover:bg-gray-50 border-strokedark border-b"
+                          className="hover:bg-gray-50 border-border border-b"
                         >
                           <td className="p-3">
                             <span className="font-mono font-medium text-sm">
@@ -152,12 +156,15 @@ function Orders() {
                             </span>
                           </td>
                           <td className="p-3">
-                            <a
-                              href={`/shop/orders/${order.id}`}
-                              className="text-primary text-sm"
-                            >
-                              View
-                            </a>
+                            <FaEye
+                              size={20}
+                              className="cursor-pointer"
+                              onClick={() =>
+                                router.push(
+                                  `/shop/dashboard/orders/${order.id}`
+                                )
+                              }
+                            />
                           </td>
                         </tr>
                       ))
@@ -165,7 +172,7 @@ function Orders() {
                   </tbody>
                 </table>
               </div>
-              <div className="flex justify-between items-center pt-4 border-strokedark border-t">
+              <div className="flex justify-between items-center pt-4">
                 <span className="text-gray-600 text-sm">
                   Showing {filteredOrders.length} of {orders.length} orders
                 </span>

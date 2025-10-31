@@ -54,14 +54,14 @@ function Index() {
 
   const categoryChartOptions: ApexOptions = {
     chart: { type: "donut" },
-    colors: ["#845ec2", "#845ec2", "#845ec2", "#845ec2", "#845ec2"],
+    colors: ["#3475eb", "#3475eb", "#3475eb", "#3475eb", "#3475eb"],
     labels: Object.keys(analytics.categoryCount),
     series: Object.values(analytics.categoryCount),
   };
 
   const priceRangeChartOptions: ApexOptions = {
     chart: { type: "bar" },
-    colors: ["#845ec2", "#845ec2", "#845ec2", "#845ec2", "#845ec2"],
+    colors: ["#3475eb", "#3475eb", "#3475eb", "#3475eb", "#3475eb"],
     xaxis: { categories: Object.keys(analytics.priceRanges) },
     series: [{ data: Object.values(analytics.priceRanges) }],
   };

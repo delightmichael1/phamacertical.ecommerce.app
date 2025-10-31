@@ -20,7 +20,7 @@ function AuthLayout(props: Props) {
           />
         </div>
       </div>
-      <div className="w-full h-full overflow-y-auto">{props.children}</div>
+      <div className="p-2 w-full h-full overflow-y-auto">{props.children}</div>
     </div>
   );
 }

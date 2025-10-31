@@ -46,6 +46,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     return <Preloader />;
   }
 
+  console.log("License Status: ", pathName);
+
   if (status === "authenticated" && !authPages.includes(pathName)) {
     if (licenseStatus === "pending") {
       pathName !== "/waiting" && router.push("/waiting");
