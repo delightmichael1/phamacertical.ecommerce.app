@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { useAxios } from "@/hooks/useAxios";
 import { toast } from "@/components/toast/toast";
+import Pagination from "@/components/Pagination";
 import Dropdown from "@/components/dropdown/Dropdown";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import SearchInput from "@/components/input/SearchInput";
 import usePersistedStore from "@/stores/PersistedStored";
 import React, { useEffect, useMemo, useState } from "react";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
-import Pagination from "@/components/Pagination";
 
 function Orders() {
   const { secureAxios } = useAxios();

@@ -8,9 +8,9 @@ import usePersistedStore from "@/stores/PersistedStored";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
 
 function Orders() {
-  const orders = usePersistedStore((state) => state.orders);
   const [sortBy, setSortBy] = useState("Newest");
   const [searchQuery, setSearchQuery] = useState("");
+  const orders = usePersistedStore((state) => state.orders);
 
   const analytics = useMemo(() => {
     const totalOrders = orders.length;
@@ -35,34 +35,13 @@ function Orders() {
     };
   }, [orders]);
 
-  const filteredAndSortedOrders = useMemo(() => {
+  const filteredOrders = useMemo(() => {
     let filtered = orders.filter((order) => {
-      const matchesSearch =
-        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = order.id
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
-
-    // Sort orders
-    switch (sortBy) {
-      case "Newest":
-        filtered.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        break;
-      case "Oldest":
-        filtered.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        break;
-      case "Price: Low to High":
-        filtered.sort((a, b) => a.total - b.total);
-        break;
-      case "Price: High to Low":
-        filtered.sort((a, b) => b.total - a.total);
-        break;
-    }
 
     return filtered;
   }, [orders, searchQuery, sortBy]);
@@ -203,13 +182,7 @@ function Orders() {
                         Order ID
                       </th>
                       <th className="p-3 font-semibold text-sm text-left">
-                        Customer
-                      </th>
-                      <th className="p-3 font-semibold text-sm text-left">
                         Date
-                      </th>
-                      <th className="p-3 font-semibold text-sm text-left">
-                        Items
                       </th>
                       <th className="p-3 font-semibold text-sm text-left">
                         Total
@@ -217,13 +190,11 @@ function Orders() {
                       <th className="p-3 font-semibold text-sm text-left">
                         Status
                       </th>
-                      <th className="p-3 font-semibold text-sm text-left">
-                        Payment
-                      </th>
+                      <th className="p-3 font-semibold text-sm text-left"></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredAndSortedOrders.length === 0 ? (
+                    {filteredOrders.length === 0 ? (
                       <tr>
                         <td
                           colSpan={7}
@@ -233,7 +204,7 @@ function Orders() {
                         </td>
                       </tr>
                     ) : (
-                      filteredAndSortedOrders.map((order) => (
+                      filteredOrders.map((order) => (
                         <tr
                           key={order.id}
                           className="hover:bg-gray-50 border-strokedark border-b"
@@ -243,22 +214,8 @@ function Orders() {
                               {order.id}
                             </span>
                           </td>
-                          <td className="p-3">
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {order.customerName}
-                              </span>
-                              <span className="text-gray-500 text-sm">
-                                {order.customerEmail}
-                              </span>
-                            </div>
-                          </td>
                           <td className="p-3 text-sm">
-                            {formatDate(order.date)}
-                          </td>
-                          <td className="p-3 text-sm">
-                            {order.items.length} item
-                            {order.items.length > 1 ? "s" : ""}
+                            {formatDate(order.createdAt)}
                           </td>
                           <td className="p-3">
                             <span className="font-semibold text-green-600">
@@ -276,9 +233,12 @@ function Orders() {
                             </span>
                           </td>
                           <td className="p-3">
-                            <span className="text-sm capitalize">
-                              {order.paymentMethod}
-                            </span>
+                            <a
+                              href={`/shop/orders/${order.id}`}
+                              className="text-primary text-sm"
+                            >
+                              View
+                            </a>
                           </td>
                         </tr>
                       ))
