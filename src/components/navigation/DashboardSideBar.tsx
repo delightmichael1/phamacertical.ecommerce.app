@@ -1,7 +1,3 @@
-import {
-  MdAddShoppingCart,
-  MdOutlineShoppingCartCheckout,
-} from "react-icons/md";
 import cn from "@/utils/cn";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,14 +5,17 @@ import Logout from "../modals/Logout";
 import { IconType } from "react-icons";
 import { BiHome } from "react-icons/bi";
 import { useRouter } from "next/router";
+import { HiHome } from "react-icons/hi";
 import { LuLogOut } from "react-icons/lu";
 import { useModal } from "../modals/Modal";
 import { usePathname } from "next/navigation";
 import { AiFillProduct } from "react-icons/ai";
-import React, { useEffect, useState } from "react";
-import { HiOutlineShoppingBag } from "react-icons/hi";
-import { FaRegHeart, FaUsers } from "react-icons/fa6";
 import useUserStore from "@/stores/useUserStore";
+import React, { useEffect, useState } from "react";
+import { RiShoppingBagFill } from "react-icons/ri";
+import { FaShoppingBasket, FaUserCog } from "react-icons/fa";
+import { MdOutlineShoppingCartCheckout } from "react-icons/md";
+import { FaCartArrowDown, FaHeart, FaUser, FaUsers } from "react-icons/fa6";
 
 type Props = {
   isSupplier?: boolean;
@@ -32,31 +31,31 @@ type Page = {
 const retailerPages = [
   {
     name: "Home",
-    icon: BiHome,
+    icon: HiHome,
     href: "/shop/dashboard",
     role: "retailer",
   },
   {
     name: "Shop",
-    icon: MdAddShoppingCart,
+    icon: FaShoppingBasket,
     href: "/shop",
     role: "retailer",
   },
   {
     name: "My Cart",
-    icon: HiOutlineShoppingBag,
+    icon: RiShoppingBagFill,
     href: "/shop/dashboard/cart",
     role: "retailer",
   },
   {
     name: "My Wish List",
-    icon: FaRegHeart,
+    icon: FaHeart,
     href: "/shop/dashboard/wish-list",
     role: "retailer",
   },
   {
     name: "My Orders",
-    icon: MdOutlineShoppingCartCheckout,
+    icon: FaCartArrowDown,
     href: "/shop/dashboard/orders",
     role: "retailer",
   },
@@ -66,12 +65,18 @@ const retailerPages = [
     href: "/shop/dashboard/users",
     role: "admin",
   },
+  {
+    name: "Account Management",
+    icon: FaUserCog,
+    href: "/shop/dashboard/account",
+    role: "retailer",
+  },
 ];
 
 const supplierPages = [
   {
     name: "Dashboard",
-    icon: BiHome,
+    icon: HiHome,
     href: "/supplier",
     role: "supplier",
   },
@@ -89,7 +94,7 @@ const supplierPages = [
   },
   {
     name: "Orders",
-    icon: MdOutlineShoppingCartCheckout,
+    icon: FaCartArrowDown,
     href: "/supplier/orders",
     role: "supplier",
   },
@@ -98,6 +103,12 @@ const supplierPages = [
     icon: AiFillProduct,
     href: "/supplier/ads",
     role: "supplier",
+  },
+  {
+    name: "Account Management",
+    icon: FaUserCog,
+    href: "/supplier/account",
+    role: "retailer",
   },
 ];
 
@@ -117,7 +128,7 @@ function DashboardSideBar(props: Props) {
   }, [props.isSupplier]);
 
   return (
-    <div className="flex flex-col justify-between bg-primary/70 backdrop-blur-md p-4 w-80 h-full text-white">
+    <div className="flex flex-col justify-between bg-primary backdrop-blur-md p-4 w-80 h-full text-white">
       <div className="flex flex-col space-y-2 w-full">
         <Link href={props.isSupplier ? "/supplier" : "/dashboard"}>
           <Image
@@ -133,9 +144,9 @@ function DashboardSideBar(props: Props) {
           <button
             key={index}
             className={cn(
-              "flex items-center space-x-2 hover:bg-primary/20 p-4 rounded-xl w-full font-semibold text-sm duration-300 cursor-pointer",
+              "flex items-center space-x-4 hover:bg-primary-light/20 p-4 rounded-xl w-full font-semibold text-white/80 text-sm duration-300 cursor-pointer",
               pathname === page.href &&
-                "bg-primary/20 border-l-3 border-primary",
+                "bg-primary-light/20 border-l-3 border-primary-light text-white",
               !role.includes(page.role) && "hidden"
             )}
             onClick={() => router.push(page.href)}

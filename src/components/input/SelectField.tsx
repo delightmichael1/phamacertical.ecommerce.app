@@ -45,6 +45,9 @@ const SelectField: React.FC<Props> = ({ isRequired = true, ...props }) => {
               props.classNames?.input
             )}
           >
+            <option value="" disabled>
+              {props.placeholder}
+            </option>
             {props.options.map((option: any) => (
               <option key={option.value} value={option.value}>
                 {option.label}

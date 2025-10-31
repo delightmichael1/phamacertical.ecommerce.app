@@ -1,14 +1,27 @@
 import React from "react";
+import cn from "@/utils/cn";
 
 interface Props {
   label: string;
   checked: boolean;
+  className?: string;
+  classNames?: {
+    base?: string;
+    label?: string;
+    checkbox?: string;
+  };
   onChange: (value: boolean) => void;
 }
 
 function Checkbox(props: Props) {
   return (
-    <label className="flex items-center cursor-pointer group">
+    <label
+      className={cn(
+        "group flex items-center cursor-pointer",
+        props.className,
+        props.classNames?.base
+      )}
+    >
       <input
         type="checkbox"
         checked={props.checked}
@@ -18,7 +31,10 @@ function Checkbox(props: Props) {
       <div
         className={`relative w-7 h-7 rounded-lg transition-all duration-300 flex items-center justify-center ${
           props.checked
-            ? "bg-primary shadow-lg shadow-primary/50"
+            ? cn(
+                "bg-primary shadow-lg shadow-primary/50",
+                props.classNames?.checkbox
+              )
             : "bg-strokedark/70 border-2 border-strokedark group-hover:border-white/60 group-hover:bg-strokedark/50"
         }`}
       >
@@ -38,7 +54,12 @@ function Checkbox(props: Props) {
           </svg>
         )}
       </div>
-      <span className="ml-4 text-sm font-medium group-hover:text-primary transition-colors">
+      <span
+        className={cn(
+          "ml-4 font-medium text-sm transition-colors",
+          props.classNames?.label
+        )}
+      >
         {props.label}
       </span>
     </label>

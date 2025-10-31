@@ -115,10 +115,10 @@ function TopNav() {
                       href={item.href}
                       key={item.name}
                       className={cn(
-                        "relative p-0.5",
-                        pathname === item.href && "bg-white/20 rounded-full"
+                        "relative p-0.5 tooltip",
+                        pathname === item.href &&
+                          "bg-primary-light/12 rounded-full"
                       )}
-                      title={item.name}
                     >
                       {item.value > 0 && (
                         <div className="-top-1 -right-1 absolute flex justify-center items-center bg-primary/70 rounded-full w-5 h-5 text-white text-xs">
@@ -126,6 +126,7 @@ function TopNav() {
                         </div>
                       )}
                       <Icon className="p-2 w-10 h-10 text-primary hover:text-accent hover:scale-105 duration-300" />
+                      <span className="tooltiptext">{item.name}</span>
                     </Link>
                   );
                 })}

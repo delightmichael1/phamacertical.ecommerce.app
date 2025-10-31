@@ -11,15 +11,22 @@ type Props = {
 
 const Pagination: React.FC<Props> = (props) => {
   const pages = new Array(props.pageNumber).fill(0);
-  const pageRef = React.useRef<HTMLDivElement>(null);
+  const activePageRef = React.useRef<HTMLDivElement>(null);
   const [startX, setStartX] = React.useState<number>(0);
   const [scrollX, setScrollX] = React.useState<number>(0);
   const horizontalRef = React.useRef<HTMLDivElement>(null);
   const [isDownX, setIsDownX] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    if (pageRef.current) {
-      pageRef.current.scrollIntoView({ behavior: "smooth" });
+    if (activePageRef.current && horizontalRef.current) {
+      const container = horizontalRef.current;
+      const activeElement = activePageRef.current;
+
+      const scrollLeft =
+        activeElement.offsetLeft -
+        container.offsetWidth / 2 +
+        activeElement.offsetWidth / 2;
+      container.scrollTo({ left: scrollLeft, behavior: "smooth" });
     }
   }, [props.pageNumber]);
 
@@ -49,7 +56,7 @@ const Pagination: React.FC<Props> = (props) => {
       }
     }
   };
-  4567;
+
   return (
     <div
       className={cn(
@@ -85,13 +92,13 @@ const Pagination: React.FC<Props> = (props) => {
                 props.pageNumber === index + 1
                   ? "flex bg-gray-900/50"
                   : "hidden bg-gray-900/20 text-muted-foreground group-hover:flex"
-              } h-10 w-10 cursor-pointer flex-col items-center justify-center duration-500`}
+              } h-10 w-10 cursor-pointer flex-col items-center justify-center duration-500 text-white`}
               key={index}
               onClick={() => props.setPageNumber(index + 1)}
               aria-hidden="true"
-              ref={pageRef}
+              ref={props.pageNumber === index + 1 ? activePageRef : null}
             >
-              <span className="text-muted-foreground text-xxs">Page</span>
+              <span className="text-xxs">Page</span>
               <span>{index + 1}</span>
             </div>
           ))}

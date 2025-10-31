@@ -13,35 +13,10 @@ interface IProduct {
 
 interface IOrder {
   id: string;
-  customerName: string;
-  customerEmail: string;
-  date: string;
-  items: IOrderItem[];
   total: number;
-  subtotal: number;
-  tax?: number;
-  shipping?: number;
-  status: "pending" | "processing" | "completed" | "cancelled";
-  paymentMethod: "credit card" | "debit card" | "paypal" | "cash on delivery";
-  paymentStatus?: "paid" | "unpaid" | "refunded";
-  shippingAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  billingAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  trackingNumber?: string;
-  notes?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  totalCost: number;
+  createdAt: string;
+  status: "pending" | "accepted" | "shipped" | "cancelled";
 }
 
 interface IOrderItem {

@@ -1,73 +1,101 @@
 import { create } from "zustand";
-import { motion } from "framer-motion";
+import { useState } from "react";
 import { HiXMark } from "react-icons/hi2";
-import { useEffect, useState } from "react";
 import { immer } from "zustand/middleware/immer";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import { BiSolidErrorCircle } from "react-icons/bi";
+import { motion, AnimatePresence } from "framer-motion";
 
-const Toast = () => {
+type ToastContent = {
+  id: string;
+  title?: string;
+  description: string;
+  variant: "success" | "error";
+};
+
+interface ToastState {
+  toasts: ToastContent[];
+  addToast: (content: Omit<ToastContent, "id">) => void;
+  removeToast: (id: string) => void;
+}
+
+const useToastState = create<ToastState>()(
+  immer((set) => ({
+    toasts: [],
+    addToast: (content) => {
+      const id = `toast-${Date.now()}-${Math.random()}`;
+      set((state) => {
+        state.toasts.push({ ...content, id });
+      });
+
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        set((state) => {
+          state.toasts = state.toasts.filter((toast) => toast.id !== id);
+        });
+      }, 5000);
+    },
+    removeToast: (id) =>
+      set((state) => {
+        state.toasts = state.toasts.filter((toast) => toast.id !== id);
+      }),
+  }))
+);
+
+const ToastItem = ({
+  content,
+  index,
+}: {
+  content: ToastContent;
+  index: number;
+}) => {
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const translateX = isSwiping ? currentX - startX : 0;
+  const removeToast = useToastState((state) => state.removeToast);
 
-  const show = useToastState((state) => state.show);
-  const content = useToastState((state) => state.content);
-
-  useEffect(() => {
-    if (show) {
-      setTimeout(() => {
-        useToastState.setState((state) => {
-          state.show = false;
-          state.content = undefined;
-        });
-      }, 10000);
-    }
-  }, [show]);
-
-  const handleTouchStart = (e: any) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
     setCurrentX(e.touches[0].clientX);
     setIsSwiping(true);
   };
 
-  const handleTouchMove = (e: any) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     if (isSwiping) {
       setCurrentX(e.touches[0].clientX);
     }
   };
 
-  const handleTouchEnd = (e: any) => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
     const endX = e.changedTouches[0].clientX;
     const difference = endX - startX;
 
     setIsSwiping(false);
 
     if (Math.abs(difference) > 50) {
-      useToastState.setState((state) => {
-        state.show = false;
-        state.content = undefined;
-      });
+      removeToast(content.id);
+    } else {
+      setCurrentX(startX);
     }
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.5 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 1, type: "spring" }}
-      className={`${
-        show ? "block" : "hidden"
-      } absolute left-1/2 translate-x-[-50%] w-fit top-8 z-[1000000] flex h-fit items-center justify-center break-normal bg-transparent px-4 text-xs text-white`}
+      layout
+      initial={{ opacity: 0, scale: 0.5, y: -20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.5, x: 100 }}
+      transition={{ duration: 0.3, type: "spring" }}
+      className={` left-0 absolute flex justify-center items-center px-4 w-full`}
     >
       <div
         onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
         onTouchStart={handleTouchStart}
         className={`${
-          content?.variant === "success" ? "bg-green-600" : "bg-red-500"
-        } relative flex min-w-[20rem] flex-col space-y-1 rounded-2xl bg-gray-800 p-2 px-6 shadow`}
+          content.variant === "success" ? "bg-green-600" : "bg-red-500"
+        } relative flex min-w-[20rem] max-w-md w-full flex-col space-y-1 rounded-2xl p-2 px-6 shadow-lg`}
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isSwiping ? "none" : "transform 0.3s ease",
@@ -75,62 +103,120 @@ const Toast = () => {
       >
         <div
           className={`${
-            content?.variant === "success" ? "bg-green-800" : "bg-red-700"
-          } absolute -left-4 -top-4 rounded-full bg-gray-800 p-2`}
+            content.variant === "success" ? "bg-green-800" : "bg-red-700"
+          } absolute -left-4 -top-4 rounded-full p-2`}
         >
-          {content?.variant === "success" ? (
-            <VscVerifiedFilled className="w-6 h-6" />
+          {content.variant === "success" ? (
+            <VscVerifiedFilled className="w-6 h-6 text-white" />
           ) : (
-            <BiSolidErrorCircle className="w-6 h-6" />
+            <BiSolidErrorCircle className="w-6 h-6 text-white" />
           )}
         </div>
-        <span className="w-full text-lg text-center capitalize">
-          {content?.title ? content.title : content?.variant}
+        <span className="w-full text-white text-lg text-center capitalize">
+          {content.title || content.variant}
         </span>
-        <span className="w-full text-center">{content?.description}</span>
+        <span className="w-full text-white text-sm text-center">
+          {content.description}
+        </span>
         <HiXMark
-          className="top-0 right-0 absolute p-2 w-8 h-8 cursor-pointer"
-          onClick={() =>
-            useToastState.setState((state) => {
-              state.show = false;
-              state.content = undefined;
-            })
-          }
+          className="top-0 right-0 absolute hover:bg-white/10 p-2 rounded-full w-8 h-8 text-white transition-colors cursor-pointer"
+          onClick={() => removeToast(content.id)}
         />
       </div>
     </motion.div>
   );
 };
 
-type ToastContent = {
-  title?: string;
-  description: string;
-  variant: "success" | "error";
+const Toast = () => {
+  const toasts = useToastState((state) => state.toasts);
+
+  return (
+    <div className="top-8 left-1/2 z-[1000000] fixed w-full max-w-md -translate-x-1/2 pointer-events-none">
+      <div className="relative flex flex-col gap-3 pointer-events-auto">
+        <AnimatePresence mode="popLayout">
+          {toasts.map((toast, index) => (
+            <ToastItem key={toast.id} content={toast} index={index} />
+          ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
 };
-
-interface ToastState {
-  show: boolean;
-  content: ToastContent | undefined;
-  toast: (content: ToastContent) => void;
-}
-
-const useToastState = create<ToastState>()(
-  immer((set) => ({
-    show: false,
-    content: undefined,
-    toast: (content) => set({ content, show: true }),
-  }))
-);
 
 export default Toast;
 
-export function toast(content: ToastContent) {
-  return useToastState.getState().toast(content);
+export function toast(content: Omit<ToastContent, "id">) {
+  return useToastState.getState().addToast(content);
 }
 
-export function closeToast() {
-  useToastState.setState((state) => {
-    state.show = false;
-    state.content = undefined;
-  });
+export function closeToast(id: string) {
+  useToastState.getState().removeToast(id);
+}
+
+export function closeAllToasts() {
+  useToastState.setState({ toasts: [] });
+}
+
+// Demo component to test the toast system
+export function ToastDemo() {
+  return (
+    <div className="flex justify-center items-center bg-gray-900 min-h-screen">
+      <Toast />
+      <div className="flex flex-col gap-4">
+        <button
+          onClick={() =>
+            toast({
+              variant: "success",
+              title: "Success!",
+              description: "Your action was completed successfully.",
+            })
+          }
+          className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg text-white transition-colors"
+        >
+          Show Success Toast
+        </button>
+        <button
+          onClick={() =>
+            toast({
+              variant: "error",
+              title: "Error!",
+              description: "Something went wrong. Please try again.",
+            })
+          }
+          className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg text-white transition-colors"
+        >
+          Show Error Toast
+        </button>
+        <button
+          onClick={() => {
+            toast({
+              variant: "success",
+              description: "First toast",
+            });
+            setTimeout(() => {
+              toast({
+                variant: "error",
+                description: "Second toast",
+              });
+            }, 500);
+            setTimeout(() => {
+              toast({
+                variant: "success",
+                description: "Third toast",
+              });
+            }, 1000);
+          }}
+          className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-white transition-colors"
+        >
+          Show Multiple Toasts
+        </button>
+        <button
+          onClick={() => closeAllToasts()}
+          className="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg text-white transition-colors"
+        >
+          Close All Toasts
+        </button>
+      </div>
+    </div>
+  );
 }

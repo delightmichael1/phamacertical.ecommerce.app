@@ -1,4 +1,5 @@
 import cn from "@/utils/cn";
+import Image from "next/image";
 import React, { useState } from "react";
 import { IoTrash } from "react-icons/io5";
 
@@ -62,12 +63,23 @@ const DropZone: React.FC<Props> = (props) => {
         onDrop={handleDrop}
       >
         {props.file ? (
-          <div className="relative flex flex-col justify-center items-center group-hover:border-divider rounded w-full h-32 object-cover text-gray-400 group-hover:text-white text-xs duration-300 cursor-pointer">
+          <div className="relative flex flex-col justify-center items-center group-hover:border-divider rounded w-full h-full object-cover text-gray-400 group-hover:text-white text-xs duration-300 cursor-pointer">
             <IoTrash
-              className="-top-12 -right-3 absolute bg-content1 hover:bg-background p-2 border border-divider rounded-full w-10 h-10 text-white duration-300 cursor-pointer"
+              className="-top-3 -right-3 absolute bg-white hover:bg-background p-2 border border-divider rounded-full w-10 h-10 text-black duration-300 cursor-pointer"
               onClick={() => props.setFile(null)}
             />
-            <span className="w-32 text-center truncate">{props.file.name}</span>
+            {props.fileType === "image" ? (
+              <Image
+                src={URL.createObjectURL(props.file)}
+                alt={props.file.name}
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="w-full text-sm truncate">{props.file.name}</span>
+            )}
           </div>
         ) : (
           <label

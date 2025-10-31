@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import { useModal } from "./Modal";
 import { Formik, Form } from "formik";
 import Button from "../buttons/Button";
@@ -6,10 +5,12 @@ import { toast } from "../toast/toast";
 import { FaCity } from "react-icons/fa6";
 import DropZone from "../input/DropZone";
 import TextField from "../input/TextField";
+import DateField from "../input/DatePicker";
 import { useAxios } from "@/hooks/useAxios";
 import useAppStore from "@/stores/AppStore";
 import SelectField from "../input/SelectField";
 import { HiNumberedList } from "react-icons/hi2";
+import React, { useEffect, useState } from "react";
 import { RiUploadCloud2Fill } from "react-icons/ri";
 import { BiCalendar, BiRename } from "react-icons/bi";
 import { ProductValidationSchema } from "@/types/schema";
@@ -38,7 +39,6 @@ function AddProduct() {
     await secureAxios
       .get("/shop/categories?page=1")
       .then((res) => {
-        console.log("Categories ", res.data);
         if (res.data.categories) {
           setCategories(res.data.categories);
         }
@@ -97,7 +97,7 @@ function AddProduct() {
 
   return (
     <div
-      className="flex flex-col space-y-4 px-6 pb-10 w-full h-full overflow-y-auto"
+      className="flex flex-col space-y-4 px-6 pb-10 w-full max-w-5xl h-full overflow-y-auto"
       style={{ maxHeight: `${0.8 * height}px` }}
     >
       <span className="mt-1 mb-10 font-bold text-2xl">Add Product</span>
@@ -120,7 +120,7 @@ function AddProduct() {
               setFile={setImage}
               fileType="image"
               icon={RiUploadCloud2Fill}
-              className="aspect-square"
+              className="max-w-full aspect-square"
               // label="Upload product image"
             />
             <div className="flex flex-col gap-4 min-w-md">
@@ -152,7 +152,7 @@ function AddProduct() {
                 placeholder="Enter quantity"
                 icon={<HiNumberedList size={20} />}
               />
-              <TextField
+              <DateField
                 label="Expiry date"
                 type="date"
                 name="expiryDate"
@@ -163,6 +163,7 @@ function AddProduct() {
               <SelectField
                 label="Category"
                 name="category"
+                placeholder="Select category"
                 icon={<FaCity size={20} />}
                 options={categories.map((category) => {
                   return {

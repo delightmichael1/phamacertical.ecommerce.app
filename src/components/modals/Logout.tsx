@@ -2,8 +2,8 @@ import cn from "@/utils/cn";
 import Lottie from "lottie-react";
 import Button from "../buttons/Button";
 import React, { useState } from "react";
-import Warning from "../../../public/lottie/error.json";
 import useAuthSession from "@/hooks/useAuthSession";
+import Warning from "../../../public/lottie/error.json";
 
 type Props = {
   closeModal: () => void;

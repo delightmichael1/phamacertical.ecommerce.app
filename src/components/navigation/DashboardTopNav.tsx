@@ -35,7 +35,7 @@ function DashboardTopNav(props: Props) {
           )}
           {!props.isSupplier && (
             <Link
-              href="/notifications"
+              href="/shop/notifications"
               className="relative p-0.5"
               title="Notifications"
             >

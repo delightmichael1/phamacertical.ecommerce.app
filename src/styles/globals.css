@@ -6,7 +6,7 @@
   --card: #ffffff;
   --card-foreground: #1e293b;
 
-  --primary: #19287e;
+  --primary: #3475eb;
   --primary-foreground: #ffffff;
   --accent: #1e40af;
   --accent-foreground: #ffffff;
@@ -346,4 +346,41 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
   transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltiptext {
+  visibility: hidden; /* Hidden by default */
+  width: 130px;
+  background-color: var(--primary);
+  color: #ffffff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  top: 110%;
+  right: 50%;
+  translate: 50% 0;
+  z-index: 1;
+}
+
+/* Show the tooltip text on hover */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.tooltiptext::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent var(--primary) transparent;
 }

@@ -20,7 +20,7 @@ function DashboardLayout(props: Props) {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, type: "spring" }}
-          className="flex flex-col p-4 pb-24 w-full h-full"
+          className="flex flex-col p-4 w-full h-full"
         >
           <div className="flex flex-col mx-auto mb-4 container">
             <h1 className="text-2xl">{props.title}</h1>

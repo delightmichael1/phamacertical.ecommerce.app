@@ -73,6 +73,8 @@ const LeftSide: React.FC<Props> = (props) => {
   const products = useAppStore((state) => state.products);
   const [suppliers, setSuppliers] = useState<ICategory[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [totalSuppliersPages, setTotalSuppliersPages] = useState(1);
+  const [totalCategoriesPages, setTotalCategoriesPages] = useState(1);
   const [isFetchingSuppliers, setIsFetchingSuppliers] = useState(false);
   const [isFetchingCategories, setIsFetchingCategories] = useState(false);
   const [listContainerWidth, setListContainerWidth] = React.useState(0);
@@ -112,6 +114,7 @@ const LeftSide: React.FC<Props> = (props) => {
         console.log("Categories ", res.data);
         if (res.data.categories) {
           setCategories(res.data.categories);
+          setTotalCategoriesPages(res.data.pages);
         }
       })
       .catch((err) => {
@@ -131,7 +134,10 @@ const LeftSide: React.FC<Props> = (props) => {
     await secureAxios
       .get("/shop/suppliers?page=" + pages)
       .then((res) => {
-        if (res.data.suppliers) setSuppliers(res.data.suppliers);
+        if (res.data.suppliers) {
+          setSuppliers(res.data.suppliers);
+          setTotalSuppliersPages(res.data.pages);
+        }
       })
       .catch((err) => {
         toast({
@@ -148,7 +154,7 @@ const LeftSide: React.FC<Props> = (props) => {
   return (
     <div className="flex flex-col space-y-6 w-full">
       <Card
-        className="bg-primary-light p-0 text-white"
+        className="bg-primary p-0 text-white"
         variants={{
           whileInView: { opacity: 1, x: 0 },
           initial: { opacity: 0, x: -200 },
@@ -160,17 +166,8 @@ const LeftSide: React.FC<Props> = (props) => {
         }}
       >
         <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <div className="flex items-center space-x-4">
-            <RxHamburgerMenu className="w-6 h-6" />
-            <h2>Categories</h2>
-          </div>
-          <LuRefreshCcw
-            className={cn(
-              "p-1.5 w-8 h-8 cursor-pointer",
-              isFetchingCategories && "animate-spin"
-            )}
-            onClick={() => getCategories()}
-          />
+          <RxHamburgerMenu className="w-6 h-6" />
+          <h2>Categories</h2>
         </div>
         <div className="p-4">
           {categories.map((category, index) => (
@@ -182,6 +179,10 @@ const LeftSide: React.FC<Props> = (props) => {
                 label={category.name}
                 checked={props.filter.includes(category)}
                 onChange={(value) => handleCheckboxChange(value, category)}
+                classNames={{
+                  label: "group-hover:text-gray-200",
+                  checkbox: "bg-primary-light",
+                }}
               />
             </div>
           ))}
@@ -198,7 +199,7 @@ const LeftSide: React.FC<Props> = (props) => {
               <span>No Categories</span>
             </div>
           )}
-          {!isFetchingCategories && (
+          {totalCategoriesPages > 1 && (
             <div className="flex justify-end">
               <Pagination
                 pageNumber={catePages}
@@ -210,7 +211,7 @@ const LeftSide: React.FC<Props> = (props) => {
         </div>
       </Card>
       <Card
-        className="bg-primary-light p-0 text-white"
+        className="bg-primary p-0 text-white"
         variants={{
           whileInView: { opacity: 1, x: 0 },
           initial: { opacity: 0, x: -200 },
@@ -221,18 +222,9 @@ const LeftSide: React.FC<Props> = (props) => {
           },
         }}
       >
-        <div className="flex justify-between items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <div className="flex items-center space-x-4">
-            <FaUserTag className="w-6 h-6" />
-            <h2>Suppliers</h2>
-          </div>
-          <LuRefreshCcw
-            className={cn(
-              "p-1.5 w-8 h-8 cursor-pointer",
-              isFetchingSuppliers && "animate-spin"
-            )}
-            onClick={() => getSuppliers()}
-          />
+        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
+          <FaUserTag className="w-6 h-6" />
+          <h2>Suppliers</h2>
         </div>
         <div className="p-4">
           {suppliers.map((supplier, index) => (
@@ -246,6 +238,10 @@ const LeftSide: React.FC<Props> = (props) => {
                 onChange={(value) =>
                   handleSupplierCheckboxChange(value, supplier)
                 }
+                classNames={{
+                  label: "group-hover:text-gray-200",
+                  checkbox: "bg-primary-light",
+                }}
               />
             </div>
           ))}
@@ -262,7 +258,7 @@ const LeftSide: React.FC<Props> = (props) => {
               <span>No Suppliers</span>
             </div>
           )}
-          {!isFetchingSuppliers && (
+          {totalSuppliersPages > 1 && (
             <div className="flex justify-end">
               <Pagination
                 pageNumber={pages}
@@ -280,7 +276,7 @@ const LeftSide: React.FC<Props> = (props) => {
           exit: { opacity: 0, x: -200 },
           transition: { duration: 1, type: "spring" },
         }}
-        className="bg-primary-light p-0 text-white"
+        className="bg-primary p-0 text-white"
       >
         <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
           <ImFire className="w-6 h-6" />
@@ -355,7 +351,7 @@ const RightSide: React.FC<Props> = (props) => {
         </div>
       </div>
       {props.filter.length > 0 && (
-        <div className="flex flex-col space-y-4 bg-card p-4 border border-strokedark rounded-lg">
+        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
           <span>Active Filters</span>
           <div className="flex flex-wrap gap-4">
             {props.filter.map((value) => (
@@ -373,7 +369,7 @@ const RightSide: React.FC<Props> = (props) => {
         </div>
       )}
       {props.suppliers.length > 0 && (
-        <div className="flex flex-col space-y-4 bg-card p-4 border border-strokedark rounded-lg">
+        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
           <span>Active Suppliers</span>
           <div className="flex flex-wrap gap-4">
             {props.suppliers.map((value) => (

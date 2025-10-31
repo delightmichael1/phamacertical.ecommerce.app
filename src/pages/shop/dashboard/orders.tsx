@@ -1,20 +1,68 @@
-import React from "react";
 import Image from "next/image";
-import Card from "@/components/ui/Card";
+import { useAxios } from "@/hooks/useAxios";
+import { toast } from "@/components/toast/toast";
 import Dropdown from "@/components/dropdown/Dropdown";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import SearchInput from "@/components/input/SearchInput";
 import usePersistedStore from "@/stores/PersistedStored";
+import React, { useEffect, useMemo, useState } from "react";
+import { formatDate, getStatusBadgeClass } from "@/utils/constants";
+import Pagination from "@/components/Pagination";
 
 function Orders() {
+  const { secureAxios } = useAxios();
+  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState("Newest");
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const orders = usePersistedStore((state) => state.orders);
+
+  const filteredOrders = useMemo(() => {
+    let filtered = orders?.filter((order) => {
+      return order?.status.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+    return filtered;
+  }, [orders, searchQuery]);
+
+  const fetchOrders = async () => {
+    let fxsort = -1;
+    if (sortBy === "Newest") fxsort = -1;
+    else if (sortBy === "Oldest") fxsort = 1;
+    try {
+      const response = await secureAxios.get(
+        `/shop/orders?page=${page}&sort=${fxsort}&limit=20`
+      );
+      if (!response.data.orders || response.data.orders.length === 0) {
+        usePersistedStore.setState((state) => {
+          state.orders = [];
+          setTotalPages(1);
+        });
+        return;
+      }
+      usePersistedStore.setState((state) => {
+        state.orders = response.data.orders;
+        setTotalPages(response.data.pages);
+      });
+    } catch (error: any) {
+      toast({
+        description: `${
+          !error.response ? error.message : error.response.data.message
+        }`,
+        variant: "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
     <DashboardLayout title="Orders" description="Manage my orders list">
       <div className="flex flex-col space-y-4 mx-auto w-full h-full container">
-        <Card className="w-full h-full overflow-y-auto">
+        <div className="w-full h-full overflow-y-auto">
           <div className="flex justify-between items-center">
-            <SearchInput />
+            <SearchInput onChange={(e) => setSearchQuery(e)} />
             <div className="flex items-center space-x-4">
               <span>Sort by:</span>
               <Dropdown
@@ -23,16 +71,12 @@ function Orders() {
                   trigger:
                     "text-primary w-56 justify-between border border-primary px-4 py-2 rounded-lg",
                 }}
-                options={[
-                  "Newest",
-                  "Oldest",
-                  "Price: Low to High",
-                  "Price: High to Low",
-                ]}
+                options={["Newest", "Oldest"]}
+                onClick={(e) => setSortBy(e)}
               />
             </div>
           </div>
-          {orders.length === 0 && (
+          {orders?.length === 0 && (
             <div className="flex flex-col justify-center items-center space-y-4 w-full h-[90%]">
               <Image
                 src="/svgs/empty-cart.svg"
@@ -47,7 +91,95 @@ function Orders() {
               </span>
             </div>
           )}
-        </Card>
+          {orders?.length > 0 && (
+            <div className="flex flex-col space-y-4">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 border-strokedark border-b">
+                      <th className="p-3 font-semibold text-sm text-left">
+                        Order ID
+                      </th>
+                      <th className="p-3 font-semibold text-sm text-left">
+                        Date
+                      </th>
+                      <th className="p-3 font-semibold text-sm text-left">
+                        Total
+                      </th>
+                      <th className="p-3 font-semibold text-sm text-left">
+                        Status
+                      </th>
+                      <th className="p-3 font-semibold text-sm text-left"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="p-8 text-gray-500 text-center"
+                        >
+                          No orders found matching your search
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredOrders.map((order) => (
+                        <tr
+                          key={order.id}
+                          className="hover:bg-gray-50 border-strokedark border-b"
+                        >
+                          <td className="p-3">
+                            <span className="font-mono font-medium text-sm">
+                              {order.id}
+                            </span>
+                          </td>
+                          <td className="p-3 text-sm">
+                            {formatDate(order.createdAt)}
+                          </td>
+                          <td className="p-3">
+                            <span className="font-semibold text-green-600">
+                              ${order.total.toFixed(2)}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
+                                order.status
+                              )}`}
+                            >
+                              {order.status.charAt(0).toUpperCase() +
+                                order.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <a
+                              href={`/shop/orders/${order.id}`}
+                              className="text-primary text-sm"
+                            >
+                              View
+                            </a>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex justify-between items-center pt-4 border-strokedark border-t">
+                <span className="text-gray-600 text-sm">
+                  Showing {filteredOrders.length} of {orders.length} orders
+                </span>
+                {totalPages > 1 && (
+                  <Pagination
+                    pageNumber={page}
+                    contentsLength={totalPages}
+                    setPageNumber={setPage}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </DashboardLayout>
   );
