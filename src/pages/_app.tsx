@@ -6,6 +6,7 @@ import Toast from "@/components/toast/toast";
 import React, { useEffect, useState } from "react";
 import AuthProvider from "@/components/AuthProvider";
 import { ModalProvider } from "@/components/modals/Modal";
+import SideBar from "@/components/SideBar";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [pageHeight, setPageHeight] = useState(0);
@@ -43,6 +44,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Toast />
         </ModalProvider>
       </AuthProvider>
+      <SideBar />
       <Script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" />
       <Script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" />
     </main>

@@ -178,13 +178,10 @@ function Index() {
                 <thead>
                   <tr className="border-border border-b">
                     <th className="p-3 font-semibold text-sm text-left">
-                      Order ID
+                      Product ID
                     </th>
                     <th className="p-3 font-semibold text-sm text-left">
                       Category
-                    </th>
-                    <th className="p-3 font-semibold text-sm text-left">
-                      Description
                     </th>
                     <th className="p-3 font-semibold text-sm text-left">
                       Quantity
@@ -213,7 +210,6 @@ function Index() {
                           </span>
                         </td>
                         <td className="p-3 text-sm">{order.category}</td>
-                        <td className="p-3 text-sm">{order.description}</td>
                         <td className="p-3">
                           <span className="font-semibold">
                             {order.quantity}

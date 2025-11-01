@@ -6,6 +6,10 @@ interface AppStore {
   deviceId: string;
   accessToken: string;
   products: IProduct[];
+  showSideBar: {
+    open: boolean;
+    value: string;
+  };
   notications: INotification[];
   showCartConfirmDialog: boolean;
   selectedProduct: IProduct | undefined;
@@ -18,6 +22,10 @@ const useAppStore = create<AppStore>()(
     products: [],
     notications: [],
     accessToken: "",
+    showSideBar: {
+      open: false,
+      value: "",
+    },
     selectedProduct: undefined,
     showCartConfirmDialog: true,
   }))

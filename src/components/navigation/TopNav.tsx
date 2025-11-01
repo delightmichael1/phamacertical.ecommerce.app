@@ -35,21 +35,21 @@ function TopNav() {
   const links: ILink[] = [
     {
       name: "Notifications",
-      href: "/shop/notifications",
+      href: "notifications",
       value: notications.length,
       icon: IoNotificationsOutline,
       active: IoNotifications,
     },
     {
       name: "Wish List",
-      href: "/shop/wish-list",
+      href: "wish-list",
       value: wishList.reduce((acc, item) => acc + (item.quantity ?? 0), 0),
       icon: FaRegHeart,
       active: FaHeart,
     },
     {
       name: "Cart",
-      href: "/shop/cart",
+      href: "cart",
       value: cart.reduce((acc, item) => acc + (item.quantity ?? 0), 0),
       icon: HiOutlineShoppingBag,
       active: HiShoppingBag,
@@ -111,8 +111,15 @@ function TopNav() {
                 {links.map((item) => {
                   const Icon = pathname === item.href ? item.active : item.icon;
                   return (
-                    <Link
-                      href={item.href}
+                    <button
+                      onClick={() => {
+                        useAppStore.setState((state) => {
+                          state.showSideBar = {
+                            open: true,
+                            value: item.href,
+                          };
+                        });
+                      }}
                       key={item.name}
                       className={cn(
                         "relative p-0.5 tooltip",
@@ -127,7 +134,7 @@ function TopNav() {
                       )}
                       <Icon className="p-2 w-10 h-10 text-primary hover:text-accent hover:scale-105 duration-300" />
                       <span className="tooltiptext">{item.name}</span>
-                    </Link>
+                    </button>
                   );
                 })}
                 <Button

@@ -22,7 +22,7 @@ function DashboardTopNav(props: Props) {
   return (
     <div className="top-0 sticky justify-center items-center backdrop-blur-lg p-4 w-full">
       <div className="flex justify-between items-center space-x-4 mx-auto w-full container">
-        <SearchInput />
+        <div />
         <div className="flex items-center space-x-4">
           {props.isSupplier && (
             <Button

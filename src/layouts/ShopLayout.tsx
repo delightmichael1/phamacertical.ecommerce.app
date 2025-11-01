@@ -1,11 +1,11 @@
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import useAppStore from "@/stores/AppStore";
 import { IoChevronUp } from "react-icons/io5";
 import Footer from "@/components/navigation/Footer";
 import TopNav from "@/components/navigation/TopNav";
 import { HiOutlineShoppingBag } from "react-icons/hi";
-import usePersistedStore from "@/stores/PersistedStored";
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import usePersistedStore from "@/stores/PersistedStored";
 
 interface Props {
   title?: string;
@@ -15,7 +15,6 @@ interface Props {
 }
 
 function ShopLayout(props: Props) {
-  const router = useRouter();
   const [showScrollButton, setShowScrollButton] = useState(false);
   const cart = usePersistedStore((state) => state.cart);
 
@@ -52,11 +51,13 @@ function ShopLayout(props: Props) {
   return (
     <div className="flex flex-col w-full h-full">
       <TopNav />
-      <div className="mt-32 mb-32 p-4 pb-20">{props.children}</div>
+      <div className="mt-32 p-4 pb-20">{props.children}</div>
       <Footer />
       <button
         id="cart-icon"
-        onClick={() => router.push("/cart")}
+        onClick={() =>
+          useAppStore.setState({ showSideBar: { open: true, value: "cart" } })
+        }
         className="bottom-6 left-6 fixed flex justify-center items-center bg-gray-900 hover:bg-gray-800 shadow-lg rounded-full w-12 h-12 text-white transition cursor-pointer"
       >
         <span className="-top-1 -right-1 absolute flex justify-center items-center bg-primary rounded-full w-6 h-6 text-white text-xs">

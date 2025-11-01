@@ -11,9 +11,9 @@ import { IoKeypad } from "react-icons/io5";
 import { MdEmail } from "react-icons/md";
 import { BiSave } from "react-icons/bi";
 import {
+  BranchInfoValidationSchema,
   CompanyInfoValidationSchema,
   PasswordValidationSchema,
-  PersonalInfoValidationSchema,
 } from "@/types/schema";
 import Image from "next/image";
 import { useAxios } from "@/hooks/useAxios";
@@ -60,11 +60,10 @@ const Profile = () => {
   const { secureAxios } = useAxios();
   const [logo, setLogo] = useState(user.logo);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditingPersonalInfo, setIsEditingPersonalInfo] =
-    React.useState(false);
+  const [isEditingBranchInfo, setIsEditingBranchInfo] = React.useState(false);
   const [isEditingCompanyInfo, setIsEditingCompanyInfo] = React.useState(false);
 
-  const handleUpdatePersonalInfo = async (values: any) => {
+  const handleUpdateBranchInfo = async (values: any) => {
     const data = {
       ...user,
       ...values,
@@ -78,7 +77,7 @@ const Profile = () => {
           variant: "success",
           description: res.data.message,
         });
-        setIsEditingPersonalInfo(false);
+        setIsEditingBranchInfo(false);
         setIsEditingCompanyInfo(false);
       })
       .catch((error) => {
@@ -182,17 +181,17 @@ const Profile = () => {
             phone: user.phone,
             email: user.email,
           }}
-          validationSchema={PersonalInfoValidationSchema}
-          onSubmit={handleUpdatePersonalInfo}
+          validationSchema={BranchInfoValidationSchema}
+          onSubmit={handleUpdateBranchInfo}
         >
           {({ isSubmitting }) => (
             <Form className="flex flex-col space-y-4 w-full">
               <div className="flex justify-between items-center space-x-4">
-                <span className="text-lg">Personal Information</span>
-                {!isEditingPersonalInfo ? (
+                <span className="text-lg">Branch Information</span>
+                {!isEditingBranchInfo ? (
                   <Button
                     className="text-black"
-                    onClick={() => setIsEditingPersonalInfo(true)}
+                    onClick={() => setIsEditingBranchInfo(true)}
                   >
                     <FiEdit2 className="w-4 h-4" />
                     <span>Edit</span>
@@ -202,7 +201,7 @@ const Profile = () => {
                     {!isSubmitting && (
                       <Button
                         className="text-black"
-                        onClick={() => setIsEditingPersonalInfo(false)}
+                        onClick={() => setIsEditingBranchInfo(false)}
                       >
                         Cancel
                       </Button>
@@ -222,22 +221,22 @@ const Profile = () => {
                 <TextField
                   type="text"
                   name="branchName"
-                  label="Full Name"
-                  isDisabled={!isEditingPersonalInfo}
+                  label="Branch Name"
+                  isDisabled={!isEditingBranchInfo}
                   icon={<FaUser className="w-4 h-4 text-black" />}
                 />
                 <TextField
                   type="number"
                   name="phone"
                   label="Phone Number"
-                  isDisabled={!isEditingPersonalInfo}
+                  isDisabled={!isEditingBranchInfo}
                   icon={<IoKeypad className="w-4 h-4 text-black" />}
                 />
                 <TextField
                   type="email"
                   name="email"
                   label="Email Address"
-                  isDisabled={!isEditingPersonalInfo}
+                  isDisabled={!isEditingBranchInfo}
                   icon={<MdEmail className="w-4 h-4 text-black" />}
                 />
               </div>
@@ -253,7 +252,7 @@ const Profile = () => {
               licenseNumber: user.licenseNumber,
             }}
             validationSchema={CompanyInfoValidationSchema}
-            onSubmit={handleUpdatePersonalInfo}
+            onSubmit={handleUpdateBranchInfo}
           >
             {({ isSubmitting }) => (
               <Form className="flex flex-col space-y-4 w-full">

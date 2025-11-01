@@ -10,7 +10,6 @@ import { FaUserTag } from "react-icons/fa6";
 import useAppStore from "@/stores/AppStore";
 import { useAxios } from "@/hooks/useAxios";
 import ShopLayout from "@/layouts/ShopLayout";
-import { LuRefreshCcw } from "react-icons/lu";
 import useUserStore from "@/stores/useUserStore";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
@@ -69,15 +68,12 @@ const LeftSide: React.FC<Props> = (props) => {
   const { secureAxios } = useAxios();
   const [pages, setPages] = useState(1);
   const [catePages, setCatePages] = useState(1);
-  const hotListRef = React.useRef<CarouselRef>(null);
-  const products = useAppStore((state) => state.products);
   const [suppliers, setSuppliers] = useState<ICategory[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [totalSuppliersPages, setTotalSuppliersPages] = useState(1);
   const [totalCategoriesPages, setTotalCategoriesPages] = useState(1);
   const [isFetchingSuppliers, setIsFetchingSuppliers] = useState(false);
   const [isFetchingCategories, setIsFetchingCategories] = useState(false);
-  const [listContainerWidth, setListContainerWidth] = React.useState(0);
 
   useEffect(() => {
     getSuppliers();
@@ -153,6 +149,7 @@ const LeftSide: React.FC<Props> = (props) => {
 
   return (
     <div className="flex flex-col space-y-6 w-full">
+      <HotDealsCard />
       <Card
         className="bg-primary p-0 text-white"
         variants={{
@@ -269,30 +266,6 @@ const LeftSide: React.FC<Props> = (props) => {
           )}
         </div>
       </Card>
-      <Card
-        variants={{
-          whileInView: { opacity: 1, x: 0 },
-          initial: { opacity: 0, x: -200 },
-          exit: { opacity: 0, x: -200 },
-          transition: { duration: 1, type: "spring" },
-        }}
-        className="bg-primary p-0 text-white"
-      >
-        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <ImFire className="w-6 h-6" />
-          <h2>Hot Deals Day</h2>
-        </div>
-        <div className="p-4">
-          <Courasel
-            ref={hotListRef}
-            itemsLength={products.length}
-            isAutoSlide
-            setListContainerWidth={setListContainerWidth}
-          >
-            <></>
-          </Courasel>
-        </div>
-      </Card>
     </div>
   );
 };
@@ -404,6 +377,87 @@ const RightSide: React.FC<Props> = (props) => {
           ))}
       </div>
     </div>
+  );
+};
+
+const HotDealsCard = () => {
+  const { secureAxios } = useAxios();
+  const [isLoading, setIsLoading] = useState(false);
+  const hotListRef = React.useRef<CarouselRef>(null);
+  const [hotDealsPage, setHotDealsPage] = useState(1);
+  const [hotTotalDealsPages, setHotTotalDealsPages] = useState(1);
+  const [hotDeals, setHotDeals] = useState<IProduct[]>([]);
+  const [currentHotDealIndex, setCurrentHotDealIndex] = useState(0);
+  const [listContainerWidth, setListContainerWidth] = React.useState(0);
+
+  useEffect(() => {
+    getHotDeals();
+  }, [hotDealsPage]);
+
+  useEffect(() => {
+    if (currentHotDealIndex % 10 === 0.8 && hotDealsPage < hotTotalDealsPages) {
+      setHotDealsPage(hotDealsPage + 1);
+    }
+  }, [currentHotDealIndex]);
+
+  const getHotDeals = async () => {
+    setIsLoading(true);
+    await secureAxios
+      .get(`/shop/hotdeals?page=${hotDealsPage}&limit=10`)
+      .then((res) => {
+        console.log("Hot Deals ", res.data);
+        if (res.data.products) {
+          setHotDeals([...hotDeals, ...res.data.products]);
+          setHotTotalDealsPages(res.data.pages);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.message ?? err.message,
+          variant: "error",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  return (
+    hotDeals.length > 0 && (
+      <Card
+        variants={{
+          whileInView: { opacity: 1, x: 0 },
+          initial: { opacity: 0, x: -200 },
+          exit: { opacity: 0, x: -200 },
+          transition: { duration: 1, type: "spring" },
+        }}
+        className="bg-primary p-0 text-white"
+      >
+        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
+          <ImFire className="w-6 h-6" />
+          <h2>Hot Deals Day</h2>
+        </div>
+        <div className="p-4">
+          <Courasel
+            isAutoSlide
+            ref={hotListRef}
+            itemsLength={hotDeals.length}
+            setCurrentIndex={setCurrentHotDealIndex}
+            setListContainerWidth={setListContainerWidth}
+          >
+            {hotDeals.map((product) => (
+              <Product
+                id={product.id}
+                key={product.id}
+                product={product}
+                width={listContainerWidth}
+              />
+            ))}
+          </Courasel>
+        </div>
+      </Card>
+    )
   );
 };
 

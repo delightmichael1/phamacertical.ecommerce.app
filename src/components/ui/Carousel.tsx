@@ -13,6 +13,7 @@ type Props = {
   isAutoSlide?: boolean;
   children: React.ReactNode;
   autoSlideInterval?: number;
+  setCurrentIndex?: React.Dispatch<React.SetStateAction<number>>;
   setListContainerWidth: React.Dispatch<React.SetStateAction<number>>;
 };
 
@@ -29,15 +30,16 @@ const Carousel = forwardRef<CarouselRef, Props>(
       setListContainerWidth,
       autoSlideInterval = 5000,
       isAutoSlide = true,
+      setCurrentIndex,
     },
     ref
   ) => {
     const touchStartX = useRef(0);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const [isHovered, setIsHovered] = useState(false);
-    const autoSlideRef = useRef<NodeJS.Timeout | null>(null);
     const currentIndexRef = useRef(0);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isHovered, setIsHovered] = useState(false);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const autoSlideRef = useRef<NodeJS.Timeout | null>(null);
     const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
@@ -80,7 +82,8 @@ const Carousel = forwardRef<CarouselRef, Props>(
 
           scrollTimeoutRef.current = setTimeout(() => {
             currentIndexRef.current = index;
-          }, 500);
+            setCurrentIndex && setCurrentIndex(index);
+          }, 5000);
         }
       }
     }, []);
@@ -92,6 +95,7 @@ const Carousel = forwardRef<CarouselRef, Props>(
           : currentIndexRef.current + 1;
 
       scrollToIndex(nextIndex, true);
+      setCurrentIndex && setCurrentIndex(nextIndex);
 
       if (autoSlideRef.current) {
         clearInterval(autoSlideRef.current);
@@ -110,6 +114,7 @@ const Carousel = forwardRef<CarouselRef, Props>(
           : currentIndexRef.current - 1;
 
       scrollToIndex(prevIndex, true);
+      setCurrentIndex && setCurrentIndex(prevIndex);
 
       if (autoSlideRef.current) {
         clearInterval(autoSlideRef.current);
@@ -187,7 +192,7 @@ const Carousel = forwardRef<CarouselRef, Props>(
 
     return (
       <div
-        className="relative w-full overflow-hidden rounded-lg"
+        className="relative rounded-lg w-full overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onMouseEnter={() => setIsHovered(true)}

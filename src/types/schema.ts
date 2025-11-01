@@ -49,13 +49,13 @@ export const ResetPasswordValidationSchema = yup.object().shape({
   password: yup.string().required("Password is required"),
 });
 
-export const PersonalInfoValidationSchema = yup.object().shape({
+export const BranchInfoValidationSchema = yup.object().shape({
   email: yup
     .string()
     .email("Enter a valid email")
     .required("Email is required"),
   phone: yup.string().required("Phone is required"),
-  branchName: yup.string().required("Full name is required"),
+  branchName: yup.string().required("Branch name is required"),
 });
 
 export const CompanyInfoValidationSchema = yup.object().shape({
