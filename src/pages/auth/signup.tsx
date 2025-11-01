@@ -321,8 +321,8 @@ function Signup() {
                   />
                   <TextField
                     label="Full Name"
-                    type="fullName"
-                    name="fullName"
+                    type="branchName"
+                    name="branchName"
                     placeholder="Enter full name"
                     icon={<BiRename size={20} />}
                     className="bg-white/40"

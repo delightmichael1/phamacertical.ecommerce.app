@@ -17,7 +17,7 @@ type Props = {
 function DashboardTopNav(props: Props) {
   const { openModal } = useModal();
   const { notications } = useAppStore();
-  const { fullname, email } = useUserStore();
+  const { branchName, email } = useUserStore();
 
   return (
     <div className="top-0 sticky justify-center items-center backdrop-blur-lg p-4 w-full">
@@ -50,7 +50,7 @@ function DashboardTopNav(props: Props) {
           <div className="flex items-center space-x-2 p-1 pr-4 border border-gray-400 rounded-full">
             <FaUser className="bg-strokedark/40 p-1 rounded-full w-8 h-8 text-primary" />
             <div className="flex flex-col">
-              <span className="text-sm">{fullname}</span>
+              <span className="text-sm">{branchName}</span>
               <span className="text-xxs">{email}</span>
             </div>
           </div>

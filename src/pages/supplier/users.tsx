@@ -174,11 +174,11 @@ const UserCard = ({ user }: { user: IUser }) => {
           {user.logo ? (
             <img
               src={user.logo}
-              alt={user.fullname}
+              alt={user.branchName}
               className="rounded-full w-full h-full object-cover"
             />
           ) : (
-            user.fullname
+            user.branchName
               ?.split(" ")
               .map((n) => n[0])
               .join("")
@@ -188,7 +188,7 @@ const UserCard = ({ user }: { user: IUser }) => {
         </div>
         <div className="flex flex-col space-y-1">
           <h3 className="font-semibold text-gray-900 text-xl">
-            {user.fullname}
+            {user.branchName}
           </h3>
           <p className="text-gray-600 text-sm capitalize">{user.role}</p>
         </div>

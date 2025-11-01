@@ -16,6 +16,7 @@ interface IOrder {
   total: number;
   totalCost: number;
   createdAt: string;
+  deliveryDate: string;
   status: "pending" | "accepted" | "shipped" | "cancelled";
 }
 
@@ -57,7 +58,7 @@ interface IUser {
   phone: string;
   logo?: string;
   address: string;
-  fullname: string;
+  branchName: string;
   license?: string;
   verified: boolean;
   companyName: string;
@@ -70,4 +71,18 @@ interface IUser {
 interface ICategory {
   name: string;
   id: string;
+}
+
+interface OrderDistribution {
+  month: string;
+  orders: number;
+}
+
+interface OrderStats {
+  acceptedOrders: number;
+  cancelledOrders: number;
+  pendingOrders: number;
+  shippedOrders: number;
+  totalOrders: number;
+  orderDistribution: OrderDistribution[];
 }

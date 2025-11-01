@@ -52,7 +52,7 @@ function Index() {
 
   return (
     <DashboardLayout title="Users" description="Manage users">
-      <Card className="w-full h-full min-h-full overflow-y-auto">
+      <div className="w-full">
         <div className="flex justify-between items-center">
           <SearchInput />
           <div className="flex items-center space-x-4">
@@ -78,19 +78,12 @@ function Index() {
               width={0}
               height={0}
               sizes="100vw"
-              className="rounded-xl w-full max-w-[20rem] object-cover aspect-square"
+              className="mt-40 rounded-xl w-full max-w-[20rem] object-cover aspect-square"
             />
             <span className="font-bold text-2xl">There are no users yet</span>
-            <Button
-              className="bg-primary h-10"
-              onClick={() => openModal(<AddUser />)}
-            >
-              <IoMdAdd />
-              <span>Add new user</span>
-            </Button>
           </div>
         )}
-      </Card>
+      </div>
     </DashboardLayout>
   );
 }
@@ -172,17 +165,16 @@ const UserCard = ({ user }: { user: IUser }) => {
         )}
       </div>
 
-      {/* Logo */}
       <div className="flex items-start mb-4">
         <div className="flex justify-center items-center bg-gradient-to-br from-blue-500 to-purple-600 rounded-full w-16 h-16 font-bold text-white text-xl">
           {user.logo ? (
             <img
               src={user.logo}
-              alt={user.fullname}
+              alt={user.branchName}
               className="rounded-full w-full h-full object-cover"
             />
           ) : (
-            user.fullname
+            user.branchName
               ?.split(" ")
               .map((n) => n[0])
               .join("")
@@ -194,7 +186,9 @@ const UserCard = ({ user }: { user: IUser }) => {
 
       {/* Full Name & Verified Badge */}
       <div className="flex items-center gap-2 mb-2">
-        <h3 className="font-semibold text-gray-900 text-xl">{user.fullname}</h3>
+        <h3 className="font-semibold text-gray-900 text-xl">
+          {user.branchName}
+        </h3>
         {user.verified && (
           <svg
             className="w-5 h-5 text-blue-500"

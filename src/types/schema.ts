@@ -19,7 +19,7 @@ export const UserValidationSchema = yup.object().shape({
     .email("Enter a valid email")
     .required("Email is required"),
   phone: yup.string().required("Phone is required"),
-  fullName: yup.string().required("Full name is required"),
+  branchName: yup.string().required("Full name is required"),
   city: yup.string().required("City is required"),
   address: yup.string().required("Address is required"),
 });
@@ -47,4 +47,23 @@ export const ForgotPasswordValidationSchema = yup.object().shape({
 
 export const ResetPasswordValidationSchema = yup.object().shape({
   password: yup.string().required("Password is required"),
+});
+
+export const PersonalInfoValidationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  phone: yup.string().required("Phone is required"),
+  branchName: yup.string().required("Full name is required"),
+});
+
+export const CompanyInfoValidationSchema = yup.object().shape({
+  companyName: yup.string().required("Company name is required"),
+  licenseNumber: yup.string().required("License number is required"),
+});
+
+export const PasswordValidationSchema = yup.object().shape({
+  oldPassword: yup.string().required("Current password is required"),
+  newPassword: yup.string().required("New password is required"),
 });

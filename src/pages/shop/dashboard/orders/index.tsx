@@ -10,6 +10,7 @@ import SearchInput from "@/components/input/SearchInput";
 import usePersistedStore from "@/stores/PersistedStored";
 import React, { useEffect, useMemo, useState } from "react";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
+import { del } from "framer-motion/client";
 
 function Orders() {
   const router = useRouter();
@@ -105,7 +106,10 @@ function Orders() {
                         Order ID
                       </th>
                       <th className="p-3 font-semibold text-sm text-left">
-                        Date
+                        Order Date
+                      </th>
+                      <th className="p-3 font-semibold text-sm text-left">
+                        Delivery Date
                       </th>
                       <th className="p-3 font-semibold text-sm text-left">
                         Total
@@ -139,6 +143,11 @@ function Orders() {
                           </td>
                           <td className="p-3 text-sm">
                             {formatDate(order.createdAt)}
+                          </td>
+                          <td className="p-3 text-sm">
+                            {Number(order.deliveryDate) > 0
+                              ? formatDate(order.deliveryDate)
+                              : "-"}
                           </td>
                           <td className="p-3">
                             <span className="font-semibold text-green-600">

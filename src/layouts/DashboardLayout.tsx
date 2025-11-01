@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
+import Breadcrumb from "@/components/ui/BreadCrumb";
 import DashboardTopNav from "@/components/navigation/DashboardTopNav";
 import DashboardSideBar from "@/components/navigation/DashboardSideBar";
-import Breadcrumb from "@/components/ui/BreadCrumb";
 
 interface Props {
   title: string;
@@ -21,10 +21,12 @@ function DashboardLayout(props: Props) {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, type: "spring" }}
-          className="flex flex-col p-4 w-full h-full"
+          className="flex flex-col p-4 pt-0 w-full h-full"
         >
-          <Breadcrumb />
-          <div className="flex flex-col mx-auto my-4 container">
+          <div className="flex flex-col mx-auto container">
+            <Breadcrumb />
+          </div>
+          <div className="flex flex-col mx-auto mt-6 mb-4 container">
             <h1 className="text-2xl">{props.title}</h1>
             <span className="text-gray-500">{props.description}</span>
           </div>

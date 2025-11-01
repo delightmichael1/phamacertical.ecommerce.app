@@ -23,9 +23,10 @@ const TextField: React.FC<Props> = ({ isRequired = true, ...props }) => {
     <label
       htmlFor={props.id}
       className={cn(
-        "flex border border-strokedark hover:border-primary rounded-xl w-full duration-300",
+        "flex border border-strokedark rounded-xl w-full duration-300",
         props.classNames?.base,
         props.className,
+        !props.isDisabled && "hover:border-primary",
         meta.touched && meta.error && "border-red-500 text-red-500"
       )}
     >

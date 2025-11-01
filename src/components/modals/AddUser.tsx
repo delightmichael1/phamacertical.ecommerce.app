@@ -65,7 +65,7 @@ function AddUser() {
           email: "",
           phone: "",
           address: "",
-          fullName: "",
+          branchName: "",
         }}
         validationSchema={UserValidationSchema}
         onSubmit={handleSubmit}
@@ -75,8 +75,8 @@ function AddUser() {
             <>
               <TextField
                 label="Full Name"
-                type="fullName"
-                name="fullName"
+                type="text"
+                name="branchName"
                 placeholder="Enter full name"
                 icon={<BiRename size={20} />}
               />
