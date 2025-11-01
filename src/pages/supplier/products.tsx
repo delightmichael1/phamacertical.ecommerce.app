@@ -269,7 +269,13 @@ const RightSide: React.FC<Props> = (props) => {
           <span className="font-bold text-2xl">Your product list is empty</span>
         </div>
       )}
-      {/* <Pagination pages={pages} page={page} setPage={setPage} /> */}
+      {pages > 1 && (
+        <Pagination
+          pageNumber={page}
+          setPageNumber={setPage}
+          contentsLength={products.length}
+        />
+      )}
     </div>
   );
 };

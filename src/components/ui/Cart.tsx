@@ -80,9 +80,9 @@ function Cart() {
                     width={0}
                     height={0}
                     sizes="100vw"
-                    className="bg-primary/10 rounded-xl w-full max-w-[10rem] object-cover aspect-square"
+                    className="bg-primary/10 rounded-xl w-full max-w-[5rem] object-cover aspect-square"
                   />
-                  <div className="flex flex-col space-y-2">
+                  <div className="flex flex-col">
                     <span className="font-bold text-lg">{item.title}</span>
                     <span className="text-primary text-xl">${item.price}</span>
                     <span className="text-xs">{item.description}</span>

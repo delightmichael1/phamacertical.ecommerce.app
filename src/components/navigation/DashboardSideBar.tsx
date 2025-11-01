@@ -108,7 +108,7 @@ const supplierPages = [
     name: "Account Management",
     icon: FaUserCog,
     href: "/supplier/account",
-    role: "retailer",
+    role: "supplier",
   },
 ];
 

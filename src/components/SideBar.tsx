@@ -153,12 +153,11 @@ function Cart(props: Props) {
                   width={0}
                   height={0}
                   sizes="100vw"
-                  className="bg-primary/10 rounded-xl w-full max-w-[10rem] object-cover aspect-square"
+                  className="bg-primary/10 rounded-xl w-full max-w-14 object-cover aspect-square"
                 />
-                <div className="flex flex-col space-y-2">
-                  <span className="font-bold text-lg">{item.title}</span>
-                  <span className="text-primary text-xl">${item.price}</span>
-                  <span className="text-xs">{item.description}</span>
+                <div className="flex flex-col space-y-1">
+                  <span className="font-bold text-sm">{item.title}</span>
+                  <span className="text-primary text-lg">${item.price}</span>
                 </div>
               </div>
               <div className="flex justify-between items-center space-x-10 w-full">
