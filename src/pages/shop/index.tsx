@@ -436,7 +436,7 @@ const HotDealsCard = () => {
           <ImFire className="w-6 h-6" />
           <h2>Hot Deals Day</h2>
         </div>
-        <div className="p-4">
+        <div className="p-4 text-black">
           <Courasel
             isAutoSlide
             ref={hotListRef}
