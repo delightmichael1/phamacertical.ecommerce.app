@@ -21,6 +21,14 @@ type Props = {
   product: IProduct;
   isOrder?: boolean;
   isSupplier?: boolean;
+  classNames?: {
+    base?: string;
+    image?: string;
+    title?: string;
+    price?: string;
+    quantity?: string;
+    button?: string;
+  };
 };
 
 const Product: React.FC<Props> = (props) => {
@@ -69,7 +77,7 @@ const Product: React.FC<Props> = (props) => {
       }
       transition={{ duration: 0.3 }}
     >
-      <div className="relative bg-gray-200 rounded-lg w-full h-64 overflow-hidden">
+      <div className="relative bg-gray-200 rounded-lg w-full aspect-square overflow-hidden">
         <Image
           src={props.product.image}
           alt={props.product.title}
@@ -176,7 +184,7 @@ const Product: React.FC<Props> = (props) => {
           onClick={handleAddToCart}
           className="flex items-center space-x-2 hover:bg-primary mt-3 pr-8 rounded-full w-fit text-primary hover:text-white transition-colors duration-300 cursor-pointer"
         >
-          <HiOutlineShoppingBag className="bg-primary p-2 rounded-full w-10 h-10 text-white" />
+          <HiOutlineShoppingBag className="bg-primary p-2 rounded-full w-8 h-8 text-white" />
           <span className="font-medium text-sm">Add to Cart</span>
         </button>
       )}

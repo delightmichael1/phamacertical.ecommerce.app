@@ -68,7 +68,6 @@ const Profile = () => {
       ...user,
       ...values,
     };
-    console.log(data);
     await secureAxios
       .post("/user/update", data)
       .then((res) => {
@@ -94,7 +93,6 @@ const Profile = () => {
     setIsLoading(true);
     const file = e.target.files[0];
     if (file) {
-      console.log(file);
       await secureAxios
         .post(
           "/admin/logo",
@@ -106,7 +104,6 @@ const Profile = () => {
           }
         )
         .then((res) => {
-          console.log(res.data);
           toast({
             variant: "success",
             description: res.data.message,

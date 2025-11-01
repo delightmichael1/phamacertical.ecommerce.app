@@ -107,7 +107,6 @@ const LeftSide: React.FC<Props> = (props) => {
     await secureAxios
       .get("/shop/categories?page=" + catePages)
       .then((res) => {
-        console.log("Categories ", res.data);
         if (res.data.categories) {
           setCategories(res.data.categories);
           setTotalCategoriesPages(res.data.pages);
@@ -359,7 +358,7 @@ const RightSide: React.FC<Props> = (props) => {
           </div>
         </div>
       )}
-      <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {!isLoading &&
           products.map((product, index) => (
             <motion.div
@@ -405,7 +404,6 @@ const HotDealsCard = () => {
     await secureAxios
       .get(`/shop/hotdeals?page=${hotDealsPage}&limit=10`)
       .then((res) => {
-        console.log("Hot Deals ", res.data);
         if (res.data.products) {
           setHotDeals([...hotDeals, ...res.data.products]);
           setHotTotalDealsPages(res.data.pages);

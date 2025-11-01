@@ -25,8 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <main
-      id="main"
-      className="bg-gradient-to-tl from-background-2 to-background w-full overflow-x-hidden font-poppins text-xs"
+      className="bg-gradient-to-tl from-background-2 to-background w-full font-poppins text-xs"
       style={{ height: `${pageHeight}px` }}
     >
       <Head>
@@ -40,7 +39,13 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
       <AuthProvider>
         <ModalProvider>
-          <Component {...pageProps} />
+          <div
+            id="main"
+            className="w-full h-full overflow-x-hidden overflow-y-auto"
+          >
+            <Component {...pageProps} />
+          </div>
+
           <Toast />
         </ModalProvider>
       </AuthProvider>

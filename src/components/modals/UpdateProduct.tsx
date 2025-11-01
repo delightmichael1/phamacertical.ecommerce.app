@@ -46,7 +46,6 @@ function UpdateProduct(props: Props) {
     await secureAxios
       .get("/shop/categories?page=1")
       .then((res) => {
-        console.log("Categories ", res.data);
         if (res.data.categories) {
           setCategories(res.data.categories);
         }

@@ -174,7 +174,6 @@ function Signup() {
 
           resolve(canvas.toDataURL());
         } catch (error) {
-          console.error("Error generating PDF preview:", error);
           resolve("");
         }
       };

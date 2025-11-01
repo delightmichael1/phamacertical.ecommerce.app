@@ -107,7 +107,6 @@ const UserCard = ({ user }: { user: IUser }) => {
   }, []);
 
   const handleAction = (action: string) => {
-    console.log(`Action ${action} for user ${user.id}`);
     setIsDropdownOpen(false);
   };
 
