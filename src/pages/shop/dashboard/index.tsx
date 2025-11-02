@@ -104,7 +104,7 @@ function Index() {
 
   const fetchData = async () => {
     try {
-      const response = await secureAxios.get("/user/dashboard");
+      const response = await secureAxios.get("/shop/dashboard");
       setOrderStats(response.data);
     } catch (error: any) {
       toast({

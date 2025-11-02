@@ -4,10 +4,13 @@ import debounce from "lodash.debounce";
 import Card from "@/components/ui/Card";
 import Product from "@/components/Product";
 import useAppStore from "@/stores/AppStore";
+import { useAxios } from "@/hooks/useAxios";
 import { RiAddLargeLine } from "react-icons/ri";
 import Button from "@/components/buttons/Button";
 import { RxHamburgerMenu } from "react-icons/rx";
 import useUserStore from "@/stores/useUserStore";
+import { toast } from "@/components/toast/toast";
+import Pagination from "@/components/Pagination";
 import React, { useEffect, useState } from "react";
 import Checkbox from "@/components/input/Checkbox";
 import { useModal } from "@/components/modals/Modal";
@@ -17,9 +20,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AddProduct from "@/components/modals/AddProduct";
 import useProductsRoutes from "@/hooks/useProductsRoutes";
-import { useAxios } from "@/hooks/useAxios";
-import { toast } from "@/components/toast/toast";
-import Pagination from "@/components/Pagination";
 
 type Props = {
   filter: string[];
@@ -36,11 +36,7 @@ function Index() {
   }, []);
 
   return (
-    <DashboardLayout
-      title="Products"
-      description="Manage your products"
-      isSupplier
-    >
+    <DashboardLayout title="Ads" description="Manage your ads" isSupplier>
       <div className="flex flex-col space-y-8 w-full">
         <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto w-full h-fit container">
           <div className="w-full lg:w-1/4">

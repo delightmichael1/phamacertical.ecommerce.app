@@ -127,7 +127,7 @@ const Product: React.FC<Props> = (props) => {
           >
             <FiSearch className="w-full h-full" />
           </button>
-          {props.isSupplier && (
+          {props.isSupplier && !props.isOrder && (
             <button
               className="flex justify-center items-center bg-white hover:bg-gray-100 shadow-md p-2.5 rounded-full w-10 h-10 text-primary transition cursor-pointer"
               title="Edit"
@@ -143,7 +143,7 @@ const Product: React.FC<Props> = (props) => {
               <FiEdit2 className="w-full h-full" />
             </button>
           )}
-          {props.isSupplier && (
+          {props.isSupplier && !props.isOrder && (
             <button
               className="flex justify-center items-center bg-white hover:bg-gray-100 shadow-md p-2.5 rounded-full w-10 h-10 text-primary transition cursor-pointer"
               title="Delete"
@@ -162,7 +162,7 @@ const Product: React.FC<Props> = (props) => {
         </div>
       </div>
       <p className="mt-4 text-gray-500 text-xs truncate">
-        From {props.product.supplier}
+        From {props.product.supplier.name}
       </p>
       <h3 className="font-semibold text-lg truncate">{props.product.title}</h3>
       <p className="text-gray-500 text-sm truncate">{props.product.category}</p>

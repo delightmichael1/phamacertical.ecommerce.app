@@ -4,7 +4,10 @@ interface IProduct {
   price: number;
   image: string;
   category: string;
-  supplier: string;
+  supplier: {
+    id: string;
+    name: string;
+  };
   quantity: number;
   description: string;
   expiryDate: string;

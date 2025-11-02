@@ -77,7 +77,9 @@ function Cart(props: Props) {
         product: item.id,
         quantity: item.quantity,
       })),
+      suppliers: Array.from(new Set(data.map((p) => p.supplier.id))),
     };
+    console.log(dataToSend);
     setIsLoading(true);
     await secureAxios
       .post("/shop/order", dataToSend)
@@ -240,9 +242,9 @@ function Cart(props: Props) {
               width={0}
               height={0}
               sizes="100vw"
-              className="rounded-xl w-full max-w-[20rem] object-cover aspect-square"
+              className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
             />
-            <span className="font-bold text-2xl">Your cart is empty</span>
+            <span className="font-bold text-xl">Your cart is empty</span>
           </div>
         )}
       </div>

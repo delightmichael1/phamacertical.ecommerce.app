@@ -84,9 +84,9 @@ function Index() {
               width={0}
               height={0}
               sizes="100vw"
-              className="rounded-xl w-full max-w-[20rem] object-cover aspect-square"
+              className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
             />
-            <span className="font-bold text-2xl">There are no users yet</span>
+            <span className="font-bold text-xl">There are no users yet</span>
             <Button
               className="bg-primary h-10"
               onClick={() => openModal(<AddUser />)}

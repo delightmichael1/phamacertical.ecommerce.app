@@ -111,11 +111,9 @@ function WishList() {
                 width={0}
                 height={0}
                 sizes="100vw"
-                className="rounded-xl w-full max-w-[20rem] object-cover aspect-square"
+                className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
               />
-              <span className="font-bold text-2xl">
-                Your wish list is empty
-              </span>
+              <span className="font-bold text-xl">Your wish list is empty</span>
             </div>
           )}
         </div>

@@ -5,12 +5,13 @@ import { FaUser } from "react-icons/fa6";
 import { useModal } from "../modals/Modal";
 import useAppStore from "@/stores/AppStore";
 import AddProduct from "../modals/AddProduct";
-import SearchInput from "../input/SearchInput";
 import { RiAddLargeLine } from "react-icons/ri";
 import { IoNotificationsOutline } from "react-icons/io5";
 import useUserStore from "@/stores/useUserStore";
 
 type Props = {
+  title?: string;
+  description?: string;
   isSupplier?: boolean;
 };
 
@@ -22,7 +23,10 @@ function DashboardTopNav(props: Props) {
   return (
     <div className="top-0 sticky justify-center items-center backdrop-blur-lg p-4 w-full">
       <div className="flex justify-between items-center space-x-4 mx-auto w-full container">
-        <div />
+        <div className="flex flex-col">
+          <h1 className="text-2xl">{props.title}</h1>
+          <span className="text-gray-500">{props.description}</span>
+        </div>
         <div className="flex items-center space-x-4">
           {props.isSupplier && (
             <Button

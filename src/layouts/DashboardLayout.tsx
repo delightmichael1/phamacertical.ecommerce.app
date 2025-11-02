@@ -16,19 +16,19 @@ function DashboardLayout(props: Props) {
     <div className="flex w-full h-full overflow-hidden">
       <DashboardSideBar isSupplier={props.isSupplier} />
       <div className="flex flex-col space-y-4 w-full h-full overflow-y-auto">
-        <DashboardTopNav isSupplier={props.isSupplier} />
+        <DashboardTopNav
+          title={props.title}
+          description={props.description}
+          isSupplier={props.isSupplier}
+        />
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, type: "spring" }}
           className="flex flex-col p-4 pt-0 w-full h-full"
         >
-          <div className="flex flex-col mx-auto container">
+          <div className="flex flex-col mx-auto mb-10 container">
             <Breadcrumb />
-          </div>
-          <div className="flex flex-col mx-auto mt-6 mb-4 container">
-            <h1 className="text-2xl">{props.title}</h1>
-            <span className="text-gray-500">{props.description}</span>
           </div>
           {props.children}
         </motion.div>

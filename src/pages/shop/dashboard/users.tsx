@@ -78,9 +78,9 @@ function Index() {
               width={0}
               height={0}
               sizes="100vw"
-              className="mt-40 rounded-xl w-full max-w-[20rem] object-cover aspect-square"
+              className="mt-40 rounded-xl w-full max-w-[10rem] object-cover aspect-square"
             />
-            <span className="font-bold text-2xl">There are no users yet</span>
+            <span className="font-bold text-xl">There are no users yet</span>
           </div>
         )}
       </div>

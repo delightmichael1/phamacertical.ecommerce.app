@@ -2,6 +2,7 @@ import Image from "next/image";
 import { FaEye } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { useAxios } from "@/hooks/useAxios";
+import Preloader from "@/components/Preloader";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
 import Dropdown from "@/components/dropdown/Dropdown";
@@ -10,7 +11,6 @@ import SearchInput from "@/components/input/SearchInput";
 import usePersistedStore from "@/stores/PersistedStored";
 import React, { useEffect, useMemo, useState } from "react";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
-import { del } from "framer-motion/client";
 
 function Orders() {
   const router = useRouter();
@@ -18,6 +18,7 @@ function Orders() {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("Newest");
   const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const orders = usePersistedStore((state) => state.orders);
 
@@ -29,6 +30,7 @@ function Orders() {
   }, [orders, searchQuery]);
 
   const fetchOrders = async () => {
+    setIsLoading(true);
     let fxsort = -1;
     if (sortBy === "Newest") fxsort = -1;
     else if (sortBy === "Oldest") fxsort = 1;
@@ -55,6 +57,8 @@ function Orders() {
         }`,
         variant: "error",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,9 +67,13 @@ function Orders() {
   }, []);
 
   return (
-    <DashboardLayout title="Orders" description="Manage my orders list">
+    <DashboardLayout
+      title="Orders"
+      description="Manage my orders list"
+      isSupplier
+    >
       <div className="flex flex-col space-y-4 mx-auto w-full h-full container">
-        <div className="w-full h-full overflow-y-auto">
+        <div className="w-full">
           <div className="flex justify-between items-center">
             <SearchInput onChange={(e) => setSearchQuery(e)} />
             <div className="flex items-center space-x-4">
@@ -81,8 +89,8 @@ function Orders() {
               />
             </div>
           </div>
-          {orders?.length === 0 && (
-            <div className="flex flex-col justify-center items-center space-y-4 w-full h-[90%]">
+          {!isLoading && orders?.length === 0 && (
+            <div className="flex flex-col justify-center items-center space-y-4 my-72 w-full">
               <Image
                 src="/svgs/empty-cart.svg"
                 alt="empty cart"
@@ -96,7 +104,7 @@ function Orders() {
               </span>
             </div>
           )}
-          {orders?.length > 0 && (
+          {!isLoading && orders?.length > 0 && (
             <div className="flex flex-col space-y-4 mt-4">
               <div className="overflow-x-auto">
                 <table className="bg-gray-50 rounded-xl w-full">
@@ -169,9 +177,7 @@ function Orders() {
                               size={20}
                               className="cursor-pointer"
                               onClick={() =>
-                                router.push(
-                                  `/shop/dashboard/orders/${order.id}`
-                                )
+                                router.push(`/supplier/orders/${order.id}`)
                               }
                             />
                           </td>
@@ -193,6 +199,11 @@ function Orders() {
                   />
                 )}
               </div>
+            </div>
+          )}
+          {isLoading && (
+            <div className="py-96">
+              <Preloader />
             </div>
           )}
         </div>

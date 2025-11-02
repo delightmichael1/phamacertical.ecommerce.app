@@ -20,7 +20,7 @@ function Index() {
     }, {} as Record<string, number>);
 
     const companyCount = products.reduce((acc, product) => {
-      acc[product.supplier] = (acc[product.supplier] || 0) + 1;
+      acc[product.supplier.id] = (acc[product.supplier.id] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
