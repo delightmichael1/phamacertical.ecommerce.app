@@ -56,7 +56,7 @@ function QuickView(props: Props) {
         className="bg-gray-300 rounded-xl w-full object-cover aspect-square"
       />
       <div className="flex flex-col space-y-4 w-full">
-        <span>{selectedProduct?.supplier}</span>
+        <span>{selectedProduct?.supplier.name}</span>
         <h2 className="font-bold text-2xl">{selectedProduct?.title}</h2>
         <p className="text-sm">{selectedProduct?.description}</p>
         <span className="font-bold text-primary text-xl">

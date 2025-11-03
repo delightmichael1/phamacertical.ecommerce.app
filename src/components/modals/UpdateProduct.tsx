@@ -16,6 +16,7 @@ import { ProductValidationSchema } from "@/types/schema";
 import { FiDollarSign, FiEdit2, FiFileText } from "react-icons/fi";
 import { format } from "date-fns";
 import Image from "next/image";
+import DateField from "../input/DatePicker";
 
 type Props = {
   selectedProduct: IProduct | undefined;
@@ -158,7 +159,7 @@ function UpdateProduct(props: Props) {
                 placeholder="Enter quantity"
                 icon={<HiNumberedList size={20} />}
               />
-              <TextField
+              <DateField
                 label="Expiry date"
                 type="date"
                 name="expiryDate"

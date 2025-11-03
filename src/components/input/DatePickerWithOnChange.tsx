@@ -177,7 +177,10 @@ export default function DateFieldWithOnChange(props: Props) {
           </div>
           <div
             onClick={() => setShowCalendar(!showCalendar)}
-            className="flex justify-between items-center bg-white cursor-pointer"
+            className={cn(
+              "flex justify-between items-center cursor-pointer",
+              props.classNames?.input
+            )}
           >
             <span>
               {selectedDate

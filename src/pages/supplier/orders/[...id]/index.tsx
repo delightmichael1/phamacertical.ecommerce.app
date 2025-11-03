@@ -53,6 +53,8 @@ function Order() {
       });
   };
 
+  console.log(id);
+
   return (
     <DashboardLayout isSupplier title="Order" description={"Id: #" + id}>
       <div className="flex flex-col space-y-4 mx-auto container">
@@ -86,12 +88,12 @@ function Order() {
                     <AcceptOrderModal
                       orderId={id as string}
                       closeModal={closeModal}
-                      type={"approve"}
+                      type={"accepted"}
                     />
                   )
                 }
               >
-                Approve
+                Accept
               </DropdownItem>
               <DropdownItem
                 onClick={() =>
@@ -99,7 +101,7 @@ function Order() {
                     <AcceptOrderModal
                       orderId={id as string}
                       closeModal={closeModal}
-                      type={"reject"}
+                      type={"cancelled"}
                     />
                   )
                 }

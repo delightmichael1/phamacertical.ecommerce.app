@@ -1,14 +1,17 @@
 import Image from "next/image";
 import { useState } from "react";
+import StopAd from "./modals/StopAd";
 import { motion } from "framer-motion";
-import { BsTrash3 } from "react-icons/bs";
+import UpdateAd from "./modals/UpdateAd";
 import { useModal } from "./modals/Modal";
 import QuickView from "./modals/QuickView";
 import { FaRegHeart } from "react-icons/fa";
 import useAppStore from "@/stores/AppStore";
 import FlyingToCart from "./ui/FlyingToCart";
 import AddedToCart from "./modals/AddedToCart";
+import { LiaBuysellads } from "react-icons/lia";
 import { VscHeartFilled } from "react-icons/vsc";
+import { BsStop, BsTrash3 } from "react-icons/bs";
 import { FiEdit2, FiSearch } from "react-icons/fi";
 import UpdateProduct from "./modals/UpdateProduct";
 import DeleteProduct from "./modals/DeleteProduct";
@@ -29,6 +32,9 @@ type Props = {
     quantity?: string;
     button?: string;
   };
+  isAd?: boolean;
+  isSelected?: boolean;
+  onAdButtonClick?: (value: string) => void;
 };
 
 const Product: React.FC<Props> = (props) => {
@@ -133,17 +139,24 @@ const Product: React.FC<Props> = (props) => {
               title="Edit"
               onClick={() =>
                 openModal(
-                  <UpdateProduct
-                    selectedProduct={props.product}
-                    closeModal={closeModal}
-                  />
+                  props.isAd ? (
+                    <UpdateAd
+                      selectedProduct={props.product}
+                      closeModal={closeModal}
+                    />
+                  ) : (
+                    <UpdateProduct
+                      selectedProduct={props.product}
+                      closeModal={closeModal}
+                    />
+                  )
                 )
               }
             >
               <FiEdit2 className="w-full h-full" />
             </button>
           )}
-          {props.isSupplier && !props.isOrder && (
+          {props.isSupplier && !props.isAd && !props.isOrder && (
             <button
               className="flex justify-center items-center bg-white hover:bg-gray-100 shadow-md p-2.5 rounded-full w-10 h-10 text-primary transition cursor-pointer"
               title="Delete"
@@ -157,6 +170,19 @@ const Product: React.FC<Props> = (props) => {
               }
             >
               <BsTrash3 className="w-full h-full" />
+            </button>
+          )}
+          {props.isSupplier && props.isAd && !props.isOrder && (
+            <button
+              className="flex justify-center items-center bg-white hover:bg-gray-100 shadow-md p-2.5 rounded-full w-10 h-10 text-primary transition cursor-pointer"
+              title="Stop ad"
+              onClick={() =>
+                openModal(
+                  <StopAd product={props.product} closeModal={closeModal} />
+                )
+              }
+            >
+              <BsStop className="w-full h-full" />
             </button>
           )}
         </div>
@@ -178,6 +204,17 @@ const Product: React.FC<Props> = (props) => {
           </span>
         </div>
       )}
+      {props.isAd && (
+        <div className="pt-5">
+          <span
+            className={`${
+              props.product.status === "active" ? "bg-green-500" : "bg-red-500"
+            } mt-10 px-4 py-1 rounded-full font-bold text-white text-sm`}
+          >
+            {props.product.status}
+          </span>
+        </div>
+      )}
       {!props.isSupplier && !props.isOrder && (
         <button
           id={"addToCart" + props.id}
@@ -186,6 +223,19 @@ const Product: React.FC<Props> = (props) => {
         >
           <HiOutlineShoppingBag className="bg-primary p-2 rounded-full w-8 h-8 text-white" />
           <span className="font-medium text-sm">Add to Cart</span>
+        </button>
+      )}
+      {props.isSupplier && !props.isOrder && !props.isAd && (
+        <button
+          onClick={() =>
+            props.onAdButtonClick && props.onAdButtonClick(props.product.id)
+          }
+          className="flex items-center space-x-2 hover:bg-primary mt-3 pr-8 rounded-full w-fit text-primary hover:text-white transition-colors duration-300 cursor-pointer"
+        >
+          <LiaBuysellads className="bg-primary p-2 rounded-full w-8 h-8 text-white" />
+          <span className="font-medium text-sm">
+            {props.isSelected ? "Remove from" : "Add to"} Ads
+          </span>
         </button>
       )}
       {!props.isSupplier && !props.isOrder && showFlyingToCart && (

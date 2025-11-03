@@ -33,6 +33,10 @@ export const ProductValidationSchema = yup.object().shape({
   expiryDate: yup.string().required("Expiry date is required"),
 });
 
+export const AddValidationSchema = yup.object().shape({
+  expiryDate: yup.string().required("Expiry date is required"),
+});
+
 export const SignInValidationSchema = yup.object().shape({
   password: yup.string().required("Password is required"),
   id: yup.string().required("Identification number is required"),

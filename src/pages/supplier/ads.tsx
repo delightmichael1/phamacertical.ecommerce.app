@@ -1,285 +1,238 @@
 import Image from "next/image";
-import { v4 as uuid } from "uuid";
 import debounce from "lodash.debounce";
-import Card from "@/components/ui/Card";
+import { BiPlus } from "react-icons/bi";
+import React, { useState } from "react";
 import Product from "@/components/Product";
+import { useRouter } from "next/navigation";
 import useAppStore from "@/stores/AppStore";
 import { useAxios } from "@/hooks/useAxios";
-import { RiAddLargeLine } from "react-icons/ri";
-import Button from "@/components/buttons/Button";
-import { RxHamburgerMenu } from "react-icons/rx";
-import useUserStore from "@/stores/useUserStore";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
-import React, { useEffect, useState } from "react";
-import Checkbox from "@/components/input/Checkbox";
-import { useModal } from "@/components/modals/Modal";
+import Button from "@/components/buttons/Button";
+import useUserStore from "@/stores/useUserStore";
 import Dropdown from "@/components/dropdown/Dropdown";
 import { CardSkeleton } from "@/components/ui/Shimmer";
 import { AnimatePresence, motion } from "framer-motion";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import AddProduct from "@/components/modals/AddProduct";
-import useProductsRoutes from "@/hooks/useProductsRoutes";
 
-type Props = {
-  filter: string[];
-  setFilter: React.Dispatch<React.SetStateAction<string[]>>;
-};
-
-function Index() {
+function AdsDisplay() {
+  const router = useRouter();
+  const { secureAxios } = useAxios();
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [status, setStatus] = useState("All");
+  const ads = useAppStore((state) => state.ads);
+  const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = React.useState<string[]>([]);
+  const [sort, setSort] = useState<"Newest" | "Oldest">("Newest");
 
-  useEffect(() => {
-    useAppStore.setState((state) => {
-      state.showCartConfirmDialog = true;
-    });
-  }, []);
+  const id = useUserStore((state) =>
+    state.role.includes("super") ? state.id : state.administrator
+  );
+
+  const handleDelete = (name: string) => {
+    setFilter(filter.filter((item) => item !== name));
+  };
+
+  const getAds = async () => {
+    setIsLoading(true);
+    let fxsort = -1;
+    if (sort === "Newest") fxsort = -1;
+    else if (sort === "Oldest") fxsort = 1;
+    try {
+      const response = await secureAxios.get(
+        `/shop/hotdeals?page=${page}&limit=10&supplier=${id}&sort=${fxsort}${
+          status !== "All" ? `&status=${status.toLowerCase()}` : ""
+        }`
+      );
+
+      console.log(response);
+      if (response.data.products) {
+        useAppStore.setState((state) => {
+          state.ads = response.data.products;
+        });
+        setPages(response.data.pages || 1);
+      } else {
+        useAppStore.setState((state) => {
+          state.ads = [];
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err?.response?.data?.message ?? err.message,
+        variant: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const debouncedSearch = React.useCallback(
+    debounce(async () => {
+      await getAds();
+    }, 500),
+    [page, sort, filter, status]
+  );
+
+  React.useEffect(() => {
+    debouncedSearch();
+    return debouncedSearch.cancel;
+  }, [filter, page, sort, status]);
+
+  const isExpired = (endDate: string) => {
+    return new Date(endDate) < new Date();
+  };
+
+  const getDaysRemaining = (endDate: string) => {
+    const end = new Date(endDate);
+    const now = new Date();
+    const diffTime = end.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
   return (
-    <DashboardLayout title="Ads" description="Manage your ads" isSupplier>
-      <div className="flex flex-col space-y-8 w-full">
-        <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto w-full h-fit container">
-          <div className="w-full lg:w-1/4">
-            <LeftSide filter={filter} setFilter={setFilter} />
+    <DashboardLayout
+      title="My Advertisements"
+      description="View and manage your active advertisements"
+      isSupplier
+    >
+      <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto w-full h-fit container">
+        <div className="flex flex-col space-y-4 w-full h-full">
+          <div className="flex justify-between items-center space-x-4 text-lg">
+            <span>Showing {ads?.length ?? 0} advertisements</span>
+            <div className="flex items-center space-x-4">
+              <span>Sort by:</span>
+              <Dropdown
+                classNames={{
+                  container: "w-56",
+                  trigger:
+                    "text-primary w-56 justify-between border border-primary px-4 py-2 rounded-lg text-sm",
+                }}
+                onClick={(value) => setSort(value as "Newest" | "Oldest")}
+                options={["Newest", "Oldest"]}
+              />
+              <Dropdown
+                classNames={{
+                  container: "w-56",
+                  trigger:
+                    "text-primary w-56 justify-between border border-primary px-4 py-2 rounded-lg text-sm",
+                }}
+                onClick={(value) => setStatus(value as "Active" | "Stopped")}
+                options={["All", "Active", "Stopped"]}
+              />
+            </div>
           </div>
-          <div className="w-full lg:w-3/4">
-            <RightSide filter={filter} setFilter={setFilter} />
+
+          {filter.length > 0 && (
+            <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
+              <span>Active Filters</span>
+              <div className="flex flex-wrap gap-4">
+                {filter.map((value) => (
+                  <div
+                    key={value}
+                    className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm"
+                  >
+                    <span>{value}</span>
+                    <button
+                      onClick={() => handleDelete(value)}
+                      className="text-red-500 cursor-pointer"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {!isLoading &&
+              ads.map((ad, index) => {
+                const daysRemaining = getDaysRemaining(ad.expiryDate);
+                const expired = isExpired(ad.expiryDate);
+
+                console.log(daysRemaining, expired, ad.expiryDate);
+
+                return (
+                  <AnimatePresence key={ad.id}>
+                    <motion.div
+                      initial={{ opacity: 0.5, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0.5, scale: 0.9 }}
+                      transition={{ duration: 1, type: "spring" }}
+                    >
+                      <div className="relative">
+                        {ad.status === "active" && (
+                          <div
+                            className={`absolute top-2 right-2 z-10 px-3 py-1 rounded-full text-xs font-semibold ${
+                              daysRemaining <= 3
+                                ? "bg-yellow-500 text-white"
+                                : "bg-green-500 text-white"
+                            }`}
+                          >
+                            {`${daysRemaining} day${
+                              daysRemaining !== 1 ? "s" : ""
+                            } left`}
+                          </div>
+                        )}
+                        <Product product={ad} id={ad.id} isSupplier isAd />
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                );
+              })}
+            {isLoading &&
+              Array.from({ length: 6 }).map((_, index) => (
+                <AnimatePresence key={index}>
+                  <motion.div
+                    initial={{ opacity: 0.5, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0.5, scale: 0.9 }}
+                    transition={{ duration: 1, type: "spring" }}
+                  >
+                    <CardSkeleton />
+                  </motion.div>
+                </AnimatePresence>
+              ))}
           </div>
+
+          {!isLoading && ads.length === 0 && (
+            <div className="flex flex-col justify-center items-center space-y-4 py-60 w-full h-full">
+              <Image
+                src="/svgs/empty-cart.svg"
+                alt="empty cart"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
+              />
+              <span className="font-bold text-xl">No advertisements found</span>
+              <span className="text-gray-600 text-sm">
+                Create your first advertisement to get started
+              </span>
+              <Button
+                className="bg-primary w-full max-w-60 h-12 text-sm"
+                onClick={() => router.push("/supplier/products")}
+              >
+                <BiPlus className="w-5 h-5" />
+                <span>Create Advertisement</span>
+              </Button>
+            </div>
+          )}
+
+          {pages > 1 && (
+            <Pagination
+              pageNumber={page}
+              setPageNumber={setPage}
+              contentsLength={ads.length}
+            />
+          )}
         </div>
       </div>
     </DashboardLayout>
   );
 }
 
-const LeftSide: React.FC<Props> = (props) => {
-  const { secureAxios } = useAxios();
-  const [catePages, setCatePages] = useState(1);
-  const [categories, setCategories] = useState<ICategory[]>([]);
-  const [totalCategoriesPages, setTotalCategoriesPages] = useState(1);
-  const [isFetchingCategories, setIsFetchingCategories] = useState(false);
-
-  useEffect(() => {
-    getCategories();
-  }, []);
-
-  const getCategories = async () => {
-    setIsFetchingCategories(true);
-    await secureAxios
-      .get("/shop/categories?page=" + catePages)
-      .then((res) => {
-        console.log("Categories ", res.data);
-        if (res.data.categories) {
-          setCategories(res.data.categories);
-          setTotalCategoriesPages(res.data.pages);
-        }
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err?.response?.data?.message ?? err.message,
-          variant: "error",
-        });
-      })
-      .finally(() => {
-        setIsFetchingCategories(false);
-      });
-  };
-
-  const handleCheckboxChange = (value: boolean, category: string) => {
-    if (value) {
-      props.setFilter([...props.filter, category]);
-    } else {
-      props.setFilter(props.filter.filter((item) => item !== category));
-    }
-  };
-  return (
-    <div className="flex flex-col space-y-6 w-full">
-      <Card
-        className="bg-primary p-0 text-white"
-        variants={{
-          whileInView: { opacity: 1, x: 0 },
-          initial: { opacity: 0, x: -200 },
-          exit: { opacity: 0, x: -200 },
-          transition: {
-            duration: 1,
-            type: "spring",
-          },
-        }}
-      >
-        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <RxHamburgerMenu className="w-6 h-6" />
-          <h2>Categories</h2>
-        </div>
-        <div className="p-4">
-          {categories.map((category, index) => (
-            <div
-              className="p-2 py-3 rounded-lg hover:text-primary text-sm cursor-pointer"
-              key={index}
-            >
-              <Checkbox
-                label={category.name}
-                checked={props.filter.includes(category.name)}
-                classNames={{
-                  label: "group-hover:text-gray-200",
-                  checkbox: "bg-primary-light",
-                }}
-                onChange={(value) => handleCheckboxChange(value, category.name)}
-              />
-            </div>
-          ))}
-          {categories.length === 0 && (
-            <div className="flex flex-col justify-center items-center space-y-4 px-4 py-10">
-              <Image
-                src={"/svgs/empty-cart.svg"}
-                alt="No Data"
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="w-full max-w-40 h-fit"
-              />
-              <span>No Categories</span>
-            </div>
-          )}
-          {totalCategoriesPages > 1 && (
-            <div className="flex justify-end">
-              <Pagination
-                pageNumber={catePages}
-                contentsLength={categories.length}
-                setPageNumber={setCatePages}
-              />
-            </div>
-          )}
-        </div>
-      </Card>
-    </div>
-  );
-};
-const RightSide: React.FC<Props> = (props) => {
-  const { openModal } = useModal();
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const { getProducts } = useProductsRoutes();
-  const [isLoading, setIsLoading] = useState(false);
-  const products = useAppStore((state) => state.products);
-  const [sort, setSort] = useState<"Newest" | "Oldest">("Newest");
-  const id = useUserStore((state) =>
-    state.role.includes("super") ? state.id : state.administrator
-  );
-
-  const handlDelete = (name: string) => {
-    props.setFilter(props.filter.filter((item) => item !== name));
-  };
-
-  const debouncedSearch = React.useCallback(
-    debounce(async (filter: string[]) => {
-      if (id) getProducts(sort, page, filter, [id], setIsLoading, setPages);
-    }, 500),
-    [id, page, sort]
-  );
-
-  React.useEffect(() => {
-    debouncedSearch(props.filter);
-    return debouncedSearch.cancel;
-  }, [props.filter, debouncedSearch, id, page, sort]);
-
-  return (
-    <div className="flex flex-col space-y-4 w-full h-full">
-      <div className="flex justify-between items-center space-x-4 text-lg">
-        <span>Showing {products?.length ?? 0} products</span>
-        <div className="flex items-center space-x-4">
-          <span>Sort by:</span>
-          <Dropdown
-            classNames={{
-              container: "w-56",
-              trigger:
-                "text-primary w-56 justify-between border border-primary px-4 py-2 rounded-lg text-sm",
-            }}
-            onClick={(value) => setSort(value as "Newest" | "Oldest")}
-            options={["Newest", "Oldest"]}
-          />
-          <Button
-            className="bg-primary rounded-lg text-sm"
-            onClick={() => openModal(<AddProduct />)}
-          >
-            <RiAddLargeLine className="w-4 h-4" />
-            <span>Add New</span>
-          </Button>
-        </div>
-      </div>
-      {props.filter.length > 0 && (
-        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
-          <span>Active Filters</span>
-          <div className="flex flex-wrap gap-4">
-            {props.filter.map((value) => (
-              <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
-                <span>{value}</span>
-                <button
-                  onClick={() => handlDelete(value)}
-                  className="text-red-500 cursor-pointer"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {!isLoading &&
-          products.map((product, index) => (
-            <AnimatePresence>
-              <motion.div
-                initial={{ opacity: 0.5, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0.5, scale: 0.9 }}
-                transition={{ duration: 1, type: "spring" }}
-                key={index}
-              >
-                <Product
-                  key={product.id}
-                  product={product}
-                  id={uuid()}
-                  isSupplier
-                />
-              </motion.div>
-            </AnimatePresence>
-          ))}
-        {isLoading &&
-          Array.from({ length: 6 }).map((_, index) => (
-            <AnimatePresence>
-              <motion.div
-                initial={{ opacity: 0.5, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0.5, scale: 0.9 }}
-                transition={{ duration: 1, type: "spring" }}
-              >
-                <CardSkeleton key={index} />
-              </motion.div>
-            </AnimatePresence>
-          ))}
-      </div>
-      {!isLoading && products.length === 0 && (
-        <div className="flex flex-col justify-center items-center space-y-4 w-full h-full">
-          <Image
-            src="/svgs/empty-cart.svg"
-            alt="empty cart"
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
-          />
-          <span className="font-bold text-xl">Your product list is empty</span>
-        </div>
-      )}
-      {pages > 1 && (
-        <Pagination
-          pageNumber={page}
-          setPageNumber={setPage}
-          contentsLength={products.length}
-        />
-      )}
-    </div>
-  );
-};
-
-export default Index;
+export default AdsDisplay;

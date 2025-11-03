@@ -9,6 +9,7 @@ interface IProduct {
     name: string;
   };
   quantity: number;
+  status: "active" | "stopped" | string;
   description: string;
   expiryDate: string;
   isDeleted: boolean;

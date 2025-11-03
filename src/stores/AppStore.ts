@@ -3,6 +3,7 @@ import { immer } from "zustand/middleware/immer";
 
 interface AppStore {
   users: IUser[];
+  ads: IProduct[];
   deviceId: string;
   accessToken: string;
   products: IProduct[];
@@ -17,6 +18,7 @@ interface AppStore {
 
 const useAppStore = create<AppStore>()(
   immer((set, get) => ({
+    ads: [],
     users: [],
     deviceId: "",
     products: [],

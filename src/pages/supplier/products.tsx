@@ -20,6 +20,8 @@ import useProductsRoutes from "@/hooks/useProductsRoutes";
 import { useAxios } from "@/hooks/useAxios";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
+import DateFieldWithOnChange from "@/components/input/DatePickerWithOnChange";
+import { BiCalendar } from "react-icons/bi";
 
 type Props = {
   filter: string[];
@@ -159,6 +161,7 @@ const LeftSide: React.FC<Props> = (props) => {
   );
 };
 const RightSide: React.FC<Props> = (props) => {
+  const { secureAxios } = useAxios();
   const { openModal } = useModal();
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
@@ -169,6 +172,11 @@ const RightSide: React.FC<Props> = (props) => {
   const id = useUserStore((state) =>
     state.role.includes("super") ? state.id : state.administrator
   );
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
+    new Set()
+  );
+  const [endDate, setEndDate] = useState<string>("");
+  const [isCreatingAd, setIsCreatingAd] = useState(false);
 
   const handlDelete = (name: string) => {
     props.setFilter(props.filter.filter((item) => item !== name));
@@ -185,6 +193,75 @@ const RightSide: React.FC<Props> = (props) => {
     debouncedSearch(props.filter);
     return debouncedSearch.cancel;
   }, [props.filter, debouncedSearch, id, page, sort]);
+
+  const handleProductSelect = (productId: string) => {
+    setSelectedProducts((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleCreateAds = async () => {
+    if (selectedProducts.size === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one product",
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!endDate) {
+      toast({
+        title: "Error",
+        description: "Please select an end date",
+        variant: "error",
+      });
+      return;
+    }
+
+    setIsCreatingAd(true);
+
+    try {
+      const promises = Array.from(selectedProducts).map((productId) =>
+        secureAxios.post("/shop/hotdeals", {
+          productId,
+          expiryDate: new Date(endDate).getTime(),
+        })
+      );
+
+      await Promise.all(promises);
+
+      const data = {
+        products: Array.from(selectedProducts),
+        expiryDate: new Date(endDate).getTime(),
+      };
+
+      const response = await secureAxios.post("/shop/hotdeals", data);
+
+      toast({
+        title: "Success",
+        description: response.data.message,
+        variant: "success",
+      });
+
+      setSelectedProducts(new Set());
+      setEndDate("");
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err?.response?.data?.message ?? err.message,
+        variant: "error",
+      });
+    } finally {
+      setIsCreatingAd(false);
+    }
+  };
 
   return (
     <div className="flex flex-col space-y-4 w-full h-full">
@@ -228,6 +305,47 @@ const RightSide: React.FC<Props> = (props) => {
           </div>
         </div>
       )}
+      {selectedProducts.size > 0 && (
+        <Card className="bg-card p-4">
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold">
+                {selectedProducts.size} product(s) selected
+              </span>
+              <button
+                onClick={() => setSelectedProducts(new Set())}
+                className="text-red-500 text-sm hover:underline cursor-pointer"
+              >
+                Clear Selection
+              </button>
+            </div>
+            <div className="flex items-end space-x-4">
+              <div className="flex flex-col flex-1 space-y-2">
+                <label htmlFor="endDate" className="font-medium text-sm">
+                  Advertisement End Date
+                </label>
+                <DateFieldWithOnChange
+                  label="Expiry Date"
+                  minDate={new Date()}
+                  icon={<BiCalendar className="w-6 h-6 text-black" />}
+                  onChange={(e) => setEndDate(e)}
+                  classnames={{
+                    input: "bg-transparent",
+                  }}
+                />
+              </div>
+              <Button
+                className="bg-primary rounded-lg text-sm"
+                onClick={handleCreateAds}
+                disabled={isCreatingAd}
+                isLoading={isCreatingAd}
+              >
+                Create Advertisements
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
       <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {!isLoading &&
           products.map((product, index) => (
@@ -242,6 +360,8 @@ const RightSide: React.FC<Props> = (props) => {
                 <Product
                   key={product.id}
                   product={product}
+                  isSelected={selectedProducts.has(product.id)}
+                  onAdButtonClick={() => handleProductSelect(product.id)}
                   id={uuid()}
                   isSupplier
                 />

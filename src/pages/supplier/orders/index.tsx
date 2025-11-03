@@ -5,17 +5,24 @@ import { useAxios } from "@/hooks/useAxios";
 import Preloader from "@/components/Preloader";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
+import { id } from "date-fns/locale";
+import { MdMenu } from "react-icons/md";
+import { useModal } from "@/components/modals/Modal";
 import Dropdown from "@/components/dropdown/Dropdown";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import SearchInput from "@/components/input/SearchInput";
+import AcceptOrderModal from "@/components/modals/Order";
 import usePersistedStore from "@/stores/PersistedStored";
 import React, { useEffect, useMemo, useState } from "react";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
+import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
+import { CiMenuKebab } from "react-icons/ci";
 
 function Orders() {
   const router = useRouter();
   const { secureAxios } = useAxios();
   const [page, setPage] = useState(1);
+  const { openModal, closeModal } = useModal();
   const [sortBy, setSortBy] = useState("Newest");
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,13 +180,67 @@ function Orders() {
                             </span>
                           </td>
                           <td className="p-3">
-                            <FaEye
-                              size={20}
-                              className="cursor-pointer"
-                              onClick={() =>
-                                router.push(`/supplier/orders/${order.id}`)
+                            <FxDropdown
+                              align="right"
+                              trigger={
+                                <div className="flex items-center space-x-2 hover:bg-gray-50 px-4 py-2.5 text-primary">
+                                  <CiMenuKebab size={20} />
+                                </div>
                               }
-                            />
+                              classnames={{
+                                dropdown: "w-48",
+                              }}
+                            >
+                              <DropdownItem
+                                onClick={() =>
+                                  router.push(`/supplier/orders/${order.id}`)
+                                }
+                              >
+                                <div className="flex items-center space-x-2">
+                                  {/* <FaEye size={20} /> */}
+                                  <span>View Order</span>
+                                </div>
+                              </DropdownItem>
+                              <DropdownItem
+                                onClick={() =>
+                                  openModal(
+                                    <AcceptOrderModal
+                                      orderId={order.id}
+                                      closeModal={closeModal}
+                                      type={"accepted"}
+                                    />
+                                  )
+                                }
+                              >
+                                Accept
+                              </DropdownItem>
+                              <DropdownItem
+                                onClick={() =>
+                                  openModal(
+                                    <AcceptOrderModal
+                                      orderId={order.id}
+                                      closeModal={closeModal}
+                                      type={"cancelled"}
+                                    />
+                                  )
+                                }
+                              >
+                                Decline
+                              </DropdownItem>
+                              <DropdownItem
+                                onClick={() =>
+                                  openModal(
+                                    <AcceptOrderModal
+                                      orderId={order.id}
+                                      closeModal={closeModal}
+                                      type={"update"}
+                                    />
+                                  )
+                                }
+                              >
+                                Update
+                              </DropdownItem>
+                            </FxDropdown>
                           </td>
                         </tr>
                       ))
