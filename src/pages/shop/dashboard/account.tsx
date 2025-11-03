@@ -345,7 +345,7 @@ const Security = () => {
           onSubmit={handleUpdatePassword}
         >
           {({ isSubmitting }) => (
-            <Form className="flex flex-col space-y-4 w-full">
+            <Form className="flex flex-col space-y-4 mx-auto w-full max-w-[40rem]">
               <div className="flex justify-between items-center space-x-4">
                 <span className="text-lg">Password</span>
                 {!isEditingPassword ? (
@@ -377,7 +377,7 @@ const Security = () => {
                   </div>
                 )}
               </div>
-              <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 w-full">
+              <div className="gap-6 grid grid-cols-1 mx-auto w-full max-w-[40rem]">
                 <TextField
                   type="password"
                   name="oldPassword"

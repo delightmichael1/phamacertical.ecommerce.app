@@ -213,7 +213,7 @@ function AdsDisplay() {
                 Create your first advertisement to get started
               </span>
               <Button
-                className="bg-primary w-full max-w-60 h-12 text-sm"
+                className="bg-primary w-full max-w-fit h-12 text-sm"
                 onClick={() => router.push("/supplier/products")}
               >
                 <BiPlus className="w-5 h-5" />
