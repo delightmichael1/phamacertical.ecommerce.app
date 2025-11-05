@@ -21,3 +21,15 @@ export const formatDate = (dateString: string) => {
     day: "numeric",
   });
 };
+
+export const isExpired = (endDate: string) => {
+  return new Date(endDate) < new Date();
+};
+
+export const getDaysRemaining = (endDate: string) => {
+  const end = new Date(endDate);
+  const now = new Date();
+  const diffTime = end.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};

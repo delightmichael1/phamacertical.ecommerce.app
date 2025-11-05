@@ -152,12 +152,12 @@ function DashboardSideBar(props: Props) {
             onClick={() => router.push(page.href)}
           >
             <page.icon className="w-5 h-5" />
-            <span>{page.name}</span>
+            <span className="text-start">{page.name}</span>
           </button>
         ))}
       </div>
       <button
-        className="flex items-center space-x-2 hover:bg-primary/20 p-4 rounded-xl w-full text-sm duration-300 cursor-pointer"
+        className="flex items-center space-x-2 hover:bg-primary-light/20 p-4 rounded-xl w-full text-sm duration-300 cursor-pointer"
         onClick={() => {
           openModal(<Logout closeModal={closeModal} />);
         }}

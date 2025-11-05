@@ -1,19 +1,23 @@
 import Head from "next/head";
 import "@/styles/globals.css";
 import Script from "next/script";
+import Lottie from "lottie-react";
 import type { AppProps } from "next/app";
+import SideBar from "@/components/SideBar";
 import Toast from "@/components/toast/toast";
 import React, { useEffect, useState } from "react";
 import AuthProvider from "@/components/AuthProvider";
 import { ModalProvider } from "@/components/modals/Modal";
-import SideBar from "@/components/SideBar";
+import Security from "../../public/lottie/cybersecurity.json";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [pageHeight, setPageHeight] = useState(0);
+  const [pageWidth, setPageWidth] = useState(0);
 
   useEffect(() => {
     const handleSetHeight = () => {
       setPageHeight(window.innerHeight);
+      setPageWidth(window.innerWidth);
     };
     handleSetHeight();
 
@@ -22,6 +26,46 @@ export default function App({ Component, pageProps }: AppProps) {
       window.removeEventListener("resize", handleSetHeight);
     };
   }, []);
+
+  if (pageWidth < 768) {
+    return (
+      <main
+        className="bg-gradient-to-tl from-background-2 to-background w-full font-poppins text-xs"
+        style={{ height: `${pageHeight}px` }}
+      >
+        <Head>
+          <title>PharmNex</title>
+          <meta
+            name="description"
+            content="PhamNex is your trusted online pharmacy, offering a wide range of healthcare products and medications with fast delivery and expert advice."
+          />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="/favicon.png" />
+        </Head>
+        <AuthProvider>
+          <ModalProvider>
+            <div
+              id="main"
+              className="flex flex-col justify-center items-center space-y-10 w-full h-full overflow-x-hidden overflow-y-auto"
+            >
+              <Lottie
+                animationData={Security}
+                loop={true}
+                className="w-full max-w-60 h-fit"
+              />
+              <span className="max-w-xl font-semibold text-primary text-xl text-center">
+                This application is best viewed on desktop.
+              </span>
+            </div>
+            <Toast />
+          </ModalProvider>
+        </AuthProvider>
+        <SideBar />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" />
+      </main>
+    );
+  }
 
   return (
     <main

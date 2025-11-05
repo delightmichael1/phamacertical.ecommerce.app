@@ -1,169 +1,254 @@
 import Card from "@/components/ui/Card";
+import React, { useEffect } from "react";
 import { ApexOptions } from "apexcharts";
-import useAppStore from "@/stores/AppStore";
-import React, { useEffect, useMemo } from "react";
+import { useAxios } from "@/hooks/useAxios";
+import { toast } from "@/components/toast/toast";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import usePersistedStore from "@/stores/PersistedStored";
+
+type TopSelling = {
+  name: string;
+  totalPrice: number;
+  quantity: number;
+  id: string;
+};
 
 function Index() {
-  const orders = usePersistedStore((state) => state.orders);
-  const products = useAppStore((state) => state.products);
-
-  const analytics = useMemo(() => {
-    const totalProducts = products.length;
-    const inStockProducts = products.filter((p) => p.quantity).length;
-    const outOfStockProducts = totalProducts - inStockProducts;
-
-    const categoryCount = products.reduce((acc, product) => {
-      acc[product.category] = (acc[product.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const companyCount = products.reduce((acc, product) => {
-      acc[product.supplier.id] = (acc[product.supplier.id] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const priceRanges = {
-      "0-50": 0,
-      "51-100": 0,
-      "101-200": 0,
-      "201-500": 0,
-      "500+": 0,
-    };
-
-    products.forEach((product) => {
-      const price = product.price;
-      if (price <= 50) priceRanges["0-50"]++;
-      else if (price <= 100) priceRanges["51-100"]++;
-      else if (price <= 200) priceRanges["101-200"]++;
-      else if (price <= 500) priceRanges["201-500"]++;
-      else priceRanges["500+"]++;
-    });
-
-    return {
-      totalProducts,
-      inStockProducts,
-      outOfStockProducts,
-      categoryCount,
-      companyCount,
-      priceRanges,
-      totalOrders: orders.length,
-    };
-  }, [products, orders]);
-
-  const categoryChartOptions: ApexOptions = {
-    chart: { type: "donut" },
-    colors: ["#3475eb", "#3475eb", "#3475eb", "#3475eb", "#3475eb"],
-    labels: Object.keys(analytics.categoryCount),
-    series: Object.values(analytics.categoryCount),
-  };
-
-  const priceRangeChartOptions: ApexOptions = {
-    chart: { type: "bar" },
-    colors: ["#3475eb", "#3475eb", "#3475eb", "#3475eb", "#3475eb"],
-    xaxis: { categories: Object.keys(analytics.priceRanges) },
-    series: [{ data: Object.values(analytics.priceRanges) }],
-  };
+  const { secureAxios } = useAxios();
+  const [orderStats, setOrderStats] = React.useState<OrderStats>({
+    acceptedOrders: 0,
+    cancelledOrders: 0,
+    pendingOrders: 0,
+    shippedOrders: 0,
+    totalOrders: 0,
+    orderDistribution: [],
+  });
+  const [topSelling, setTopSelling] = React.useState<TopSelling[]>([]);
 
   useEffect(() => {
-    let categoryChart: any;
+    fetchData();
+    getAds();
+  }, []);
+
+  useEffect(() => {
     let priceChart: any;
     let isMounted = true;
 
     (async () => {
       const ApexCharts = (await import("apexcharts")).default;
 
-      const catEl = document.querySelector("#categorychart");
-      const priceEl = document.querySelector("#pricechart");
+      const catEl = document.querySelector("#pricechart");
 
-      if (!catEl || !priceEl || !isMounted) return;
+      if (!catEl || !isMounted) return;
 
       const existingCatChart = (catEl as any)._apexChart;
-      const existingPriceChart = (priceEl as any)._apexChart;
 
       if (existingCatChart) {
         existingCatChart.destroy();
       }
-      if (existingPriceChart) {
-        existingPriceChart.destroy();
-      }
 
       catEl.innerHTML = "";
-      priceEl.innerHTML = "";
 
       if (!isMounted) return;
 
-      categoryChart = new ApexCharts(catEl, categoryChartOptions);
-      priceChart = new ApexCharts(priceEl, priceRangeChartOptions);
+      priceChart = new ApexCharts(catEl, priceChartOptions);
 
-      (catEl as any)._apexChart = categoryChart;
-      (priceEl as any)._apexChart = priceChart;
+      (catEl as any)._apexChart = priceChart;
 
-      await categoryChart.render();
       await priceChart.render();
     })();
 
     return () => {
       isMounted = false;
-      if (categoryChart) categoryChart.destroy();
       if (priceChart) priceChart.destroy();
     };
-  }, [orders, categoryChartOptions, priceRangeChartOptions, products]);
+  }, [orderStats]);
+
+  const priceChartOptions: ApexOptions = {
+    chart: {
+      type: "bar",
+      toolbar: {
+        show: false,
+      },
+    },
+    colors: ["#3475eb"],
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        columnWidth: "50%",
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    xaxis: {
+      categories: orderStats.orderDistribution.map((item) => item.month),
+      labels: {
+        style: {
+          fontSize: "12px",
+        },
+      },
+    },
+    yaxis: {
+      title: {
+        text: "Orders",
+      },
+    },
+    series: [
+      {
+        name: "Orders",
+        data: orderStats.orderDistribution.map((item) => item.orders),
+      },
+    ],
+    tooltip: {
+      y: {
+        formatter: (val) => `${val} orders`,
+      },
+    },
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await secureAxios.get("/shop/dashboard");
+      console.log(response.data);
+      setOrderStats(response.data);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `${
+          !error.response ? error.message : error.response.data.message
+        }`,
+        variant: "error",
+      });
+    }
+  };
+
+  const getAds = async () => {
+    try {
+      const response = await secureAxios.get(`/shop/topselling`);
+      console.log(response.data);
+      if (response.data.topSelling) {
+        setTopSelling(response.data.topSelling);
+      } else {
+        setTopSelling([]);
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err?.response?.data?.message ?? err.message,
+        variant: "error",
+      });
+    }
+  };
 
   return (
     <DashboardLayout
       title="Dashboard"
-      description="Product analytics and insights"
+      description="Account analysis"
       isSupplier
     >
-      <div className="flex flex-col space-y-6 mx-auto w-full container">
-        {/* Stats Cards */}
-        <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-6">
-            <div className="flex flex-col space-y-2">
-              <span className="text-gray-500 text-sm">Total Products</span>
-              <span className="font-bold text-3xl">
-                {analytics.totalProducts}
-              </span>
+      <div className="flex flex-col gap-4 mx-auto w-full h-full container">
+        <div className="gap-4 grid grid-cols-2 lg:grid-cols-5">
+          <Card className="flex flex-col justify-center items-center p-6 text-center">
+            <h3 className="mb-4 text-lg">Total Orders</h3>
+            <div className="font-semibold text-xl">
+              {orderStats.totalOrders}
             </div>
           </Card>
-
-          <Card className="p-6">
-            <div className="flex flex-col space-y-2">
-              <span className="text-gray-500 text-sm">Total Categories</span>
-              <span className="font-bold text-green-600 text-3xl">
-                {Object.keys(analytics.categoryCount).length}
-              </span>
+          <Card className="flex flex-col justify-center items-center p-6 text-center">
+            <h3 className="mb-4 text-lg">Pending Orders</h3>
+            <div className="font-semibold text-xl">
+              {orderStats.pendingOrders}
             </div>
           </Card>
-
-          <Card className="p-6">
-            <div className="flex flex-col space-y-2">
-              <span className="text-gray-500 text-sm">Pending Orders</span>
-              <span className="font-bold text-3xl">0</span>
+          <Card className="flex flex-col justify-center items-center p-6 text-center">
+            <h3 className="mb-4 text-lg">Accepted Orders</h3>
+            <div className="font-semibold text-xl">
+              {orderStats.acceptedOrders}
             </div>
           </Card>
-
-          <Card className="p-6">
-            <div className="flex flex-col space-y-2">
-              <span className="text-gray-500 text-sm">Fulfilled Orders</span>
-              <span className="font-bold text-blue-600 text-3xl">
-                {analytics.totalOrders}
-              </span>
+          <Card className="flex flex-col justify-center items-center p-6 text-center">
+            <h3 className="mb-4 text-lg">Shipped Orders</h3>
+            <div className="font-semibold text-xl">
+              {orderStats.shippedOrders}
+            </div>
+          </Card>
+          <Card className="flex flex-col justify-center items-center p-6 text-center">
+            <h3 className="mb-4 text-lg">Cancelled Orders</h3>
+            <div className="font-semibold text-xl">
+              {orderStats.cancelledOrders}
             </div>
           </Card>
         </div>
-
-        {/* Charts Row 2 */}
         <div className="gap-4 grid grid-cols-1 lg:grid-cols-2">
           <Card className="p-6">
-            <h3 className="mb-4 font-bold text-xl">Product by Category</h3>
-            <div id="categorychart" className="w-full h-fit"></div>
+            <h3 className="mb-4 font-bold text-xl">Order Distribution</h3>
+            {orderStats.orderDistribution.length > 0 ? (
+              <div id="pricechart" className="w-full h-fit"></div>
+            ) : (
+              <div className="flex justify-center items-center h-64 text-gray-500">
+                No data available
+              </div>
+            )}
           </Card>
-          <Card className="p-6">
-            <h3 className="mb-4 font-bold text-xl">Price Distribution</h3>
-            <div id="pricechart" className="w-full h-fit"></div>
+          <Card className="flex flex-col space-y-4 p-6 w-full">
+            <div className="flex justify-between items-center space-x-2">
+              <h2 className="font-semibold text-lg">Top Selling Products</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="bg-gray-50 rounded-xl w-full">
+                <thead>
+                  <tr className="border-border border-b">
+                    <th className="p-3 font-semibold text-sm text-left">
+                      Product ID
+                    </th>
+                    <th className="p-3 font-semibold text-sm text-left">
+                      Name
+                    </th>
+                    <th className="p-3 font-semibold text-sm text-left">
+                      Quantity
+                    </th>
+                    <th className="p-3 font-semibold text-sm text-left">
+                      Total Price
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topSelling.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-gray-500 text-center">
+                        No top selling products
+                      </td>
+                    </tr>
+                  ) : (
+                    topSelling.map((ad) => {
+                      return (
+                        <tr
+                          key={ad.id}
+                          className="hover:bg-gray-50 border-border border-b"
+                        >
+                          <td className="p-3">
+                            <span className="font-mono font-medium text-sm">
+                              {ad.id}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <span className="font-semibold">{ad.name}</span>
+                          </td>
+                          <td className="p-3">
+                            <span className="font-semibold">{ad.quantity}</span>
+                          </td>
+                          <td className="p-3">
+                            <span className="font-semibold text-green-600">
+                              ${ad.totalPrice?.toFixed(2) ?? 0}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </Card>
         </div>
       </div>

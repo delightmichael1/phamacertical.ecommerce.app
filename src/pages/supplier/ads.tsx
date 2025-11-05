@@ -14,6 +14,7 @@ import Dropdown from "@/components/dropdown/Dropdown";
 import { CardSkeleton } from "@/components/ui/Shimmer";
 import { AnimatePresence, motion } from "framer-motion";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import { getDaysRemaining, isExpired } from "@/utils/constants";
 
 function AdsDisplay() {
   const router = useRouter();
@@ -80,18 +81,6 @@ function AdsDisplay() {
     return debouncedSearch.cancel;
   }, [filter, page, sort, status]);
 
-  const isExpired = (endDate: string) => {
-    return new Date(endDate) < new Date();
-  };
-
-  const getDaysRemaining = (endDate: string) => {
-    const end = new Date(endDate);
-    const now = new Date();
-    const diffTime = end.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
   return (
     <DashboardLayout
       title="My Advertisements"
@@ -151,9 +140,6 @@ function AdsDisplay() {
             {!isLoading &&
               ads.map((ad, index) => {
                 const daysRemaining = getDaysRemaining(ad.expiryDate);
-                const expired = isExpired(ad.expiryDate);
-
-                console.log(daysRemaining, expired, ad.expiryDate);
 
                 return (
                   <AnimatePresence key={ad.id}>
