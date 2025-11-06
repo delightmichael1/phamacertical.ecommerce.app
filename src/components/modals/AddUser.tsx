@@ -55,7 +55,7 @@ function AddUser() {
 
   return (
     <div
-      className="flex flex-col items-center space-y-4 px-6 pb-10 w-full h-full overflow-y-auto"
+      className="flex flex-col items-start space-y-4 px-6 pb-10 w-full h-full overflow-y-auto"
       style={{ maxHeight: `${0.8 * height}px` }}
     >
       <span className="mt-1 mb-10 font-bold text-2xl">Add new user</span>
@@ -115,7 +115,7 @@ function AddUser() {
               type="submit"
               className="bg-primary w-full h-10"
             >
-              Next
+              Add User
             </Button>
           </Form>
         )}

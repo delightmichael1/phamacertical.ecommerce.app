@@ -8,20 +8,22 @@ import AddProduct from "../modals/AddProduct";
 import { RiAddLargeLine } from "react-icons/ri";
 import { IoNotificationsOutline } from "react-icons/io5";
 import useUserStore from "@/stores/useUserStore";
+import CategoryModal from "../modals/Category";
 
 type Props = {
   title?: string;
+  isAdmin?: boolean;
   description?: string;
   isSupplier?: boolean;
 };
 
 function DashboardTopNav(props: Props) {
-  const { openModal } = useModal();
+  const { openModal, closeModal } = useModal();
   const { notications } = useAppStore();
   const { branchName, email } = useUserStore();
 
   return (
-    <div className="top-0 sticky justify-center items-center backdrop-blur-lg p-4 w-full">
+    <div className="top-0 z-50 sticky justify-center items-center backdrop-blur-lg p-4 w-full">
       <div className="flex justify-between items-center space-x-4 mx-auto w-full container">
         <div className="flex flex-col">
           <h1 className="text-2xl">{props.title}</h1>
@@ -37,7 +39,24 @@ function DashboardTopNav(props: Props) {
               <span>Create</span>
             </Button>
           )}
-          {!props.isSupplier && (
+          {props.isAdmin && (
+            <Button
+              onClick={() =>
+                openModal(
+                  <CategoryModal
+                    type="add"
+                    closeModal={closeModal}
+                    onDone={() => {}}
+                  />
+                )
+              }
+              className="bg-primary h-10 text-sm"
+            >
+              <RiAddLargeLine className="w-4 h-4" />
+              <span>Create</span>
+            </Button>
+          )}
+          {!props.isSupplier && !props.isAdmin && (
             <Link
               href="/shop/notifications"
               className="relative p-0.5"

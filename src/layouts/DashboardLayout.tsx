@@ -6,6 +6,7 @@ import DashboardSideBar from "@/components/navigation/DashboardSideBar";
 
 interface Props {
   title: string;
+  isAdmin?: boolean;
   description: string;
   isSupplier?: boolean;
   children: React.ReactNode;
@@ -14,12 +15,13 @@ interface Props {
 function DashboardLayout(props: Props) {
   return (
     <div className="flex w-full h-full overflow-hidden">
-      <DashboardSideBar isSupplier={props.isSupplier} />
+      <DashboardSideBar isSupplier={props.isSupplier} isAdmin={props.isAdmin} />
       <div className="flex flex-col space-y-4 w-full h-full overflow-y-auto">
         <DashboardTopNav
           title={props.title}
           description={props.description}
           isSupplier={props.isSupplier}
+          isAdmin={props.isAdmin}
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}

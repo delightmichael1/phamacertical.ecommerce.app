@@ -1,5 +1,4 @@
 import cn from "@/utils/cn";
-import Button from "../buttons/Button";
 import { createPortal } from "react-dom";
 import { FaXmark } from "react-icons/fa6";
 import { AnimatePresence, motion } from "framer-motion";
@@ -55,6 +54,7 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
+  const [windowHeight, setWindowHeight] = useState(0);
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -62,13 +62,21 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
   };
 
   React.useEffect(() => {
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
       }
     };
     window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [onClose]);
 
   return createPortal(
@@ -83,7 +91,10 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
         )}
         onClick={handleBackdropClick}
       >
-        <div className="relative bg-card shadow-black/10 shadow-md p-4 rounded-xl min-w-xl">
+        <div
+          className="relative bg-card shadow-black/10 shadow-md p-4 rounded-xl min-w-xl overflow-y-auto"
+          style={{ maxHeight: `${0.9 * windowHeight}px` }}
+        >
           <button
             onClick={onClose}
             className="top-4 right-4 absolute flex justify-center items-center hover:bg-red-500/10 px-2 py-2 rounded-full w-10 max-w-10 h-10 hover:text-red-500 duration-300 cursor-pointer"

@@ -41,7 +41,7 @@ export const ListItemSkeleton = () => {
 
 export const TableRowSkeleton = ({ columns = 4 }) => {
   return (
-    <tr className="border-b">
+    <tr className="border-border border-b">
       {Array.from({ length: columns }).map((_, i) => (
         <td key={i} className="px-6 py-4">
           <div className="bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded h-4 animate-shimmer" />

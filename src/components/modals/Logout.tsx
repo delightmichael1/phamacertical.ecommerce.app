@@ -19,11 +19,13 @@ function Logout(props: Props) {
       <span>You are about to logout.</span>
       <span>Press continue to logout now.</span>
       <div className="flex items-center space-x-2 w-full">
-        {!isLoading && (
-          <Button className="w-full text-black" onClick={props.closeModal}>
-            Cancel
-          </Button>
-        )}
+        <Button
+          className="w-full text-black"
+          onClick={props.closeModal}
+          disabled={isLoading}
+        >
+          Cancel
+        </Button>
         <Button
           isLoading={isLoading}
           className={cn("bg-red-500 w-full max-w-1/2", isLoading && "ml-auto")}

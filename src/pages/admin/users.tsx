@@ -1,19 +1,23 @@
 import Image from "next/image";
-import { IoMdAdd } from "react-icons/io";
 import useAppStore from "@/stores/AppStore";
+import { MdVerified } from "react-icons/md";
 import { useAxios } from "@/hooks/useAxios";
 import { useRouter } from "next/navigation";
 import Button from "@/components/buttons/Button";
 import { toast } from "@/components/toast/toast";
 import useUserStore from "@/stores/useUserStore";
+import Pagination from "@/components/Pagination";
 import AddUser from "@/components/modals/AddUser";
+import { IoMdAdd, IoMdEye } from "react-icons/io";
 import { useModal } from "@/components/modals/Modal";
+import { HiDocumentDuplicate } from "react-icons/hi2";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import SearchInput from "@/components/input/SearchInput";
 import { useClickOutside } from "@/hooks/useOutsideClick";
 import React, { useEffect, useRef, useState } from "react";
+import Subscription from "@/components/modals/Subscription";
 import UserDetailsView from "@/components/modals/ViewUserDeails";
-import Pagination from "@/components/Pagination";
+import ApproveDocuments from "@/components/modals/ApproveDocuments";
 
 function Index() {
   const router = useRouter();
@@ -60,7 +64,7 @@ function Index() {
   };
 
   return (
-    <DashboardLayout title="Users" description="Manage users">
+    <DashboardLayout title="Users" description="Manage users" isAdmin>
       <div className="mx-auto w-full container">
         <div className="flex justify-between items-center">
           <SearchInput placeholder="Search users..." />
@@ -121,16 +125,62 @@ const UserCard = ({ user }: { user: IUser }) => {
     setIsDropdownOpen(false);
   });
 
+  useEffect(() => {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        setIsDropdownOpen(false);
+      }
+    });
+
+    return () => {
+      window.removeEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          setIsDropdownOpen(false);
+        }
+      });
+    };
+  }, []);
+
+  const actions = [
+    {
+      name: "View details",
+      icon: IoMdEye,
+      description: "View user details",
+      onClick: () =>
+        openModal(<UserDetailsView user={user} onCloseDialog={closeModal} />),
+    },
+    {
+      name: "Approve documents",
+      icon: HiDocumentDuplicate,
+      description: "Approve or decline user documents",
+      onClick: () =>
+        openModal(<ApproveDocuments user={user} onCloseDialog={closeModal} />),
+    },
+    {
+      name: "Subscription",
+      icon: MdVerified,
+      description: "Add new user subscription",
+      onClick: () =>
+        openModal(<Subscription user={user} closeModal={closeModal} />),
+    },
+  ];
+
   return (
-    <div className="relative bg-white p-6 rounded-lg w-full">
+    <div
+      className="relative bg-white p-6 rounded-lg w-full overflow-hidden"
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setIsDropdownOpen(true);
+      }}
+    >
       <div className="top-4 right-4 absolute" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="hover:bg-gray-100 p-1 rounded-full transition-colors"
+          className="hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
           aria-label="More options"
         >
           <svg
-            className="w-6 h-6 text-gray-600"
+            className="w-5 h-5 text-gray-600"
             fill="currentColor"
             viewBox="0 0 16 16"
           >
@@ -141,18 +191,22 @@ const UserCard = ({ user }: { user: IUser }) => {
         </button>
 
         {isDropdownOpen && (
-          <div className="right-0 z-10 absolute bg-white shadow-lg mt-2 border border-gray-200 rounded-md w-48">
+          <div className="right-0 z-10 absolute bg-white shadow-lg mt-2 border border-gray-200 rounded-md w-64">
             <div className="py-1">
-              <button
-                onClick={() =>
-                  openModal(
-                    <UserDetailsView onCloseDialog={closeModal} user={user} />
-                  )
-                }
-                className="block hover:bg-gray-100 px-4 py-2 w-full text-gray-700 text-sm text-left"
-              >
-                View Details
-              </button>
+              {actions.map((action) => (
+                <button
+                  onClick={action.onClick}
+                  className="flex items-center space-x-4 hover:bg-gray-100 px-4 py-2 w-full text-gray-700 text-sm text-left cursor-pointer"
+                >
+                  <action.icon className="w-5 h-5 text-gray-500" />
+                  <div className="flex flex-col">
+                    <span>{action.name}</span>
+                    <span className="text-gray-500 text-xxs">
+                      {action.description}
+                    </span>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -160,7 +214,7 @@ const UserCard = ({ user }: { user: IUser }) => {
 
       {/* Logo */}
       <div className="flex justify-start items-center space-x-3 mb-4">
-        <div className="flex justify-center items-center bg-gradient-to-br from-blue-500 to-purple-600 rounded-full w-16 h-16 font-bold text-white text-xl">
+        <div className="flex justify-center items-center bg-gradient-to-br from-primary/70 to-primary rounded-full w-16 h-16 font-bold text-white text-xl">
           {user.logo ? (
             <img
               src={user.logo}
@@ -273,6 +327,17 @@ const UserCard = ({ user }: { user: IUser }) => {
         >
           {user.emailStatus}
         </span>
+      </div>
+      <div
+        className={`${
+          new Date(user.expiryDate) < new Date() ? "bg-danger" : "bg-green-500"
+        } p-1 px-3 text-white text-center absolute bottom-0 right-0 rounded-tl-md`}
+      >
+        {user.expiryDate !== 0
+          ? new Date(user.expiryDate) < new Date()
+            ? "Expired"
+            : "Active"
+          : "New Account"}
       </div>
     </div>
   );

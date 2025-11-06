@@ -1,23 +1,38 @@
 import cn from "@/utils/cn";
-import React from "react";
 import { FaCaretLeft } from "react-icons/fa6";
+import React, { useRef, useState, useEffect, MouseEvent } from "react";
 
 type Props = {
+  limit?: number;
   pageNumber: number;
   className?: string;
   contentsLength: number;
+  variant?: "default" | "primary";
   setPageNumber: (value: number) => void;
 };
 
-const Pagination: React.FC<Props> = (props) => {
-  const pages = new Array(props.pageNumber).fill(0);
-  const activePageRef = React.useRef<HTMLDivElement>(null);
-  const [startX, setStartX] = React.useState<number>(0);
-  const [scrollX, setScrollX] = React.useState<number>(0);
-  const horizontalRef = React.useRef<HTMLDivElement>(null);
-  const [isDownX, setIsDownX] = React.useState<boolean>(false);
+const Pagination: React.FC<Props> = ({
+  limit = 5,
+  pageNumber,
+  className,
+  contentsLength,
+  variant = "default",
+  setPageNumber,
+}) => {
+  const pages = Array.from({ length: pageNumber }, (_, i) => i + 1);
 
-  React.useEffect(() => {
+  const [startX, setStartX] = useState<number>(0);
+  const [scrollX, setScrollX] = useState<number>(0);
+  const [isDownX, setIsDownX] = useState<boolean>(false);
+
+  const activePageRef = useRef<HTMLDivElement>(null);
+  const horizontalRef = useRef<HTMLDivElement>(null);
+
+  const isFirstPage = pageNumber === 1;
+  const isLastPage = contentsLength < limit;
+  const isPrimary = variant === "primary";
+
+  useEffect(() => {
     if (activePageRef.current && horizontalRef.current) {
       const container = horizontalRef.current;
       const activeElement = activePageRef.current;
@@ -26,11 +41,12 @@ const Pagination: React.FC<Props> = (props) => {
         activeElement.offsetLeft -
         container.offsetWidth / 2 +
         activeElement.offsetWidth / 2;
+
       container.scrollTo({ left: scrollLeft, behavior: "smooth" });
     }
-  }, [props.pageNumber]);
+  }, [pageNumber]);
 
-  const mouseIsDownX = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     setIsDownX(true);
     if (horizontalRef.current) {
       setStartX(e.pageX - horizontalRef.current.offsetLeft);
@@ -38,84 +54,133 @@ const Pagination: React.FC<Props> = (props) => {
     }
   };
 
-  const mouseUpX = () => {
+  const handleMouseUp = () => {
     setIsDownX(false);
   };
 
-  const mouseLeaveX = () => {
+  const handleMouseLeave = () => {
     setIsDownX(false);
   };
 
-  const mouseMoveX = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (isDownX) {
-      e.preventDefault();
-      const x = e.pageX - (horizontalRef.current?.offsetLeft || 0);
-      const walkX = (x - startX) * 3;
-      if (horizontalRef.current) {
-        horizontalRef.current.scrollLeft = scrollX - walkX;
-      }
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!isDownX || !horizontalRef.current) return;
+
+    e.preventDefault();
+    const x = e.pageX - horizontalRef.current.offsetLeft;
+    const walkX = (x - startX) * 3;
+    horizontalRef.current.scrollLeft = scrollX - walkX;
+  };
+
+  const goToPreviousPage = () => {
+    if (!isFirstPage) {
+      setPageNumber(pageNumber - 1);
     }
+  };
+
+  const goToNextPage = () => {
+    if (!isLastPage) {
+      setPageNumber(pageNumber + 1);
+    }
+  };
+
+  const goToPage = (page: number) => {
+    setPageNumber(page);
+  };
+
+  const getButtonBaseClasses = (isActive: boolean, isDisabled: boolean) => {
+    if (isDisabled) {
+      return `${
+        isPrimary ? "bg-primary/50" : "bg-gray-900/20"
+      } text-muted-foreground`;
+    }
+
+    if (isActive) {
+      return `cursor-pointer ${
+        isPrimary ? "bg-primary/70" : "bg-gray-900/50"
+      } text-white`;
+    }
+
+    return `cursor-pointer ${
+      isPrimary ? "bg-primary/70" : "bg-gray-900/50"
+    } text-white`;
+  };
+
+  const getPageButtonClasses = (page: number) => {
+    const isActive = pageNumber === page;
+
+    if (isActive) {
+      return `flex ${isPrimary ? "bg-primary/70" : "bg-gray-900/50"}`;
+    }
+
+    return `hidden ${
+      isPrimary ? "bg-primary/20" : "bg-gray-900/20"
+    } text-muted-foreground group-hover:flex`;
   };
 
   return (
     <div
       className={cn(
         "group flex space-x-0.5 max-w-full md:max-w-96 overflow-hidden text-xs transition-all duration-500",
-        props.className
+        className
       )}
     >
       <div
-        className={`${
-          props.pageNumber === 1
-            ? "bg-gray-900/20 text-muted-foreground"
-            : "cursor-pointer bg-gray-900/50 text-white"
-        } flex h-10 w-10 items-center justify-center rounded-l-md p-4`}
-        onClick={() => {
-          props.pageNumber !== 1 && props.setPageNumber(props.pageNumber - 1);
-        }}
-        aria-hidden="true"
+        className={`${getButtonBaseClasses(
+          false,
+          isFirstPage
+        )} flex h-10 w-10 items-center justify-center rounded-l-md p-4`}
+        onClick={goToPreviousPage}
+        aria-label="Previous page"
+        role="button"
+        tabIndex={isFirstPage ? -1 : 0}
       >
-        <FaCaretLeft className="w-5 h-5" />
+        <FaCaretLeft className="w-5 h-5 text-white" />
       </div>
+
       <div
         className="flex overflow-x-auto no-scrollbar"
         ref={horizontalRef}
-        onMouseDown={mouseIsDownX}
-        onMouseLeave={mouseLeaveX}
-        onMouseUp={mouseUpX}
-        onMouseMove={mouseMoveX}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
       >
         <div className="flex">
-          {pages.map((page, index) => (
-            <div
-              className={`${
-                props.pageNumber === index + 1
-                  ? "flex bg-gray-900/50"
-                  : "hidden bg-gray-900/20 text-muted-foreground group-hover:flex"
-              } h-10 w-10 cursor-pointer flex-col items-center justify-center duration-500 text-white`}
-              key={index}
-              onClick={() => props.setPageNumber(index + 1)}
-              aria-hidden="true"
-              ref={props.pageNumber === index + 1 ? activePageRef : null}
-            >
-              <span className="text-xxs">Page</span>
-              <span>{index + 1}</span>
-            </div>
-          ))}
+          {pages.map((page) => {
+            const isActive = pageNumber === page;
+
+            return (
+              <div
+                className={`${getPageButtonClasses(
+                  page
+                )} h-10 w-10 cursor-pointer flex-col items-center justify-center duration-500 text-white`}
+                key={page}
+                onClick={() => goToPage(page)}
+                role="button"
+                tabIndex={0}
+                aria-label={`Go to page ${page}`}
+                aria-current={isActive ? "page" : undefined}
+                ref={isActive ? activePageRef : null}
+              >
+                <span className="text-xxs">Page</span>
+                <span>{page}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
+
       <div
-        className={`${
-          props.contentsLength < 5
-            ? "bg-gray-900/20 text-muted-foreground"
-            : "cursor-pointer bg-gray-900/50 text-white"
-        } flex h-10 w-10 items-center justify-center rounded-r-md p-4`}
-        onClick={() => {
-          props.contentsLength > 5 && props.setPageNumber(props.pageNumber + 1);
-        }}
-        aria-hidden="true"
+        className={`${getButtonBaseClasses(
+          false,
+          isLastPage
+        )} flex h-10 w-10 items-center justify-center rounded-r-md p-4`}
+        onClick={goToNextPage}
+        aria-label="Next page"
+        role="button"
+        tabIndex={isLastPage ? -1 : 0}
       >
-        <FaCaretLeft className="w-5 h-5 rotate-180" />
+        <FaCaretLeft className="w-5 h-5 text-white rotate-180" />
       </div>
     </div>
   );

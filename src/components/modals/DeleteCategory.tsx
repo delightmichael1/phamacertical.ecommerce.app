@@ -1,58 +1,39 @@
 import cn from "@/utils/cn";
 import Lottie from "lottie-react";
 import Button from "../buttons/Button";
-import { toast } from "../toast/toast";
 import React, { useState } from "react";
 import { useAxios } from "@/hooks/useAxios";
 import useAppStore from "@/stores/AppStore";
 import Warning from "../../../public/lottie/error.json";
+import { toast } from "../toast/toast";
 
 type Props = {
   closeModal: () => void;
-  product: IProduct | null;
+  category: ICategory | null;
+  onDone: () => void;
 };
 
-function StopAd(props: Props) {
+function DeleteCategory(props: Props) {
   const { secureAxios } = useAxios();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleStopAd = async () => {
+  const deleteCategory = async () => {
     setIsLoading(true);
-    if (!props.product) return;
-    const data = {
-      id: props.product.id,
-      status: "stopped",
-    };
     try {
-      const response = await secureAxios.put("/shop/hotdeals", data);
-      useAppStore.setState((state) => {
-        state.ads = state.ads.map((ad) => {
-          if (ad.id === props.product?.id) {
-            return {
-              ...ad,
-              status: "stopped",
-              expiryDate: new Date().getTime().toString(),
-            };
-          }
-          return ad;
-        });
-      });
+      const response = await secureAxios.delete(
+        `/admin/categories/${props.category?.id}`
+      );
       toast({
         description: response.data.message,
         variant: "success",
       });
+      props.onDone();
       props.closeModal();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: `${
-          !error.response ? error.message : error.response.data.message
-        }`,
+        description: error?.response?.data?.message || error.message,
         variant: "error",
       });
-      if (error.response && error.response.status === 401) {
-        props.closeModal();
-      }
     } finally {
       setIsLoading(false);
     }
@@ -61,13 +42,13 @@ function StopAd(props: Props) {
   return (
     <div className="flex flex-col items-center space-y-4 p-6 py-10 w-full h-full overflow-y-auto">
       <Lottie animationData={Warning} loop={false} className="w-40 h-fit" />
-      <span>You are about to stop this ad.</span>
-      <span>Press continue to stop {props.product?.title} now.</span>
+      <span>You are about to delete category.</span>
+      <span>Press continue to delete category {props.category?.name}</span>
       <div className="flex items-center space-x-2 w-full">
         <Button
           className="w-full text-black"
           onClick={props.closeModal}
-          isLoading={isLoading}
+          disabled={isLoading}
         >
           Cancel
         </Button>
@@ -75,7 +56,7 @@ function StopAd(props: Props) {
           isLoading={isLoading}
           className={cn("bg-red-500 w-full max-w-1/2", isLoading && "ml-auto")}
           onClick={async () => {
-            await handleStopAd();
+            await deleteCategory();
           }}
         >
           Continue
@@ -85,4 +66,4 @@ function StopAd(props: Props) {
   );
 }
 
-export default StopAd;
+export default DeleteCategory;

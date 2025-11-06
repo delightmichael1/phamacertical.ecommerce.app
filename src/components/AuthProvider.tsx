@@ -47,7 +47,9 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   if (status === "authenticated" && !authPages.includes(pathName)) {
-    if (licenseStatus === "pending") {
+    if (role && role.includes("platform-super-admin")) {
+      !pathName.includes("admin") && router.push("/admin");
+    } else if (licenseStatus === "pending") {
       pathName !== "/waiting" && router.push("/waiting");
     } else if (licenseStatus === "rejected") {
       pathName !== "/rejected" && router.push("/rejected");

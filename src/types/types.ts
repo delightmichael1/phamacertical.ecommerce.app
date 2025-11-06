@@ -54,6 +54,11 @@ interface IDevice {
   id: string;
 }
 
+interface ICategory {
+  id: string;
+  name: string;
+}
+
 interface IUser {
   id: string;
   city: string;
@@ -62,13 +67,15 @@ interface IUser {
   phone: string;
   logo?: string;
   address: string;
-  branchName: string;
   license?: string;
   verified: boolean;
+  expiryDate: number;
+  branchName: string;
   companyName: string;
   emailStatus: string;
   administrator: string;
   licenseNumber?: string;
+  rejectionReason?: string;
   licenseStatus?: "pending" | "approved" | "rejected";
 }
 
@@ -83,10 +90,33 @@ interface OrderDistribution {
 }
 
 interface OrderStats {
-  acceptedOrders: number;
-  cancelledOrders: number;
+  totalOrders: number;
   pendingOrders: number;
   shippedOrders: number;
-  totalOrders: number;
+  acceptedOrders: number;
+  cancelledOrders: number;
   orderDistribution: OrderDistribution[];
 }
+
+interface DashboardStats {
+  acceptedOrders: number;
+  activeUsers: number;
+  cancelledOrders: number;
+  expiredSubscriptions: number;
+  orderDistribution: OrderDistribution[];
+  pendingOrders: number;
+  pendingUsers: number;
+  shippedOrders: number;
+  totalOrders: number;
+  totalProducts: number;
+  totalRetailers: number;
+  totalSuppliers: number;
+  totalUsers: number;
+}
+
+type TopSelling = {
+  name: string;
+  totalPrice: number;
+  quantity: number;
+  id: string;
+};

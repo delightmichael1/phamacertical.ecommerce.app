@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Logout from "../modals/Logout";
 import { IconType } from "react-icons";
-import { BiHome } from "react-icons/bi";
 import { useRouter } from "next/router";
 import { HiHome } from "react-icons/hi";
 import { LuLogOut } from "react-icons/lu";
@@ -14,11 +13,11 @@ import useUserStore from "@/stores/useUserStore";
 import React, { useEffect, useState } from "react";
 import { RiShoppingBagFill } from "react-icons/ri";
 import { FaShoppingBasket, FaUserCog } from "react-icons/fa";
-import { MdOutlineShoppingCartCheckout } from "react-icons/md";
-import { FaCartArrowDown, FaHeart, FaUser, FaUsers } from "react-icons/fa6";
+import { FaCartArrowDown, FaHeart, FaUsers } from "react-icons/fa6";
 
 type Props = {
   isSupplier?: boolean;
+  isAdmin?: boolean;
 };
 
 type Page = {
@@ -112,6 +111,27 @@ const supplierPages = [
   },
 ];
 
+const adminPages = [
+  {
+    name: "Dashboard",
+    icon: HiHome,
+    href: "/admin",
+    role: "admin",
+  },
+  {
+    name: "Users",
+    icon: FaUsers,
+    href: "/admin/users",
+    role: "admin",
+  },
+  {
+    name: "Account Management",
+    icon: FaUserCog,
+    href: "/admin/account",
+    role: "admin",
+  },
+];
+
 function DashboardSideBar(props: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -122,6 +142,8 @@ function DashboardSideBar(props: Props) {
   useEffect(() => {
     if (props.isSupplier) {
       setPages(supplierPages);
+    } else if (props.isAdmin) {
+      setPages(adminPages);
     } else {
       setPages(retailerPages);
     }

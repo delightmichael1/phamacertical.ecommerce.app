@@ -5,13 +5,6 @@ import { useAxios } from "@/hooks/useAxios";
 import { toast } from "@/components/toast/toast";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
-type TopSelling = {
-  name: string;
-  totalPrice: number;
-  quantity: number;
-  id: string;
-};
-
 function Index() {
   const { secureAxios } = useAxios();
   const [orderStats, setOrderStats] = React.useState<OrderStats>({

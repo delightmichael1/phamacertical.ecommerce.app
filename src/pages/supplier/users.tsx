@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Card from "@/components/ui/Card";
 import { IoMdAdd } from "react-icons/io";
 import useAppStore from "@/stores/AppStore";
 import { useAxios } from "@/hooks/useAxios";
@@ -13,6 +12,8 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import SearchInput from "@/components/input/SearchInput";
 import { useClickOutside } from "@/hooks/useOutsideClick";
 import React, { useEffect, useRef, useState } from "react";
+import UserDetailsView from "@/components/modals/ViewUserDeails";
+import Pagination from "@/components/Pagination";
 
 function Index() {
   const router = useRouter();
@@ -41,11 +42,13 @@ function Index() {
         });
         return;
       }
+      console.log(response.data);
       setPages(response.data.pages);
       useAppStore.setState((state) => {
         state.users = response.data.users;
       });
     } catch (error: any) {
+      console.log(error);
       toast({
         title: "Error",
         description: `${
@@ -58,7 +61,7 @@ function Index() {
 
   return (
     <DashboardLayout title="Users" description="Manage users" isSupplier>
-      <div className="mx-auto w-full h-full min-h-full overflow-y-auto container">
+      <div className="mx-auto w-full container">
         <div className="flex justify-between items-center">
           <SearchInput placeholder="Search users..." />
           <div className="flex items-center space-x-4">
@@ -96,14 +99,23 @@ function Index() {
             </Button>
           </div>
         )}
+        {pages > 1 && (
+          <Pagination
+            contentsLength={users.length}
+            pageNumber={page}
+            variant="primary"
+            setPageNumber={setPage}
+          />
+        )}
       </div>
     </DashboardLayout>
   );
 }
 
 const UserCard = ({ user }: { user: IUser }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { openModal, closeModal } = useModal();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useClickOutside(dropdownRef, () => {
     setIsDropdownOpen(false);
@@ -114,10 +126,8 @@ const UserCard = ({ user }: { user: IUser }) => {
     setIsDropdownOpen(false);
   };
 
-  console.log("user", user);
-
   return (
-    <div className="relative bg-white p-6 rounded-lg max-w-sm">
+    <div className="relative bg-white p-6 rounded-lg w-full">
       <div className="top-4 right-4 absolute" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -139,29 +149,14 @@ const UserCard = ({ user }: { user: IUser }) => {
           <div className="right-0 z-10 absolute bg-white shadow-lg mt-2 border border-gray-200 rounded-md w-48">
             <div className="py-1">
               <button
-                onClick={() => handleAction("edit")}
-                className="block hover:bg-gray-100 px-4 py-2 w-full text-gray-700 text-sm text-left"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleAction("view")}
+                onClick={() =>
+                  openModal(
+                    <UserDetailsView onCloseDialog={closeModal} user={user} />
+                  )
+                }
                 className="block hover:bg-gray-100 px-4 py-2 w-full text-gray-700 text-sm text-left"
               >
                 View Details
-              </button>
-              <button
-                onClick={() => handleAction("contact")}
-                className="block hover:bg-gray-100 px-4 py-2 w-full text-gray-700 text-sm text-left"
-              >
-                Contact
-              </button>
-              <hr className="my-1" />
-              <button
-                onClick={() => handleAction("delete")}
-                className="block hover:bg-red-50 px-4 py-2 w-full text-red-600 text-sm text-left"
-              >
-                Delete
               </button>
             </div>
           </div>
@@ -190,7 +185,9 @@ const UserCard = ({ user }: { user: IUser }) => {
           <h3 className="font-semibold text-gray-900 text-xl">
             {user.branchName}
           </h3>
-          <p className="text-gray-600 text-sm capitalize">{user.role}</p>
+          <p className="text-gray-600 text-sm capitalize">
+            {user.role.replaceAll("-", " ")}
+          </p>
         </div>
       </div>
 

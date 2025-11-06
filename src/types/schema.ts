@@ -24,6 +24,10 @@ export const UserValidationSchema = yup.object().shape({
   address: yup.string().required("Address is required"),
 });
 
+export const CategoryValidationSchema = yup.object().shape({
+  name: yup.string().required("Cayegory name is required"),
+});
+
 export const ProductValidationSchema = yup.object().shape({
   title: yup.string().required("Title is required"),
   price: yup.number().required("Price is required"),
