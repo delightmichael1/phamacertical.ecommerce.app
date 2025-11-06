@@ -56,9 +56,9 @@ function TopNav() {
     },
   ];
 
-  const controlHeader = (mainContainer: HTMLElement | null) => {
-    if (mainContainer) {
-      const currentScroll = mainContainer.scrollTop;
+  const controlHeader = () => {
+    if (typeof window !== "undefined") {
+      const currentScroll = window.scrollY;
       if (currentScroll > lastScrollY) {
         setShowHeader(false);
       } else {
@@ -69,14 +69,9 @@ function TopNav() {
   };
 
   useEffect(() => {
-    const mainContainer = document.getElementById("main");
-    mainContainer?.addEventListener("scroll", () =>
-      controlHeader(mainContainer)
-    );
+    window?.addEventListener("scroll", () => controlHeader());
     return () => {
-      mainContainer?.addEventListener("scroll", () =>
-        controlHeader(mainContainer)
-      );
+      window?.addEventListener("scroll", () => controlHeader());
     };
   }, [lastScrollY]);
 

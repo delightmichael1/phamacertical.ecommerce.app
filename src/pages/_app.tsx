@@ -11,12 +11,10 @@ import { ModalProvider } from "@/components/modals/Modal";
 import Security from "../../public/lottie/cybersecurity.json";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [pageHeight, setPageHeight] = useState(0);
   const [pageWidth, setPageWidth] = useState(0);
 
   useEffect(() => {
     const handleSetHeight = () => {
-      setPageHeight(window.innerHeight);
       setPageWidth(window.innerWidth);
     };
     handleSetHeight();
@@ -29,10 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   if (pageWidth < 768) {
     return (
-      <main
-        className="bg-gradient-to-tl from-background-2 to-background w-full font-poppins text-xs"
-        style={{ height: `${pageHeight}px` }}
-      >
+      <main className="bg-gradient-to-tl from-background-2 to-background w-full font-poppins text-xs">
         <Head>
           <title>PharmNex</title>
           <meta
@@ -68,10 +63,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   return (
-    <main
-      className="bg-gradient-to-tl from-background-2 to-background w-full font-poppins text-xs"
-      style={{ height: `${pageHeight}px` }}
-    >
+    <main className="bg-gradient-to-tl from-background-2 to-background w-full font-poppins text-xs">
       <Head>
         <title>PharmNex</title>
         <meta
@@ -89,7 +81,6 @@ export default function App({ Component, pageProps }: AppProps) {
           >
             <Component {...pageProps} />
           </div>
-
           <Toast />
         </ModalProvider>
       </AuthProvider>

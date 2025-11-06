@@ -25,9 +25,9 @@ function ShopLayout(props: Props) {
     });
   };
 
-  const controlScrollButton = (mainContainer: HTMLElement | null) => {
-    if (mainContainer) {
-      const currentScroll = mainContainer.scrollTop;
+  const controlScrollButton = () => {
+    if (typeof window !== "undefined") {
+      const currentScroll = window.scrollY;
       if (currentScroll < 100) {
         setShowScrollButton(false);
       } else {
@@ -37,21 +37,16 @@ function ShopLayout(props: Props) {
   };
 
   useEffect(() => {
-    const mainContainer = document.getElementById("main");
-    mainContainer?.addEventListener("scroll", () =>
-      controlScrollButton(mainContainer)
-    );
+    window?.addEventListener("scroll", () => controlScrollButton());
     return () => {
-      mainContainer?.addEventListener("scroll", () =>
-        controlScrollButton(mainContainer)
-      );
+      window?.addEventListener("scroll", () => controlScrollButton());
     };
   }, []);
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full">
       <TopNav />
-      <div className="mt-32 p-4 pb-20">{props.children}</div>
+      <div className="mt-28 p-4 pb-20">{props.children}</div>
       <Footer />
       <button
         id="cart-icon"

@@ -1,5 +1,5 @@
-import React from "react";
 import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
 import Breadcrumb from "@/components/ui/BreadCrumb";
 import DashboardTopNav from "@/components/navigation/DashboardTopNav";
 import DashboardSideBar from "@/components/navigation/DashboardSideBar";
@@ -13,8 +13,24 @@ interface Props {
 }
 
 function DashboardLayout(props: Props) {
+  const [pageHeight, setPageHeight] = useState(0);
+
+  useEffect(() => {
+    const handleSetHeight = () => {
+      setPageHeight(window.innerHeight);
+    };
+    handleSetHeight();
+
+    window.addEventListener("resize", handleSetHeight);
+    return () => {
+      window.removeEventListener("resize", handleSetHeight);
+    };
+  }, []);
   return (
-    <div className="flex w-full h-full overflow-hidden">
+    <div
+      className="flex w-full h-full overflow-hidden"
+      style={{ height: `${pageHeight}px` }}
+    >
       <DashboardSideBar isSupplier={props.isSupplier} isAdmin={props.isAdmin} />
       <div className="flex flex-col space-y-4 w-full h-full overflow-y-auto">
         <DashboardTopNav

@@ -5,9 +5,9 @@ const Footer: React.FC = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showFooter, setShowFooter] = useState(true);
 
-  const controlHeader = (mainContainer: HTMLElement | null) => {
-    if (mainContainer) {
-      const currentScroll = mainContainer.scrollTop;
+  const controlHeader = () => {
+    if (typeof window !== "undefined") {
+      const currentScroll = window.scrollY;
       if (currentScroll > lastScrollY) {
         setShowFooter(false);
       } else {
@@ -18,14 +18,9 @@ const Footer: React.FC = () => {
   };
 
   useEffect(() => {
-    const mainContainer = document.getElementById("main");
-    mainContainer?.addEventListener("scroll", () =>
-      controlHeader(mainContainer)
-    );
+    window.addEventListener("scroll", () => controlHeader());
     return () => {
-      mainContainer?.addEventListener("scroll", () =>
-        controlHeader(mainContainer)
-      );
+      window.addEventListener("scroll", () => controlHeader());
     };
   }, [lastScrollY]);
 
