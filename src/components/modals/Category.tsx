@@ -9,6 +9,8 @@ import { CategoryValidationSchema } from "@/types/schema";
 
 type Props = {
   category?: any;
+  isChild?: boolean;
+  parentId?: string;
   onDone: () => void;
   type: "add" | "edit";
   closeModal: () => void;
@@ -32,6 +34,9 @@ function CategoryModal(props: Props) {
   const handleSubmit = async (values: any) => {
     try {
       const method = props.type === "add" ? "post" : "put";
+      if (props.isChild && props.type === "add") {
+        values.parent = props.parentId;
+      }
       const data =
         props.type === "add" ? values : { ...values, id: props.category.id };
       const response = await secureAxios[method]("/admin/categories", data);
@@ -59,7 +64,8 @@ function CategoryModal(props: Props) {
       style={{ maxHeight: `${0.8 * height}px` }}
     >
       <span className="mt-1 mb-10 font-bold text-2xl">
-        {props.type === "add" ? "Add new" : "Update"} category
+        {props.type === "add" ? "Add new" : "Update"}{" "}
+        {props.isChild ? "sub-category" : "category"}
       </span>
       <Formik
         initialValues={{

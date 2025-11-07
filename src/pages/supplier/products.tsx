@@ -4,32 +4,36 @@ import debounce from "lodash.debounce";
 import Card from "@/components/ui/Card";
 import Product from "@/components/Product";
 import useAppStore from "@/stores/AppStore";
+import { useAxios } from "@/hooks/useAxios";
+import { BiCalendar } from "react-icons/bi";
 import { RiAddLargeLine } from "react-icons/ri";
 import Button from "@/components/buttons/Button";
-import { RxHamburgerMenu } from "react-icons/rx";
 import useUserStore from "@/stores/useUserStore";
+import { toast } from "@/components/toast/toast";
+import Pagination from "@/components/Pagination";
 import React, { useEffect, useState } from "react";
-import Checkbox from "@/components/input/Checkbox";
 import { useModal } from "@/components/modals/Modal";
+import CategoryCard from "@/components/CategoryCard";
 import Dropdown from "@/components/dropdown/Dropdown";
 import { CardSkeleton } from "@/components/ui/Shimmer";
 import { AnimatePresence, motion } from "framer-motion";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AddProduct from "@/components/modals/AddProduct";
 import useProductsRoutes from "@/hooks/useProductsRoutes";
-import { useAxios } from "@/hooks/useAxios";
-import { toast } from "@/components/toast/toast";
-import Pagination from "@/components/Pagination";
 import DateFieldWithOnChange from "@/components/input/DatePickerWithOnChange";
-import { BiCalendar } from "react-icons/bi";
 
 type Props = {
-  filter: string[];
-  setFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  filter: ICategory[];
+  subCategoryfilter: ISubCategory[];
+  setFilter: React.Dispatch<React.SetStateAction<ICategory[]>>;
+  setSubCategoryfilter: React.Dispatch<React.SetStateAction<ISubCategory[]>>;
 };
 
 function Index() {
-  const [filter, setFilter] = React.useState<string[]>([]);
+  const [filter, setFilter] = React.useState<ICategory[]>([]);
+  const [subCategoryfilter, setSubCategoryfilter] = React.useState<
+    ISubCategory[]
+  >([]);
 
   useEffect(() => {
     useAppStore.setState((state) => {
@@ -46,10 +50,20 @@ function Index() {
       <div className="flex flex-col space-y-8 w-full">
         <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto w-full h-fit container">
           <div className="w-full lg:w-1/4">
-            <LeftSide filter={filter} setFilter={setFilter} />
+            <LeftSide
+              filter={filter}
+              setFilter={setFilter}
+              setSubCategoryfilter={setSubCategoryfilter}
+              subCategoryfilter={subCategoryfilter}
+            />
           </div>
           <div className="w-full lg:w-3/4">
-            <RightSide filter={filter} setFilter={setFilter} />
+            <RightSide
+              filter={filter}
+              setFilter={setFilter}
+              setSubCategoryfilter={setSubCategoryfilter}
+              subCategoryfilter={subCategoryfilter}
+            />
           </div>
         </div>
       </div>
@@ -58,105 +72,14 @@ function Index() {
 }
 
 const LeftSide: React.FC<Props> = (props) => {
-  const { secureAxios } = useAxios();
-  const [catePages, setCatePages] = useState(1);
-  const [categories, setCategories] = useState<ICategory[]>([]);
-  const [totalCategoriesPages, setTotalCategoriesPages] = useState(1);
-  const [isFetchingCategories, setIsFetchingCategories] = useState(false);
-
-  useEffect(() => {
-    getCategories();
-  }, []);
-
-  const getCategories = async () => {
-    setIsFetchingCategories(true);
-    await secureAxios
-      .get("/shop/categories?page=" + catePages)
-      .then((res) => {
-        console.log("Categories ", res.data);
-        if (res.data.categories) {
-          setCategories(res.data.categories);
-          setTotalCategoriesPages(res.data.pages);
-        }
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err?.response?.data?.message ?? err.message,
-          variant: "error",
-        });
-      })
-      .finally(() => {
-        setIsFetchingCategories(false);
-      });
-  };
-
-  const handleCheckboxChange = (value: boolean, category: string) => {
-    if (value) {
-      props.setFilter([...props.filter, category]);
-    } else {
-      props.setFilter(props.filter.filter((item) => item !== category));
-    }
-  };
   return (
     <div className="flex flex-col space-y-6 w-full">
-      <Card
-        className="bg-primary p-0 text-white"
-        variants={{
-          whileInView: { opacity: 1, x: 0 },
-          initial: { opacity: 0, x: -200 },
-          exit: { opacity: 0, x: -200 },
-          transition: {
-            duration: 1,
-            type: "spring",
-          },
-        }}
-      >
-        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <RxHamburgerMenu className="w-6 h-6" />
-          <h2>Categories</h2>
-        </div>
-        <div className="p-4">
-          {categories.map((category, index) => (
-            <div
-              className="p-2 py-3 rounded-lg hover:text-primary text-sm cursor-pointer"
-              key={index}
-            >
-              <Checkbox
-                label={category.name}
-                checked={props.filter.includes(category.name)}
-                classNames={{
-                  label: "group-hover:text-gray-200",
-                  checkbox: "bg-primary-light",
-                }}
-                onChange={(value) => handleCheckboxChange(value, category.name)}
-              />
-            </div>
-          ))}
-          {categories.length === 0 && (
-            <div className="flex flex-col justify-center items-center space-y-4 px-4 py-10">
-              <Image
-                src={"/svgs/empty-cart.svg"}
-                alt="No Data"
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="w-full max-w-40 h-fit"
-              />
-              <span>No Categories</span>
-            </div>
-          )}
-          {totalCategoriesPages > 1 && (
-            <div className="flex justify-end">
-              <Pagination
-                pageNumber={catePages}
-                contentsLength={categories.length}
-                setPageNumber={setCatePages}
-              />
-            </div>
-          )}
-        </div>
-      </Card>
+      <CategoryCard
+        categoryfilter={props.filter}
+        setCategoryfilter={props.setFilter}
+        setSubCategoryfilter={props.setSubCategoryfilter}
+        subCategoryfilter={props.subCategoryfilter}
+      />
     </div>
   );
 };
@@ -178,13 +101,27 @@ const RightSide: React.FC<Props> = (props) => {
   const [endDate, setEndDate] = useState<string>("");
   const [isCreatingAd, setIsCreatingAd] = useState(false);
 
-  const handlDelete = (name: string) => {
-    props.setFilter(props.filter.filter((item) => item !== name));
+  const handlDelete = (id: string) => {
+    props.setFilter(props.filter.filter((item) => item.id !== id));
+  };
+
+  const handlDeleteSubCategory = (subCategory: ISubCategory) => {
+    props.setSubCategoryfilter(
+      props.subCategoryfilter.filter((item) => item !== subCategory)
+    );
   };
 
   const debouncedSearch = React.useCallback(
-    debounce(async (filter: string[]) => {
-      if (id) getProducts(sort, page, filter, [id], setIsLoading, setPages);
+    debounce(async (filter: ICategory[]) => {
+      if (id)
+        getProducts(
+          sort,
+          page,
+          filter.map((item) => item.id),
+          [id],
+          setIsLoading,
+          setPages
+        );
     }, 500),
     [id, page, sort]
   );
@@ -293,9 +230,27 @@ const RightSide: React.FC<Props> = (props) => {
           <div className="flex flex-wrap gap-4">
             {props.filter.map((value) => (
               <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
-                <span>{value}</span>
+                <span>{value.name}</span>
                 <button
-                  onClick={() => handlDelete(value)}
+                  onClick={() => handlDelete(value.id)}
+                  className="text-red-500 cursor-pointer"
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {props.subCategoryfilter.length > 0 && (
+        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
+          <span>Active sub-category filters</span>
+          <div className="flex flex-wrap gap-4">
+            {props.subCategoryfilter.map((value) => (
+              <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
+                <span>{value.name}</span>
+                <button
+                  onClick={() => handlDeleteSubCategory(value)}
                   className="text-red-500 cursor-pointer"
                 >
                   X

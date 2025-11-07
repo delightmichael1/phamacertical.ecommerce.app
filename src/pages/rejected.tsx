@@ -1,15 +1,31 @@
-import React from "react";
 import Lottie from "lottie-react";
 import { BiArrowBack } from "react-icons/bi";
 import Button from "@/components/buttons/Button";
-import useAuthSession from "@/hooks/useAuthSession";
 import Error from "../../public/lottie/error.json";
+import React, { useEffect, useState } from "react";
+import useAuthSession from "@/hooks/useAuthSession";
 
 function Rejected() {
   const { signOut } = useAuthSession();
+  const [pageHeight, setPageHeight] = useState(0);
+
+  useEffect(() => {
+    const handleSetHeight = () => {
+      setPageHeight(window.innerHeight);
+    };
+    handleSetHeight();
+
+    window.addEventListener("resize", handleSetHeight);
+    return () => {
+      window.removeEventListener("resize", handleSetHeight);
+    };
+  }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center space-y-10 p-4 w-full h-full">
+    <div
+      className="flex flex-col justify-center items-center space-y-10 p-4 w-full h-full"
+      style={{ height: `${pageHeight}px` }}
+    >
       <Lottie
         animationData={Error}
         loop={false}

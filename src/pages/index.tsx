@@ -1,12 +1,8 @@
 import Preloader from "@/components/Preloader";
 import React from "react";
 
-interface Props {}
-
-function Index(props: Props) {
-  const {} = props;
-
-  return <Preloader />;
+function Index() {
+  return <Preloader isFullHeight />;
 }
 
 export default Index;

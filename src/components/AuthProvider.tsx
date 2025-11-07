@@ -43,7 +43,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [status, id, deviceId]);
 
   if (!id && !authPages.includes(pathName)) {
-    return <Preloader />;
+    return <Preloader isFullHeight />;
   }
 
   if (status === "authenticated" && !authPages.includes(pathName)) {
@@ -58,7 +58,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     } else if (role && role.includes("retailer")) {
       !pathName.includes("shop") && router.push("/shop");
     } else {
-      return <Preloader />;
+      return <Preloader isFullHeight />;
     }
   }
 

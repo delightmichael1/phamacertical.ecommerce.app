@@ -2,17 +2,19 @@ import Card from "@/components/ui/Card";
 import { TbTrash } from "react-icons/tb";
 import { ApexOptions } from "apexcharts";
 import { useAxios } from "@/hooks/useAxios";
+import { CiMenuKebab } from "react-icons/ci";
 import Button from "@/components/buttons/Button";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
 import { MdAdd, MdModeEdit } from "react-icons/md";
 import React, { useEffect, useState } from "react";
 import { useModal } from "@/components/modals/Modal";
+import { IoAdd, IoEyeOutline } from "react-icons/io5";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import CategoryModal from "@/components/modals/Category";
-import { useClickOutside } from "@/hooks/useOutsideClick";
 import { TableRowSkeleton } from "@/components/ui/Shimmer";
 import DeleteCategory from "@/components/modals/DeleteCategory";
+import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
 
 function Index() {
   const { secureAxios } = useAxios();
@@ -489,14 +491,38 @@ const CategoryRow = ({
   getCategories: () => Promise<void>;
 }) => {
   const { openModal, closeModal } = useModal();
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  useClickOutside(dropdownRef, () => {
-    setIsDropdownOpen(false);
-  });
 
   const actions = [
+    {
+      name: "View sub-categories",
+      icon: IoEyeOutline,
+      description: "View sub-categories of " + category.name,
+      onClick: () =>
+        openModal(
+          <CategoryModal
+            type="add"
+            isChild
+            parentId={category.id}
+            onDone={getCategories}
+            closeModal={closeModal}
+          />
+        ),
+    },
+    {
+      name: "Add sub-category",
+      icon: IoAdd,
+      description: "Add a sub-category to " + category.name,
+      onClick: () =>
+        openModal(
+          <CategoryModal
+            type="add"
+            isChild
+            parentId={category.id}
+            onDone={getCategories}
+            closeModal={closeModal}
+          />
+        ),
+    },
     {
       name: "Update details",
       icon: MdModeEdit,
@@ -536,45 +562,31 @@ const CategoryRow = ({
       </td>
       <td className="relative flex justify-end items-end p-3">
         <span className="font-semibold">
-          <div className="" ref={dropdownRef}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
-              aria-label="More options"
-            >
-              <svg
-                className="w-5 h-5 text-gray-600"
-                fill="currentColor"
-                viewBox="0 0 16 16"
-              >
-                <circle cx="8" cy="2" r="1.5" />
-                <circle cx="8" cy="8" r="1.5" />
-                <circle cx="8" cy="14" r="1.5" />
-              </svg>
-            </button>
-
-            {isDropdownOpen && (
-              <div className="right-0 z-10 absolute bg-white shadow-lg mt-2 border border-gray-200 rounded-md w-64">
-                <div className="py-1">
-                  {actions.map((action, index) => (
-                    <button
-                      key={index}
-                      onClick={action.onClick}
-                      className="flex items-center space-x-4 hover:bg-gray-100 px-4 py-2 w-full text-gray-700 text-sm text-left cursor-pointer"
-                    >
-                      <action.icon className="w-5 h-5 text-gray-500" />
-                      <div className="flex flex-col">
-                        <span>{action.name}</span>
-                        <span className="text-gray-500 text-xxs">
-                          {action.description}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+          <FxDropdown
+            align="right"
+            trigger={
+              <div className="flex items-center space-x-2 hover:bg-gray-50 px-4 py-2.5 text-primary">
+                <CiMenuKebab size={20} />
               </div>
-            )}
-          </div>
+            }
+            classnames={{
+              dropdown: "w-72",
+            }}
+          >
+            {actions.map((action, index) => (
+              <DropdownItem key={index} onClick={action.onClick}>
+                <div className="flex items-center space-x-3">
+                  <action.icon className="w-5 h-5 text-gray-500" />
+                  <div className="flex flex-col">
+                    <span>{action.name}</span>
+                    {/* <span className="text-gray-500 text-xxs">
+                      {action.description}
+                    </span> */}
+                  </div>
+                </div>
+              </DropdownItem>
+            ))}
+          </FxDropdown>
         </span>
       </td>
     </tr>

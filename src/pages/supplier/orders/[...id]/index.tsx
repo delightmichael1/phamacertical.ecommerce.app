@@ -1,18 +1,22 @@
 "use client";
+import { MdMenu } from "react-icons/md";
 import { useRouter } from "next/router";
+import { TbCancel } from "react-icons/tb";
 import Product from "@/components/Product";
 import { useAxios } from "@/hooks/useAxios";
+import { GoVerified } from "react-icons/go";
+import { GiCheckMark } from "react-icons/gi";
+import Pagination from "@/components/Pagination";
+import { useModal } from "@/components/modals/Modal";
 import Dropdown from "@/components/dropdown/Dropdown";
+import { CardSkeleton } from "@/components/ui/Shimmer";
+import { AnimatePresence, motion } from "framer-motion";
 import React, { use, useEffect, useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import SearchInput from "@/components/input/SearchInput";
-import { CardSkeleton } from "@/components/ui/Shimmer";
-import { AnimatePresence, motion } from "framer-motion";
-import Pagination from "@/components/Pagination";
-import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
-import { MdMenu } from "react-icons/md";
-import { useModal } from "@/components/modals/Modal";
 import AcceptOrderModal from "@/components/modals/Order";
+import usePersistedStore from "@/stores/PersistedStored";
+import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
 
 function Order() {
   const router = useRouter();
@@ -25,6 +29,7 @@ function Order() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [orderProducts, setOrderProducts] = useState<IProduct[]>([]);
+  const [order, setOrder] = useState<IOrder | undefined>(undefined);
 
   useEffect(() => {
     if (!id) {
@@ -42,6 +47,13 @@ function Order() {
     await secureAxios
       .get(`/shop/orders/${id}?page=${page}&limit=20&sort=${fxSort}`)
       .then((res) => {
+        const orders = usePersistedStore.getState().orders;
+        console.log("############", orders, id);
+        setOrder(
+          orders.find(
+            (item) => item.id === (typeof id === "string" ? id : id && id[0])
+          )
+        );
         setOrderProducts(res.data.products);
         setPages(res.data.pages);
       })
@@ -53,7 +65,53 @@ function Order() {
       });
   };
 
-  console.log(id);
+  const dropDownItems = [
+    {
+      label: "Accept",
+      icon: GiCheckMark,
+      description: "Accept order with date",
+      precedence: ["accepted", "cancelled", "shipped"],
+      onclick: (orderId: string) => {
+        openModal(
+          <AcceptOrderModal
+            orderId={orderId}
+            closeModal={closeModal}
+            type={"accepted"}
+          />
+        );
+      },
+    },
+    {
+      label: "Decline",
+      icon: TbCancel,
+      description: "Decline order",
+      precedence: ["shipped", "cancelled"],
+      onclick: (orderId: string) => {
+        openModal(
+          <AcceptOrderModal
+            orderId={orderId}
+            closeModal={closeModal}
+            type={"cancelled"}
+          />
+        );
+      },
+    },
+    {
+      label: "Ship",
+      icon: GoVerified,
+      description: "Mark order as shipped",
+      precedence: ["shipped", "cancelled"],
+      onclick: (orderId: string) => {
+        openModal(
+          <AcceptOrderModal
+            orderId={orderId}
+            closeModal={closeModal}
+            type={"shipped"}
+          />
+        );
+      },
+    },
+  ];
 
   return (
     <DashboardLayout isSupplier title="Order" description={"Id: #" + id}>
@@ -82,45 +140,27 @@ function Order() {
                 dropdown: "w-48",
               }}
             >
-              <DropdownItem
-                onClick={() =>
-                  openModal(
-                    <AcceptOrderModal
-                      orderId={id as string}
-                      closeModal={closeModal}
-                      type={"accepted"}
-                    />
-                  )
-                }
-              >
-                Accept
-              </DropdownItem>
-              <DropdownItem
-                onClick={() =>
-                  openModal(
-                    <AcceptOrderModal
-                      orderId={id as string}
-                      closeModal={closeModal}
-                      type={"cancelled"}
-                    />
-                  )
-                }
-              >
-                Decline
-              </DropdownItem>
-              <DropdownItem
-                onClick={() =>
-                  openModal(
-                    <AcceptOrderModal
-                      orderId={id as string}
-                      closeModal={closeModal}
-                      type={"update"}
-                    />
-                  )
-                }
-              >
-                Update
-              </DropdownItem>
+              {dropDownItems.map((item) => (
+                <DropdownItem
+                  onClick={() => item.onclick(id as string)}
+                  key={item.label}
+                  className={
+                    item.precedence.includes(order?.status ?? "")
+                      ? "opacity-60 pointer-events-none"
+                      : ""
+                  }
+                >
+                  <div className="flex items-center space-x-3">
+                    <item.icon className="w-5 h-5 text-gray-500" />
+                    <div className="flex flex-col">
+                      <span>{item.label}</span>
+                      <span className="text-gray-500 text-xxs">
+                        {item.description}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownItem>
+              ))}
             </FxDropdown>
           </div>
         </div>

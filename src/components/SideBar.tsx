@@ -219,9 +219,15 @@ function Cart(props: Props) {
                   className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-red-500 duration-300 cursor-pointer"
                   onClick={() =>
                     usePersistedStore.setState((state) => {
-                      state.cart = state.cart.filter(
-                        (itx) => itx.id !== item.id
-                      );
+                      if (props.isCart) {
+                        state.cart = state.cart.filter(
+                          (itx) => itx.id !== item.id
+                        );
+                      } else {
+                        state.wishList = state.wishList.filter(
+                          (itx) => itx.id !== item.id
+                        );
+                      }
                     })
                   }
                 />

@@ -1,12 +1,14 @@
 import Image from "next/image";
-import { FaEye } from "react-icons/fa6";
+import { TbCancel } from "react-icons/tb";
 import { useRouter } from "next/navigation";
 import { useAxios } from "@/hooks/useAxios";
+import { GoVerified } from "react-icons/go";
+import { CiMenuKebab } from "react-icons/ci";
+import { GiCheckMark } from "react-icons/gi";
+import { IoEyeOutline } from "react-icons/io5";
 import Preloader from "@/components/Preloader";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
-import { id } from "date-fns/locale";
-import { MdMenu } from "react-icons/md";
 import { useModal } from "@/components/modals/Modal";
 import Dropdown from "@/components/dropdown/Dropdown";
 import DashboardLayout from "@/layouts/DashboardLayout";
@@ -16,7 +18,6 @@ import usePersistedStore from "@/stores/PersistedStored";
 import React, { useEffect, useMemo, useState } from "react";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
 import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
-import { CiMenuKebab } from "react-icons/ci";
 
 function Orders() {
   const router = useRouter();
@@ -72,6 +73,62 @@ function Orders() {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  const dropDownItems = [
+    {
+      label: "View Order",
+      icon: IoEyeOutline,
+      description: "View order details",
+      onclick: (orderId: string) => {
+        router.push(`/supplier/orders/${orderId}`);
+      },
+    },
+    {
+      label: "Accept",
+      icon: GiCheckMark,
+      description: "Accept order with date",
+      precedence: ["accepted", "cancelled", "shipped"],
+      onclick: (orderId: string) => {
+        openModal(
+          <AcceptOrderModal
+            orderId={orderId}
+            closeModal={closeModal}
+            type={"accepted"}
+          />
+        );
+      },
+    },
+    {
+      label: "Decline",
+      icon: TbCancel,
+      description: "Decline order",
+      precedence: ["shipped", "cancelled"],
+      onclick: (orderId: string) => {
+        openModal(
+          <AcceptOrderModal
+            orderId={orderId}
+            closeModal={closeModal}
+            type={"cancelled"}
+          />
+        );
+      },
+    },
+    {
+      label: "Ship",
+      icon: GoVerified,
+      description: "Mark order as shipped",
+      precedence: ["shipped", "cancelled"],
+      onclick: (orderId: string) => {
+        openModal(
+          <AcceptOrderModal
+            orderId={orderId}
+            closeModal={closeModal}
+            type={"shipped"}
+          />
+        );
+      },
+    },
+  ];
 
   return (
     <DashboardLayout
@@ -191,55 +248,28 @@ function Orders() {
                                 dropdown: "w-48",
                               }}
                             >
-                              <DropdownItem
-                                onClick={() =>
-                                  router.push(`/supplier/orders/${order.id}`)
-                                }
-                              >
-                                <div className="flex items-center space-x-2">
-                                  {/* <FaEye size={20} /> */}
-                                  <span>View Order</span>
-                                </div>
-                              </DropdownItem>
-                              <DropdownItem
-                                onClick={() =>
-                                  openModal(
-                                    <AcceptOrderModal
-                                      orderId={order.id}
-                                      closeModal={closeModal}
-                                      type={"accepted"}
-                                    />
-                                  )
-                                }
-                              >
-                                Accept
-                              </DropdownItem>
-                              <DropdownItem
-                                onClick={() =>
-                                  openModal(
-                                    <AcceptOrderModal
-                                      orderId={order.id}
-                                      closeModal={closeModal}
-                                      type={"cancelled"}
-                                    />
-                                  )
-                                }
-                              >
-                                Decline
-                              </DropdownItem>
-                              <DropdownItem
-                                onClick={() =>
-                                  openModal(
-                                    <AcceptOrderModal
-                                      orderId={order.id}
-                                      closeModal={closeModal}
-                                      type={"update"}
-                                    />
-                                  )
-                                }
-                              >
-                                Update
-                              </DropdownItem>
+                              {dropDownItems.map((item) => (
+                                <DropdownItem
+                                  onClick={() => item.onclick(order.id)}
+                                  className={
+                                    item.precedence?.includes(
+                                      order?.status ?? ""
+                                    )
+                                      ? "opacity-60 pointer-events-none"
+                                      : ""
+                                  }
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <item.icon className="w-5 h-5 text-gray-500" />
+                                    <div className="flex flex-col">
+                                      <span>{item.label}</span>
+                                      <span className="text-gray-500 text-xxs">
+                                        {item.description}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </DropdownItem>
+                              ))}
                             </FxDropdown>
                           </td>
                         </tr>

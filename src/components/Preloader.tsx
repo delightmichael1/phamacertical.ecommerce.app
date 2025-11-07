@@ -1,10 +1,31 @@
-import React from "react";
 import Loader from "./Loader";
 import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
-function Preloader() {
+type Props = {
+  isFullHeight?: boolean;
+};
+
+function Preloader(props: Props) {
+  const [pageHeight, setPageHeight] = useState(0);
+
+  useEffect(() => {
+    const handleSetHeight = () => {
+      setPageHeight(window.innerHeight);
+    };
+    handleSetHeight();
+
+    window.addEventListener("resize", handleSetHeight);
+    return () => {
+      window.removeEventListener("resize", handleSetHeight);
+    };
+  }, []);
+
   return (
-    <div className="relative flex flex-col justify-center items-center w-full h-full">
+    <div
+      className="relative flex flex-col justify-center items-center w-full h-full"
+      style={props.isFullHeight ? { height: `${pageHeight}px` } : {}}
+    >
       <Image
         src={"/favicon.png"}
         alt="logo"

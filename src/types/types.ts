@@ -82,6 +82,13 @@ interface IUser {
 interface ICategory {
   name: string;
   id: string;
+  subCategories?: ISubCategory[];
+}
+
+interface ISubCategory {
+  name: string;
+  id: string;
+  parent: string;
 }
 
 interface OrderDistribution {
