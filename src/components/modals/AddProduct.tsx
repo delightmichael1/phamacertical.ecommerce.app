@@ -169,6 +169,12 @@ function AddProduct() {
                   return {
                     label: category.name,
                     value: category.id,
+                    subOptions: category.subCategories?.map((subCategory) => {
+                      return {
+                        label: subCategory.name,
+                        value: subCategory.id,
+                      };
+                    }),
                   };
                 })}
               />
