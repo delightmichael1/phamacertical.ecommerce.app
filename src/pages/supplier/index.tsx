@@ -102,7 +102,6 @@ function Index() {
   const fetchData = async () => {
     try {
       const response = await secureAxios.get("/shop/dashboard");
-      console.log(response.data);
       setOrderStats(response.data);
     } catch (error: any) {
       toast({
@@ -118,7 +117,6 @@ function Index() {
   const getAds = async () => {
     try {
       const response = await secureAxios.get(`/shop/topselling`);
-      console.log(response.data);
       if (response.data.topSelling) {
         setTopSelling(response.data.topSelling);
       } else {

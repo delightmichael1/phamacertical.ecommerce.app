@@ -23,18 +23,13 @@ import Courasel, { CarouselRef } from "@/components/ui/Carousel";
 type Props = {
   suppliers: ICategory[];
   categoryfilter: ICategory[];
-  subCategoryfilter: ISubCategory[];
   setSuppliers: React.Dispatch<React.SetStateAction<ICategory[]>>;
   setCategoryfilter: React.Dispatch<React.SetStateAction<ICategory[]>>;
-  setSubCategoryfilter: React.Dispatch<React.SetStateAction<ISubCategory[]>>;
 };
 
 function Index() {
   const [suppliers, setSuppliers] = useState<ICategory[]>([]);
   const [categoryfilter, setCategoryfilter] = React.useState<ICategory[]>([]);
-  const [subCategoryfilter, setSubCategoryfilter] = React.useState<
-    ISubCategory[]
-  >([]);
 
   useEffect(() => {
     useAppStore.setState((state) => {
@@ -52,8 +47,6 @@ function Index() {
               setCategoryfilter={setCategoryfilter}
               suppliers={suppliers}
               setSuppliers={setSuppliers}
-              subCategoryfilter={subCategoryfilter}
-              setSubCategoryfilter={setSubCategoryfilter}
             />
           </div>
           <div className="w-full lg:w-3/4">
@@ -62,8 +55,6 @@ function Index() {
               setCategoryfilter={setCategoryfilter}
               suppliers={suppliers}
               setSuppliers={setSuppliers}
-              subCategoryfilter={subCategoryfilter}
-              setSubCategoryfilter={setSubCategoryfilter}
             />
           </div>
         </div>
@@ -122,8 +113,6 @@ const LeftSide: React.FC<Props> = (props) => {
       <CategoryCard
         categoryfilter={props.categoryfilter}
         setCategoryfilter={props.setCategoryfilter}
-        subCategoryfilter={props.subCategoryfilter}
-        setSubCategoryfilter={props.setSubCategoryfilter}
       />
       <Card
         className="bg-primary p-0 text-white"
@@ -144,7 +133,7 @@ const LeftSide: React.FC<Props> = (props) => {
         <div className="p-4">
           {suppliers.map((supplier, index) => (
             <div
-              className="p-2 py-3 rounded-lg hover:text-primary text-sm cursor-pointer"
+              className="p-2 py-3 rounded-lg text-sm cursor-pointer"
               key={index}
             >
               <Checkbox
@@ -202,7 +191,13 @@ const RightSide: React.FC<Props> = (props) => {
         getProducts(
           sort,
           page,
-          categoryfilter.map((item) => item.id),
+          categoryfilter.map((item) =>
+            item.subCategories
+              ? item.subCategories?.length > 0
+                ? item.subCategories.map((sub) => sub.id).join(",")
+                : item.id
+              : item.id
+          ),
           suppliers.map((item) => item.id),
           setIsLoading,
           setPages
@@ -216,20 +211,8 @@ const RightSide: React.FC<Props> = (props) => {
     return debouncedSearch.cancel;
   }, [props.categoryfilter, props.suppliers, debouncedSearch, id, page, sort]);
 
-  const handlDelete = (category: ICategory) => {
-    props.setCategoryfilter(
-      props.categoryfilter.filter((item) => item !== category)
-    );
-  };
-
   const handlDeleteSupplier = (suppier: ICategory) => {
     props.setSuppliers(props.suppliers.filter((item) => item !== suppier));
-  };
-
-  const handlDeleteSubCategory = (subCategory: ISubCategory) => {
-    props.setSubCategoryfilter(
-      props.subCategoryfilter.filter((item) => item !== subCategory)
-    );
   };
 
   return (
@@ -249,42 +232,6 @@ const RightSide: React.FC<Props> = (props) => {
           />
         </div>
       </div>
-      {props.categoryfilter.length > 0 && (
-        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
-          <span>Active category filters</span>
-          <div className="flex flex-wrap gap-4">
-            {props.categoryfilter.map((value) => (
-              <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
-                <span>{value.name}</span>
-                <button
-                  onClick={() => handlDelete(value)}
-                  className="text-red-500 cursor-pointer"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {props.subCategoryfilter.length > 0 && (
-        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
-          <span>Active sub-category filters</span>
-          <div className="flex flex-wrap gap-4">
-            {props.subCategoryfilter.map((value) => (
-              <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
-                <span>{value.name}</span>
-                <button
-                  onClick={() => handlDeleteSubCategory(value)}
-                  className="text-red-500 cursor-pointer"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       {props.suppliers.length > 0 && (
         <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
           <span>Active Suppliers</span>

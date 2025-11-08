@@ -24,16 +24,11 @@ import DateFieldWithOnChange from "@/components/input/DatePickerWithOnChange";
 
 type Props = {
   filter: ICategory[];
-  subCategoryfilter: ISubCategory[];
   setFilter: React.Dispatch<React.SetStateAction<ICategory[]>>;
-  setSubCategoryfilter: React.Dispatch<React.SetStateAction<ISubCategory[]>>;
 };
 
 function Index() {
   const [filter, setFilter] = React.useState<ICategory[]>([]);
-  const [subCategoryfilter, setSubCategoryfilter] = React.useState<
-    ISubCategory[]
-  >([]);
 
   useEffect(() => {
     useAppStore.setState((state) => {
@@ -50,20 +45,10 @@ function Index() {
       <div className="flex flex-col space-y-8 w-full">
         <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto w-full h-fit container">
           <div className="w-full lg:w-1/4">
-            <LeftSide
-              filter={filter}
-              setFilter={setFilter}
-              setSubCategoryfilter={setSubCategoryfilter}
-              subCategoryfilter={subCategoryfilter}
-            />
+            <LeftSide filter={filter} setFilter={setFilter} />
           </div>
           <div className="w-full lg:w-3/4">
-            <RightSide
-              filter={filter}
-              setFilter={setFilter}
-              setSubCategoryfilter={setSubCategoryfilter}
-              subCategoryfilter={subCategoryfilter}
-            />
+            <RightSide filter={filter} setFilter={setFilter} />
           </div>
         </div>
       </div>
@@ -77,8 +62,6 @@ const LeftSide: React.FC<Props> = (props) => {
       <CategoryCard
         categoryfilter={props.filter}
         setCategoryfilter={props.setFilter}
-        setSubCategoryfilter={props.setSubCategoryfilter}
-        subCategoryfilter={props.subCategoryfilter}
       />
     </div>
   );
@@ -101,23 +84,19 @@ const RightSide: React.FC<Props> = (props) => {
   const [endDate, setEndDate] = useState<string>("");
   const [isCreatingAd, setIsCreatingAd] = useState(false);
 
-  const handlDelete = (id: string) => {
-    props.setFilter(props.filter.filter((item) => item.id !== id));
-  };
-
-  const handlDeleteSubCategory = (subCategory: ISubCategory) => {
-    props.setSubCategoryfilter(
-      props.subCategoryfilter.filter((item) => item !== subCategory)
-    );
-  };
-
   const debouncedSearch = React.useCallback(
     debounce(async (filter: ICategory[]) => {
       if (id)
         getProducts(
           sort,
           page,
-          filter.map((item) => item.id),
+          filter.map((item) =>
+            item.subCategories
+              ? item.subCategories?.length > 0
+                ? item.subCategories.map((sub) => sub.id).join(",")
+                : item.id
+              : item.id
+          ),
           [id],
           setIsLoading,
           setPages
@@ -224,42 +203,6 @@ const RightSide: React.FC<Props> = (props) => {
           </Button>
         </div>
       </div>
-      {props.filter.length > 0 && (
-        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
-          <span>Active Filters</span>
-          <div className="flex flex-wrap gap-4">
-            {props.filter.map((value) => (
-              <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
-                <span>{value.name}</span>
-                <button
-                  onClick={() => handlDelete(value.id)}
-                  className="text-red-500 cursor-pointer"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {props.subCategoryfilter.length > 0 && (
-        <div className="flex flex-col space-y-4 bg-card p-4 rounded-lg">
-          <span>Active sub-category filters</span>
-          <div className="flex flex-wrap gap-4">
-            {props.subCategoryfilter.map((value) => (
-              <div className="flex items-center space-x-2 bg-primary/10 px-2 py-1 rounded-full text-sm">
-                <span>{value.name}</span>
-                <button
-                  onClick={() => handlDeleteSubCategory(value)}
-                  className="text-red-500 cursor-pointer"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       {selectedProducts.size > 0 && (
         <Card className="bg-card p-4">
           <div className="flex flex-col space-y-4">

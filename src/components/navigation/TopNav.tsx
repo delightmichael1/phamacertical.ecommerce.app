@@ -15,6 +15,8 @@ import SearchInput from "../input/SearchInput";
 import { BiMenuAltRight } from "react-icons/bi";
 import usePersistedStore from "@/stores/PersistedStored";
 import { IoNotifications, IoNotificationsOutline } from "react-icons/io5";
+import { useModal } from "../modals/Modal";
+import ProductListing from "../ProductListing";
 
 type ILink = {
   name: string;
@@ -28,9 +30,11 @@ function TopNav() {
   const router = useRouter();
   const pathname = usePathname();
   const { notications } = useAppStore();
+  const { openModal, closeModal } = useModal();
   const { cart, wishList } = usePersistedStore();
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showHeader, setShowHeader] = useState(true);
+  const [searchFilter, setSearchFilter] = useState("");
 
   const links: ILink[] = [
     {
@@ -75,6 +79,16 @@ function TopNav() {
     };
   }, [lastScrollY]);
 
+  const onSearch = () => {
+    openModal(
+      <ProductListing
+        products={[]}
+        isLoading={false}
+        searchQuery={searchFilter}
+      />
+    );
+  };
+
   return (
     <AnimatePresence>
       {showHeader && (
@@ -100,7 +114,11 @@ function TopNav() {
               </Link>
 
               <div className="hidden md:flex flex-col flex-1 justify-center items-center space-y-2 mx-8">
-                <SearchInput className="text-black" />
+                <SearchInput
+                  onClick={onSearch}
+                  className="text-black"
+                  onChange={setSearchFilter}
+                />
               </div>
               <div className="hidden md:flex items-center space-x-3">
                 {links.map((item) => {

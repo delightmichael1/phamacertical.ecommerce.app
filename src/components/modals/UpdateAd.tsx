@@ -99,11 +99,6 @@ function UpdateAd(props: Props) {
     }
   };
 
-  console.log(
-    format(new Date(props.selectedProduct?.expiryDate ?? ""), "yyyy-MM-dd") ||
-      ""
-  );
-
   return (
     <div
       className="flex flex-col items-start space-y-4 px-6 pb-10 w-full h-full overflow-y-auto"

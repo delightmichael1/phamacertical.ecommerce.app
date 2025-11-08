@@ -12,6 +12,7 @@ interface Props {
     input?: string;
     button?: string;
   };
+  onClick?: () => void;
   onChange?: (value: string) => void;
 }
 
@@ -50,6 +51,7 @@ function SearchInput(props: Props) {
           "z-50 bg-primary px-6 rounded-full text-white cursor-pointer",
           props.classNames?.button
         )}
+        onClick={props.onClick}
       >
         <FiSearch className="w-5 h-5" />
       </Button>

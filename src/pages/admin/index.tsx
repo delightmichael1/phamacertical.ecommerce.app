@@ -252,7 +252,6 @@ function Index() {
     await secureAxios
       .get("/admin/dashboard")
       .then((res) => {
-        console.log(res.data);
         getTopSelling();
         setDashboardStats(res.data);
       })

@@ -36,7 +36,6 @@ function Orders() {
       const response = await secureAxios.get(
         `/shop/orders?page=${page}&sort=${fxsort}&limit=20`
       );
-      console.log(response.data);
       if (!response.data.orders || response.data.orders.length === 0) {
         usePersistedStore.setState((state) => {
           state.orders = [];

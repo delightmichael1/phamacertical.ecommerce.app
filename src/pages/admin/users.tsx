@@ -46,13 +46,11 @@ function Index() {
         });
         return;
       }
-      console.log(response.data);
       setPages(response.data.pages);
       useAppStore.setState((state) => {
         state.users = response.data.users;
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         title: "Error",
         description: `${

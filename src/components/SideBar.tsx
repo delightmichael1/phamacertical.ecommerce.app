@@ -79,7 +79,6 @@ function Cart(props: Props) {
       })),
       suppliers: Array.from(new Set(data.map((p) => p.supplier.id))),
     };
-    console.log(dataToSend);
     setIsLoading(true);
     await secureAxios
       .post("/shop/order", dataToSend)

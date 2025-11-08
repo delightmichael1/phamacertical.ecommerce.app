@@ -38,7 +38,6 @@ function OrderModal(props: Props) {
         props.closeModal();
       })
       .catch((error) => {
-        console.log(error);
         toast({
           description: error?.res?.response?.data?.message || error.message,
           variant: "error",

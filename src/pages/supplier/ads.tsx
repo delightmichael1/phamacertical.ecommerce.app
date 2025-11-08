@@ -46,8 +46,6 @@ function AdsDisplay() {
           status !== "All" ? `&status=${status.toLowerCase()}` : ""
         }`
       );
-
-      console.log(response);
       if (response.data.products) {
         useAppStore.setState((state) => {
           state.ads = response.data.products;

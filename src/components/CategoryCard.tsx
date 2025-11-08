@@ -9,9 +9,7 @@ import React, { useEffect, useState } from "react";
 
 interface Props {
   categoryfilter: ICategory[];
-  subCategoryfilter: ISubCategory[];
   setCategoryfilter: React.Dispatch<React.SetStateAction<ICategory[]>>;
-  setSubCategoryfilter: React.Dispatch<React.SetStateAction<ISubCategory[]>>;
 }
 
 function CategoryCard(props: Props) {
@@ -30,7 +28,6 @@ function CategoryCard(props: Props) {
     await secureAxios
       .get("/shop/categories?page=" + catePages)
       .then((res) => {
-        console.log("Categories ", res.data);
         if (res.data.categories) {
           setCategories(res.data.categories);
           setTotalCategoriesPages(res.data.pages);
@@ -72,8 +69,6 @@ function CategoryCard(props: Props) {
             category={category}
             categoryfilter={props.categoryfilter}
             setCategoryfilter={props.setCategoryfilter}
-            subCategoryfilter={props.subCategoryfilter}
-            setSubCategoryfilter={props.setSubCategoryfilter}
           />
         ))}
         {categories.length === 0 && (
@@ -106,32 +101,58 @@ function CategoryCard(props: Props) {
 type IProps = {
   category: ICategory;
   categoryfilter: ICategory[];
-  subCategoryfilter: ISubCategory[];
   setCategoryfilter: React.Dispatch<React.SetStateAction<ICategory[]>>;
-  setSubCategoryfilter: React.Dispatch<React.SetStateAction<ISubCategory[]>>;
 };
 
 const CategoryWithSubs: React.FC<IProps> = (props) => {
   const [showSubs, setShowSubs] = useState(false);
   const handleCheckboxChange = (value: boolean, category: ICategory) => {
     if (value) {
-      props.setCategoryfilter([...props.categoryfilter, category]);
+      props.setCategoryfilter([
+        ...props.categoryfilter,
+        { ...category, subCategories: [] },
+      ]);
     } else {
       props.setCategoryfilter(
-        props.categoryfilter.filter((item) => item !== category)
+        props.categoryfilter.filter((item) => item.id !== category.id)
       );
     }
   };
 
   const handleSubCategoryCheckboxChange = (
     value: boolean,
+    parentCategory: ICategory,
     subCategory: ISubCategory
   ) => {
     if (value) {
-      props.setSubCategoryfilter([...props.subCategoryfilter, subCategory]);
+      const currentParent = props.categoryfilter.find(
+        (item) => item.id === parentCategory.id
+      );
+      if (!currentParent) return;
+      const updatedCategory = {
+        ...currentParent,
+        subCategories: [...(currentParent.subCategories || []), subCategory],
+      };
+      props.setCategoryfilter(
+        props.categoryfilter.map((item) =>
+          item.id === parentCategory.id ? updatedCategory : item
+        )
+      );
     } else {
-      props.setSubCategoryfilter(
-        props.subCategoryfilter.filter((item) => item !== subCategory)
+      const currentParent = props.categoryfilter.find(
+        (item) => item.id === parentCategory.id
+      );
+      if (!currentParent) return;
+      const updatedCategory = {
+        ...currentParent,
+        subCategories: (currentParent.subCategories || []).filter(
+          (item) => item.id !== subCategory.id
+        ),
+      };
+      props.setCategoryfilter(
+        props.categoryfilter.map((item) =>
+          item.id === currentParent.id ? updatedCategory : item
+        )
       );
     }
   };
@@ -140,7 +161,9 @@ const CategoryWithSubs: React.FC<IProps> = (props) => {
     <div className="flex flex-col space-y-2 p-2 py-3 rounded-lg text-sm cursor-pointer">
       <Checkbox
         label={props.category.name}
-        checked={props.categoryfilter.includes(props.category)}
+        checked={props.categoryfilter.some(
+          (item) => item.id === props.category.id
+        )}
         classNames={{
           checkbox: "bg-primary-light",
           label: "group-hover:text-gray-200",
@@ -152,18 +175,26 @@ const CategoryWithSubs: React.FC<IProps> = (props) => {
       {props.category.subCategories &&
         props.category.subCategories?.length > 0 &&
         showSubs && (
-          <div className="py-4 pl-4">
+          <div className="flex flex-col space-y-2 py-4 pl-4">
             {props.category.subCategories?.map((subCategory, index) => (
               <Checkbox
                 key={index}
                 label={subCategory.name}
-                checked={props.subCategoryfilter.includes(subCategory)}
+                checked={props.categoryfilter.some(
+                  (item) =>
+                    item.id === props.category.id &&
+                    item.subCategories?.some((sub) => sub.id === subCategory.id)
+                )}
                 classNames={{
                   label: "group-hover:text-gray-200",
                   checkbox: "bg-primary-light",
                 }}
                 onChange={(value) =>
-                  handleSubCategoryCheckboxChange(value, subCategory)
+                  handleSubCategoryCheckboxChange(
+                    value,
+                    props.category,
+                    subCategory
+                  )
                 }
               />
             ))}

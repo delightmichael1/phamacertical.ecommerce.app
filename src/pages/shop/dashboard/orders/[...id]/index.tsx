@@ -9,6 +9,7 @@ import SearchInput from "@/components/input/SearchInput";
 import { CardSkeleton } from "@/components/ui/Shimmer";
 import { AnimatePresence, motion } from "framer-motion";
 import Pagination from "@/components/Pagination";
+import { toast } from "@/components/toast/toast";
 
 function Order() {
   const router = useRouter();
@@ -41,7 +42,11 @@ function Order() {
         setPages(res.data.pages);
       })
       .catch((err) => {
-        console.log(err);
+        toast({
+          title: "Error",
+          description: err.response?.data?.message || err.message,
+          variant: "error",
+        });
       })
       .finally(() => {
         setIsLoading(false);

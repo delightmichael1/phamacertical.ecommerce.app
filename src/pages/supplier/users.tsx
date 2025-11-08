@@ -42,13 +42,11 @@ function Index() {
         });
         return;
       }
-      console.log(response.data);
       setPages(response.data.pages);
       useAppStore.setState((state) => {
         state.users = response.data.users;
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         title: "Error",
         description: `${
@@ -120,11 +118,6 @@ const UserCard = ({ user }: { user: IUser }) => {
   useClickOutside(dropdownRef, () => {
     setIsDropdownOpen(false);
   });
-
-  const handleAction = (action: string) => {
-    console.log(`Action ${action} for user ${user.id}`);
-    setIsDropdownOpen(false);
-  };
 
   return (
     <div className="relative bg-white p-6 rounded-lg w-full">

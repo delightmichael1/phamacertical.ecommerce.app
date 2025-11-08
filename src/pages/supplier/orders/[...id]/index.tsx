@@ -17,6 +17,7 @@ import SearchInput from "@/components/input/SearchInput";
 import AcceptOrderModal from "@/components/modals/Order";
 import usePersistedStore from "@/stores/PersistedStored";
 import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
+import { toast } from "@/components/toast/toast";
 
 function Order() {
   const router = useRouter();
@@ -48,7 +49,6 @@ function Order() {
       .get(`/shop/orders/${id}?page=${page}&limit=20&sort=${fxSort}`)
       .then((res) => {
         const orders = usePersistedStore.getState().orders;
-        console.log("############", orders, id);
         setOrder(
           orders.find(
             (item) => item.id === (typeof id === "string" ? id : id && id[0])
@@ -58,7 +58,11 @@ function Order() {
         setPages(res.data.pages);
       })
       .catch((err) => {
-        console.log(err);
+        toast({
+          title: "Error",
+          variant: "error",
+          description: err.response?.data?.message || err.message,
+        });
       })
       .finally(() => {
         setIsLoading(false);
