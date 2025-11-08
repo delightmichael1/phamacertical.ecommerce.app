@@ -8,6 +8,7 @@ import { MdOutlineFilterList } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import usePersistedStore from "@/stores/PersistedStored";
 import { HiOutlineShoppingBag, HiShoppingBag } from "react-icons/hi";
+import { IoSearch } from "react-icons/io5";
 
 interface ProductListingProps {
   products: IProduct[];
@@ -37,7 +38,7 @@ const ProductListing: React.FC<ProductListingProps> = ({
     if (selectedCategory !== "all" && product.category !== selectedCategory) {
       return false;
     }
-    return !product.isDeleted && product.status === "active";
+    return !product.isDeleted;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -183,10 +184,11 @@ const ProductListing: React.FC<ProductListingProps> = ({
           </div>
         </div>
 
-        {/* Products Grid/List */}
         {sortedProducts.length === 0 ? (
           <div className="flex flex-col justify-center items-center py-20 text-center">
-            <div className="mb-4 text-6xl">🔍</div>
+            <div className="mb-4 text-6xl">
+              <IoSearch />
+            </div>
             <h3 className="mb-2 font-semibold text-gray-900 text-2xl">
               No products found
             </h3>

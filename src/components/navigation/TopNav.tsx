@@ -35,6 +35,7 @@ function TopNav() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showHeader, setShowHeader] = useState(true);
   const [searchFilter, setSearchFilter] = useState("");
+  const products = useAppStore((state) => state.products);
 
   const links: ILink[] = [
     {
@@ -80,9 +81,15 @@ function TopNav() {
   }, [lastScrollY]);
 
   const onSearch = () => {
+    const foundProducts = products.filter(
+      (product) =>
+        product.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchFilter.toLowerCase()) ||
+        product.supplier.name.toLowerCase().includes(searchFilter.toLowerCase())
+    );
     openModal(
       <ProductListing
-        products={[]}
+        products={foundProducts}
         isLoading={false}
         searchQuery={searchFilter}
       />
