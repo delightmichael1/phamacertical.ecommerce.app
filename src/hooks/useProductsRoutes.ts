@@ -20,13 +20,18 @@ function useProductsRoutes() {
 
     await secureAxios
       .get(
-        `/shop/products?page=${page}${
-          categories.length > 0 ? "&category=" + JSON.stringify(categories) : ""
-        }${
-          suppliers.length > 0 ? "&supplier=" + JSON.stringify(suppliers) : ""
-        }&limit=20&sort=${fxsort}`
+        encodeURI(
+          `/shop/products?page=${page}${
+            categories.length > 0
+              ? "&category=" + JSON.stringify(categories)
+              : ""
+          }${
+            suppliers.length > 0 ? "&supplier=" + JSON.stringify(suppliers) : ""
+          }&limit=20&sort=${fxsort}`
+        )
       )
       .then((res) => {
+        console.log(res);
         useAppStore.setState((state) => {
           state.products = res.data.products ? res.data.products : [];
           setPages && setPages(res.data.pages);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use } from "react";
 import Image from "next/image";
 import Button from "../buttons/Button";
 import { BiCart } from "react-icons/bi";
@@ -70,8 +70,13 @@ function AddedToCart(props: Props) {
           </Button>
           <Button
             onClick={() => {
-              router.push("/shop/cart");
               props.closeModal();
+              useAppStore.setState((state) => {
+                state.showSideBar = {
+                  value: "cart",
+                  open: true,
+                };
+              });
             }}
             className="flex flex-row items-center space-x-2 bg-secondary"
           >
