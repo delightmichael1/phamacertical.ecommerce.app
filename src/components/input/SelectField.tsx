@@ -70,7 +70,11 @@ export default function SelectField(props: Props) {
 
   return (
     <div
-      className={cn("relative w-full", props.classNames?.base, props.className)}
+      className={cn(
+        "relative rounded-xl w-full",
+        props.classNames?.base,
+        props.className
+      )}
     >
       <div
         className={cn(
@@ -93,7 +97,7 @@ export default function SelectField(props: Props) {
           <div
             onClick={() => !props.isDisabled && setShowDropdown(!showDropdown)}
             className={cn(
-              "flex justify-between items-center bg-white p-2 rounded-md cursor-pointer",
+              "flex justify-between items-center rounded-md cursor-pointer",
               props.isDisabled && "opacity-50 cursor-not-allowed"
             )}
           >

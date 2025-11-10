@@ -35,6 +35,7 @@ export const ProductValidationSchema = yup.object().shape({
   description: yup.string().required("Description is required"),
   quantity: yup.string().required("Quantity is required"),
   expiryDate: yup.string().required("Expiry date is required"),
+  batchNumber: yup.string(),
 });
 
 export const AddValidationSchema = yup.object().shape({

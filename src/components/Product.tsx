@@ -62,10 +62,10 @@ const Product: React.FC<Props> = (props) => {
     setTimeout(() => {
       const show = useAppStore.getState().showCartConfirmDialog;
       setShowFlyingToCart(false);
-      if (show)
-        openModal(
-          <AddedToCart closeModal={closeModal} product={props.product} />
-        );
+      // if (show)
+      openModal(
+        <AddedToCart closeModal={closeModal} product={props.product} />
+      );
     }, 1000);
   };
 
@@ -92,6 +92,11 @@ const Product: React.FC<Props> = (props) => {
           className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
           priority={true}
         />
+        {props.product.batchNumber && (
+          <span className="top-2 left-2 absolute bg-white px-2 py-1 rounded-lg text-gray-500 text-sm">
+            {props.product.batchNumber}
+          </span>
+        )}
         <div className="top-2 right-2 absolute flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           {!props.isSupplier && (
             <div

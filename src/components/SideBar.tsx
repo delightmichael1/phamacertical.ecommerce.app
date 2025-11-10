@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useClickOutside } from "@/hooks/useOutsideClick";
 import usePersistedStore from "@/stores/PersistedStored";
 import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
+import { HiShoppingBag } from "react-icons/hi2";
 
 function SideBar() {
   const barRef = useRef<HTMLDivElement>(null);
@@ -131,6 +132,29 @@ function Cart(props: Props) {
       .finally(() => setIsLoading(false));
   };
 
+  const handleAddToCart = (product: IProduct) => {
+    usePersistedStore.setState((state) => {
+      if (state.cart.find((item) => item.id === product.id)) {
+        state.cart.map((item) => {
+          if (item.id === product.id) {
+            if (!item.quantity) {
+              item.quantity = product.quantity ?? 1;
+            } else {
+              item.quantity += product.quantity ?? 1;
+            }
+          }
+        });
+      } else {
+        state.cart.push({ ...product, quantity: product.quantity ?? 1 });
+      }
+      state.wishList = state.wishList.filter((itx) => itx.id !== product.id);
+    });
+    toast({
+      description: "Product added to cart",
+      variant: "success",
+    });
+  };
+
   return (
     <div className="flex flex-col space-y-4">
       <div className="pb-4 border-strokedark border-b w-full">
@@ -214,22 +238,32 @@ function Cart(props: Props) {
                     />
                   </div>
                 </div>
-                <BiTrash
-                  className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-red-500 duration-300 cursor-pointer"
-                  onClick={() =>
-                    usePersistedStore.setState((state) => {
-                      if (props.isCart) {
-                        state.cart = state.cart.filter(
-                          (itx) => itx.id !== item.id
-                        );
-                      } else {
-                        state.wishList = state.wishList.filter(
-                          (itx) => itx.id !== item.id
-                        );
-                      }
-                    })
-                  }
-                />
+                <div className="flex space-x-4">
+                  {!props.isCart && (
+                    <HiShoppingBag
+                      title="Move to cart"
+                      className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-primary duration-300 cursor-pointer"
+                      onClick={() => handleAddToCart(item)}
+                    />
+                  )}
+                  <BiTrash
+                    title="Remove"
+                    className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-red-500 duration-300 cursor-pointer"
+                    onClick={() =>
+                      usePersistedStore.setState((state) => {
+                        if (props.isCart) {
+                          state.cart = state.cart.filter(
+                            (itx) => itx.id !== item.id
+                          );
+                        } else {
+                          state.wishList = state.wishList.filter(
+                            (itx) => itx.id !== item.id
+                          );
+                        }
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
             {errors.some((err) => err.id === item.id) && (
@@ -253,7 +287,7 @@ function Cart(props: Props) {
           </div>
         )}
       </div>
-      {data.length > 0 && (
+      {data.length > 0 && props.isCart && (
         <Card className="space-y-4 bg-card-2/50 p-6 pb-10 w-full h-fit">
           <div className="flex justify-between items-center">
             <span className="text-gray-500">Items:</span>

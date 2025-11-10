@@ -1,18 +1,40 @@
 import React from "react";
 import Card from "./Card";
 import Image from "next/image";
-import router from "next/router";
-import Button from "../buttons/Button";
-import useAppStore from "@/stores/AppStore";
-import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
+import { toast } from "../toast/toast";
+import { HiShoppingBag } from "react-icons/hi2";
 import usePersistedStore from "@/stores/PersistedStored";
+import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
 
 function WishList() {
   const wishList = usePersistedStore((state) => state.wishList);
 
+  const handleAddToCart = (product: IProduct) => {
+    usePersistedStore.setState((state) => {
+      if (state.cart.find((item) => item.id === product.id)) {
+        state.cart.map((item) => {
+          if (item.id === product.id) {
+            if (!item.quantity) {
+              item.quantity = product.quantity ?? 1;
+            } else {
+              item.quantity += product.quantity ?? 1;
+            }
+          }
+        });
+      } else {
+        state.cart.push({ ...product, quantity: product.quantity ?? 1 });
+      }
+      state.wishList = state.wishList.filter((itx) => itx.id !== product.id);
+    });
+    toast({
+      description: "Product added to cart",
+      variant: "success",
+    });
+  };
+
   return (
     <div className="flex lg:flex-row flex-col lg:space-x-4 space-y-4 lg:space-y-0 mx-auto container">
-      <Card className="p-0 w-3/4">
+      <Card className="p-0 w-full">
         <div className="p-4 border-strokedark border-b w-full">
           <h1 className="font-bold text-xl">Shopping Wish List</h1>
         </div>
@@ -90,16 +112,23 @@ function WishList() {
                     />
                   </div>
                 </div>
-                <BiTrash
-                  className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-red-500 duration-300 cursor-pointer"
-                  onClick={() =>
-                    usePersistedStore.setState((state) => {
-                      state.wishList = state.wishList.filter(
-                        (itx) => itx.id !== item.id
-                      );
-                    })
-                  }
-                />
+                <div className="flex space-x-4">
+                  <HiShoppingBag
+                    title="Move to cart"
+                    className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-primary duration-300 cursor-pointer"
+                    onClick={() => handleAddToCart(item)}
+                  />
+                  <BiTrash
+                    className="hover:bg-primary/20 p-1 rounded-full w-8 h-8 hover:text-red-500 duration-300 cursor-pointer"
+                    onClick={() =>
+                      usePersistedStore.setState((state) => {
+                        state.wishList = state.wishList.filter(
+                          (itx) => itx.id !== item.id
+                        );
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
           ))}
@@ -117,52 +146,6 @@ function WishList() {
             </div>
           )}
         </div>
-      </Card>
-      <Card className="p-6 pb-10 w-1/4 h-fit">
-        <div className="flex justify-between items-center">
-          <span className="text-gray-500">Items:</span>
-          <span>
-            {wishList
-              .reduce((acc, item) => acc + (item.quantity ?? 1), 0)
-              .toFixed(0)}
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-500">Total (tax excl.):</span>
-          <span>
-            $
-            {wishList
-              .reduce((acc, item) => {
-                const itemCost = item.price * (item.quantity ?? 1);
-                return acc + itemCost;
-              }, 0)
-              .toFixed(2)}
-          </span>
-        </div>
-        <hr className="my-4 border-strokedark" />
-        <div className="flex justify-between items-center font-bold">
-          <span className="text-gray-500">Total (tax inc.):</span>
-          <span>
-            $
-            {wishList
-              .reduce((acc, item) => {
-                const itemCost = item.price * (item.quantity ?? 1);
-                return acc + itemCost;
-              }, 0)
-              .toFixed(2)}
-          </span>
-        </div>
-        <Button
-          className="bg-primary mt-4 w-full"
-          disabled={wishList.length === 0}
-          onClick={() => {
-            if (wishList.length > 0) {
-              router.push("#");
-            }
-          }}
-        >
-          Proceed to checkout
-        </Button>
       </Card>
     </div>
   );

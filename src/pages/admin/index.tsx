@@ -15,6 +15,7 @@ import CategoryModal from "@/components/modals/Category";
 import { TableRowSkeleton } from "@/components/ui/Shimmer";
 import DeleteCategory from "@/components/modals/DeleteCategory";
 import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
+import SubCategoryModal from "@/components/modals/ViewCategory";
 
 function Index() {
   const { secureAxios } = useAxios();
@@ -498,11 +499,10 @@ const CategoryRow = ({
       description: "View sub-categories of " + category.name,
       onClick: () =>
         openModal(
-          <CategoryModal
-            type="add"
-            isChild
+          <SubCategoryModal
+            getCategories={getCategories}
             parentId={category.id}
-            onDone={getCategories}
+            subCategory={category.subCategories || []}
             closeModal={closeModal}
           />
         ),

@@ -1,16 +1,15 @@
 import cn from "@/utils/cn";
 import Lottie from "lottie-react";
+import { toast } from "../toast/toast";
 import Button from "../buttons/Button";
 import React, { useState } from "react";
 import { useAxios } from "@/hooks/useAxios";
-import useAppStore from "@/stores/AppStore";
 import Warning from "../../../public/lottie/error.json";
-import { toast } from "../toast/toast";
 
 type Props = {
   closeModal: () => void;
   category: ICategory | null;
-  onDone: () => void;
+  onDone?: () => void;
 };
 
 function DeleteCategory(props: Props) {
@@ -27,7 +26,7 @@ function DeleteCategory(props: Props) {
         description: response.data.message,
         variant: "success",
       });
-      props.onDone();
+      props.onDone && props.onDone();
       props.closeModal();
     } catch (error: any) {
       toast({

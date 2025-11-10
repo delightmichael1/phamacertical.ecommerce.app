@@ -11,7 +11,7 @@ type Props = {
   category?: any;
   isChild?: boolean;
   parentId?: string;
-  onDone: () => void;
+  onDone?: () => void;
   type: "add" | "edit";
   closeModal: () => void;
 };
@@ -34,7 +34,7 @@ function CategoryModal(props: Props) {
   const handleSubmit = async (values: any) => {
     try {
       const method = props.type === "add" ? "post" : "put";
-      if (props.isChild && props.type === "add") {
+      if (props.isChild) {
         values.parent = props.parentId;
       }
       const data =
@@ -44,7 +44,7 @@ function CategoryModal(props: Props) {
         description: response.data.message,
         variant: "success",
       });
-      props.onDone();
+      props.onDone && props.onDone();
       props.closeModal();
     } catch (error: any) {
       toast({

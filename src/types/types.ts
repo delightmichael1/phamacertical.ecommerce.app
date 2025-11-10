@@ -13,6 +13,7 @@ interface IProduct {
   description: string;
   expiryDate: string;
   isDeleted: boolean;
+  batchNumber: string;
 }
 
 interface IOrder {

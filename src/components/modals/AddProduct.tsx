@@ -15,6 +15,7 @@ import { RiUploadCloud2Fill } from "react-icons/ri";
 import { BiCalendar, BiRename } from "react-icons/bi";
 import { ProductValidationSchema } from "@/types/schema";
 import { FiDollarSign, FiFileText } from "react-icons/fi";
+import { MdBatchPrediction } from "react-icons/md";
 
 function AddProduct() {
   const { closeModal } = useModal();
@@ -109,6 +110,7 @@ function AddProduct() {
           description: "",
           expiryDate: "",
           quantity: 0,
+          batchNumber: "",
         }}
         validationSchema={ProductValidationSchema}
         onSubmit={handleSubmit}
@@ -177,6 +179,13 @@ function AddProduct() {
                     }),
                   };
                 })}
+              />
+              <TextField
+                label="Batch Number (Optional)"
+                type="text"
+                name="batchNumber"
+                placeholder="Enter batch number"
+                icon={<MdBatchPrediction size={20} />}
               />
               <Button
                 isLoading={isSubmitting}

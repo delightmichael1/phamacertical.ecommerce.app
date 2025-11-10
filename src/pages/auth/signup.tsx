@@ -22,6 +22,8 @@ import { HiMiniXMark, HiOutlineDocument } from "react-icons/hi2";
 import { IoDocumentAttachSharp, IoLocationOutline } from "react-icons/io5";
 import useAuthSession from "@/hooks/useAuthSession";
 import Checkbox from "@/components/input/Checkbox";
+import SelectField from "@/components/input/SelectField";
+import { cities } from "@/utils/constants";
 
 type UploadedFile = {
   url: string;
@@ -49,8 +51,6 @@ const FormControls = React.memo(
     </>
   )
 );
-
-const accountTypes = ["retailer", "supplier"];
 
 function Signup() {
   const router = useRouter();
@@ -350,10 +350,10 @@ function Signup() {
                     className="bg-white/40"
                     icon={<MdPhone size={20} />}
                   />
-                  <TextField
+                  <SelectField
                     label="City"
-                    type="text"
                     name="city"
+                    options={cities}
                     className="bg-white/40"
                     placeholder="Enter city"
                     icon={<FaCity size={20} />}

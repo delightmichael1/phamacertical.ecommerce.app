@@ -1,11 +1,11 @@
+import Preloader from "./Preloader";
 import { toast } from "./toast/toast";
 import React, { useEffect } from "react";
 import { useAxios } from "@/hooks/useAxios";
 import useAppStore from "@/stores/AppStore";
 import useUserStore from "@/stores/useUserStore";
-import useAuthSession, { authPages } from "@/hooks/useAuthSession";
 import { usePathname, useRouter } from "next/navigation";
-import Preloader from "./Preloader";
+import useAuthSession, { authPages } from "@/hooks/useAuthSession";
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();

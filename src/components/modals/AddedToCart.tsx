@@ -1,8 +1,7 @@
-import React, { use } from "react";
+import React from "react";
 import Image from "next/image";
 import Button from "../buttons/Button";
 import { BiCart } from "react-icons/bi";
-import { useRouter } from "next/navigation";
 import useAppStore from "@/stores/AppStore";
 import { GiCheckMark } from "react-icons/gi";
 import usePersistedStore from "@/stores/PersistedStored";
@@ -13,7 +12,6 @@ interface Props {
 }
 
 function AddedToCart(props: Props) {
-  const router = useRouter();
   const cart = usePersistedStore((state) => state.cart);
 
   return (
@@ -32,7 +30,7 @@ function AddedToCart(props: Props) {
           <div className="flex flex-col">
             <span className="font-bold text-sm">{props.product?.title}</span>
             <span className="text-sm">${props.product?.price}</span>
-            <span className="text-sm">Quantity: {props.product?.quantity}</span>
+            <span className="text-sm">Quantity: 1</span>
           </div>
         </div>
         <hr className="border-strokedark" />
