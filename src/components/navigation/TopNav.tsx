@@ -85,8 +85,6 @@ function TopNav() {
     };
   }, [lastScrollY]);
 
-  console.log("SEARCH FILTER", searchFilter);
-
   const onSearch = async () => {
     setLoading(true);
     await secureAxios
@@ -94,10 +92,10 @@ function TopNav() {
         `/shop/products?search=${searchFilter}&page=${page}&limit=20&sort=-1`
       )
       .then((res) => {
-        console.log("#########", res.data);
         if (res.data.products) {
           openModal(
             <ProductListing
+              type="products"
               isLoading={false}
               searchQuery={searchFilter}
               products={res.data.products}
@@ -106,6 +104,7 @@ function TopNav() {
         } else {
           openModal(
             <ProductListing
+              type="products"
               isLoading={false}
               searchQuery={searchFilter}
               products={[]}
