@@ -13,6 +13,7 @@ interface AppStore {
   };
   notications: INotification[];
   showCartConfirmDialog: boolean;
+  isViewedNotifications: boolean;
   selectedProduct: IProduct | undefined;
 }
 
@@ -30,6 +31,7 @@ const useAppStore = create<AppStore>()(
     },
     selectedProduct: undefined,
     showCartConfirmDialog: true,
+    isViewedNotifications: false,
   }))
 );
 

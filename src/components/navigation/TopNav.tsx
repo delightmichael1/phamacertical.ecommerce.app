@@ -8,17 +8,17 @@ import { HiOutlineShoppingBag, HiShoppingBag } from "react-icons/hi";
 import cn from "@/utils/cn";
 import Button from "../buttons/Button";
 import { IconType } from "react-icons";
+import { toast } from "../toast/toast";
 import { useModal } from "../modals/Modal";
 import { useRouter } from "next/navigation";
 import useAppStore from "@/stores/AppStore";
 import { useAxios } from "@/hooks/useAxios";
 import { usePathname } from "next/navigation";
 import SearchInput from "../input/SearchInput";
-import ProductListing from "../modals/ProductListing";
 import { BiMenuAltRight } from "react-icons/bi";
+import ProductListing from "../modals/ProductListing";
 import usePersistedStore from "@/stores/PersistedStored";
 import { IoNotifications, IoNotificationsOutline } from "react-icons/io5";
-import { toast } from "../toast/toast";
 
 type ILink = {
   name: string;
@@ -40,7 +40,6 @@ function TopNav() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showHeader, setShowHeader] = useState(true);
   const [searchFilter, setSearchFilter] = useState("");
-  const products = useAppStore((state) => state.products);
 
   const links: ILink[] = [
     {

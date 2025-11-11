@@ -3,15 +3,17 @@ import Card from "./ui/Card";
 import Image from "next/image";
 import Button from "./buttons/Button";
 import { toast } from "./toast/toast";
-import { FaXmark } from "react-icons/fa6";
+import { FaRegCircleXmark, FaXmark } from "react-icons/fa6";
 import { useAxios } from "@/hooks/useAxios";
 import useAppStore from "@/stores/AppStore";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useClickOutside } from "@/hooks/useOutsideClick";
 import usePersistedStore from "@/stores/PersistedStored";
 import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
 import { HiShoppingBag } from "react-icons/hi2";
+import Pagination from "./Pagination";
+import useUserStore from "@/stores/useUserStore";
 
 function SideBar() {
   const barRef = useRef<HTMLDivElement>(null);
@@ -50,11 +52,90 @@ function SideBar() {
 }
 
 function Notifications() {
+  const { role } = useUserStore();
+  const { secureAxios } = useAxios();
+  const [page, setPage] = useState(1);
+  const { notications } = useAppStore();
+
+  useEffect(() => {
+    if (page > 1 && role.includes("supplier")) {
+      getNotifications();
+    }
+  }, [page]);
+
+  const getNotifications = async () => {
+    await secureAxios
+      .get(`/shop/notifications?page=${page}&limit=20`)
+      .then((res) => {
+        if (res.data.notifications) {
+          useAppStore.setState({ notications: res.data.notifications });
+        } else {
+          useAppStore.setState({ notications: [] });
+        }
+      })
+      .catch((err) => {
+        toast({
+          description: err?.response?.data?.message ?? err.message,
+          variant: "error",
+        });
+      });
+  };
   return (
     <div className="flex flex-col space-y-4">
       <div className="pb-4 border-strokedark border-b w-full">
         <h2 className="font-bold text-xl">Notifications</h2>
       </div>
+      {notications.length > 0 ? (
+        <div className="flex flex-col space-y-4">
+          <Button
+            className="flex bg-primary ml-auto rounded-lg w-fit"
+            onClick={() => {
+              useAppStore.setState({
+                notications: [],
+                isViewedNotifications: true,
+              });
+            }}
+          >
+            Mark all as read
+          </Button>
+          {notications.map((item, index) => (
+            <Card key={index} className="relative bg-card-2/40 shadow">
+              <p className="text-sm">{item.message}</p>
+              <button
+                className="-top-2 -right-2 absolute hover:text-red-500 duration-300 cursor-pointer"
+                onClick={() => {
+                  useAppStore.setState((state) => {
+                    let newNotications = [...state.notications];
+                    newNotications.splice(index, 1);
+                    return { notications: newNotications };
+                  });
+                }}
+              >
+                <FaRegCircleXmark className="w-5 h-5" />
+              </button>
+            </Card>
+          ))}
+          <Pagination
+            variant="primary"
+            limit={20}
+            contentsLength={notications.length}
+            pageNumber={page}
+            setPageNumber={setPage}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col justify-center items-center space-y-4 px-4 py-10">
+          <Image
+            src="/svgs/empty-cart.svg"
+            alt="empty cart"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
+          />
+          <span className="font-bold text-xl">No notifications</span>
+        </div>
+      )}
     </div>
   );
 }

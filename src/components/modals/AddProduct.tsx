@@ -158,7 +158,7 @@ function AddProduct() {
                 label="Expiry date"
                 type="date"
                 name="expiryDate"
-                min={new Date().toISOString().split("T")[0]}
+                minDate={new Date()}
                 placeholder="Enter expiry date"
                 icon={<BiCalendar size={20} />}
               />

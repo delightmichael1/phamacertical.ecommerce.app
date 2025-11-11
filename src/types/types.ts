@@ -48,7 +48,7 @@ interface IBlogPost {
 }
 
 interface INotification {
-  id: string;
+  message: string;
 }
 
 interface IDevice {
