@@ -8,15 +8,17 @@ import { HiOutlineShoppingBag, HiShoppingBag } from "react-icons/hi";
 import cn from "@/utils/cn";
 import Button from "../buttons/Button";
 import { IconType } from "react-icons";
+import { useModal } from "../modals/Modal";
 import { useRouter } from "next/navigation";
 import useAppStore from "@/stores/AppStore";
+import { useAxios } from "@/hooks/useAxios";
 import { usePathname } from "next/navigation";
 import SearchInput from "../input/SearchInput";
+import ProductListing from "../modals/ProductListing";
 import { BiMenuAltRight } from "react-icons/bi";
 import usePersistedStore from "@/stores/PersistedStored";
 import { IoNotifications, IoNotificationsOutline } from "react-icons/io5";
-import { useModal } from "../modals/Modal";
-import ProductListing from "../ProductListing";
+import { toast } from "../toast/toast";
 
 type ILink = {
   name: string;
@@ -29,8 +31,11 @@ type ILink = {
 function TopNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const { secureAxios } = useAxios();
+  const [page, setPage] = useState(1);
   const { notications } = useAppStore();
   const { openModal, closeModal } = useModal();
+  const [loading, setLoading] = useState(false);
   const { cart, wishList } = usePersistedStore();
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showHeader, setShowHeader] = useState(true);
@@ -80,20 +85,41 @@ function TopNav() {
     };
   }, [lastScrollY]);
 
-  const onSearch = () => {
-    const foundProducts = products.filter(
-      (product) =>
-        product.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        product.supplier.name.toLowerCase().includes(searchFilter.toLowerCase())
-    );
-    openModal(
-      <ProductListing
-        products={foundProducts}
-        isLoading={false}
-        searchQuery={searchFilter}
-      />
-    );
+  console.log("SEARCH FILTER", searchFilter);
+
+  const onSearch = async () => {
+    setLoading(true);
+    await secureAxios
+      .get(
+        `/shop/products?search=${searchFilter}&page=${page}&limit=20&sort=-1`
+      )
+      .then((res) => {
+        console.log("#########", res.data);
+        if (res.data.products) {
+          openModal(
+            <ProductListing
+              isLoading={false}
+              searchQuery={searchFilter}
+              products={res.data.products}
+            />
+          );
+        } else {
+          openModal(
+            <ProductListing
+              isLoading={false}
+              searchQuery={searchFilter}
+              products={[]}
+            />
+          );
+        }
+      })
+      .catch((err) => {
+        toast({
+          description: err.response?.data?.message || err.message,
+          variant: "error",
+        });
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -124,6 +150,7 @@ function TopNav() {
                 <SearchInput
                   onClick={onSearch}
                   className="text-black"
+                  isLoading={loading}
                   onChange={setSearchFilter}
                 />
               </div>

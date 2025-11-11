@@ -12,18 +12,26 @@ import { useModal } from "@/components/modals/Modal";
 import { IoAdd, IoEyeOutline } from "react-icons/io5";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import CategoryModal from "@/components/modals/Category";
-import { TableRowSkeleton } from "@/components/ui/Shimmer";
+import {
+  ListItemSkeleton,
+  Shimmer,
+  TableRowSkeleton,
+} from "@/components/ui/Shimmer";
 import DeleteCategory from "@/components/modals/DeleteCategory";
 import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
 import SubCategoryModal from "@/components/modals/ViewCategory";
+import SelectFieldWithOnChange from "@/components/input/SelectFieldWithOnChange";
+import { cities } from "@/utils/constants";
 
 function Index() {
   const { secureAxios } = useAxios();
+  const [city, setCity] = useState("");
   const { openModal, closeModal } = useModal();
   const [catePages, setCatePages] = useState(1);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [totalCategoriesPages, setTotalCategoriesPages] = useState(1);
   const [topSelling, setTopSelling] = React.useState<TopSelling[]>([]);
+  const [isFetchingTopSelling, setIsFetchingTopSelling] = useState(false);
   const [isFetchingCategories, setIsFetchingCategories] = useState(false);
   const [dashboardStats, setDashboardStats] = React.useState<DashboardStats>({
     acceptedOrders: 0,
@@ -42,8 +50,12 @@ function Index() {
   });
 
   useEffect(() => {
-    if (catePages > 1) getCategories();
+    getCategories();
   }, [catePages]);
+
+  useEffect(() => {
+    getTopSelling();
+  }, [city]);
 
   useEffect(() => {
     getAdminData();
@@ -253,7 +265,6 @@ function Index() {
     await secureAxios
       .get("/admin/dashboard")
       .then((res) => {
-        getTopSelling();
         setDashboardStats(res.data);
       })
       .catch((err) => {
@@ -288,9 +299,11 @@ function Index() {
   };
 
   const getTopSelling = async () => {
+    setIsFetchingTopSelling(true);
     try {
-      const response = await secureAxios.get(`/shop/topselling`);
-      getCategories();
+      const response = await secureAxios.get(
+        `/shop/topselling?limit=5&city=${city}`
+      );
       if (response.data.topSelling) {
         setTopSelling(response.data.topSelling);
       } else {
@@ -302,6 +315,8 @@ function Index() {
         description: err?.response?.data?.message ?? err.message,
         variant: "error",
       });
+    } finally {
+      setIsFetchingTopSelling(false);
     }
   };
 
@@ -375,9 +390,30 @@ function Index() {
           <Card className="flex flex-col space-y-4 p-6 w-full">
             <div className="flex justify-between items-center space-x-2">
               <h2 className="font-semibold text-lg">Top Selling Products</h2>
+              <SelectFieldWithOnChange
+                label="City"
+                name="city"
+                options={[
+                  {
+                    label: "All",
+                    value: "",
+                  },
+                  ...cities,
+                ]}
+                value={city}
+                className="w-56"
+                onChange={(value: string) => setCity(value)}
+                placeholder="Select city"
+              />
             </div>
             <div className="flex flex-col space-y-2 overflow-x-auto">
-              {topSelling.length === 0 ? (
+              {isFetchingTopSelling ? (
+                <div className="flex flex-col justify-center items-center gap-4 w-full h-64">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Shimmer className="rounded-xl w-full h-10" key={index} />
+                  ))}
+                </div>
+              ) : topSelling.length === 0 ? (
                 <div className="flex justify-center items-center w-full h-64">
                   <span className="p-8 text-gray-500 text-center">
                     No top selling products

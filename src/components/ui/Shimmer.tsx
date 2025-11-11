@@ -1,3 +1,4 @@
+import cn from "@/utils/cn";
 import React from "react";
 
 export const Shimmer = ({ className = "" }) => {
@@ -11,9 +12,11 @@ export const Shimmer = ({ className = "" }) => {
   );
 };
 
-export const CardSkeleton = () => {
+export const CardSkeleton = ({ className }: { className?: string }) => {
   return (
-    <div className="space-y-4 bg-white shadow-md p-6 rounded-lg">
+    <div
+      className={cn("space-y-4 bg-white shadow-md p-6 rounded-lg", className)}
+    >
       <div className="bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-lg w-full h-48 animate-shimmer" />
       <div className="bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded w-3/4 h-6 animate-shimmer" />
       <div className="space-y-2">

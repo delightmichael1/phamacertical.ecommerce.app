@@ -9,6 +9,7 @@ import { FaUserTag } from "react-icons/fa6";
 import useAppStore from "@/stores/AppStore";
 import { useAxios } from "@/hooks/useAxios";
 import ShopLayout from "@/layouts/ShopLayout";
+import { HiArrowRight } from "react-icons/hi2";
 import useUserStore from "@/stores/useUserStore";
 import { toast } from "@/components/toast/toast";
 import Pagination from "@/components/Pagination";
@@ -16,9 +17,11 @@ import Checkbox from "@/components/input/Checkbox";
 import React, { useEffect, useState } from "react";
 import CategoryCard from "@/components/CategoryCard";
 import Dropdown from "@/components/dropdown/Dropdown";
+import { useModal } from "@/components/modals/Modal";
 import { CardSkeleton } from "@/components/ui/Shimmer";
 import useProductsRoutes from "@/hooks/useProductsRoutes";
 import Courasel, { CarouselRef } from "@/components/ui/Carousel";
+import ProductListing from "@/components/modals/ProductListing";
 
 type Props = {
   suppliers: ICategory[];
@@ -273,6 +276,7 @@ const RightSide: React.FC<Props> = (props) => {
 
 const HotDealsCard = () => {
   const { secureAxios } = useAxios();
+  const { openModal, closeModal } = useModal();
   const [isLoading, setIsLoading] = useState(false);
   const hotListRef = React.useRef<CarouselRef>(null);
   const [hotDealsPage, setHotDealsPage] = useState(1);
@@ -301,13 +305,7 @@ const HotDealsCard = () => {
           setHotTotalDealsPages(res.data.pages);
         }
       })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err?.response?.data?.message ?? err.message,
-          variant: "error",
-        });
-      })
+      .catch((err) => {})
       .finally(() => {
         setIsLoading(false);
       });
@@ -324,14 +322,26 @@ const HotDealsCard = () => {
         }}
         className="bg-primary p-0 text-white"
       >
-        <div className="flex items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
-          <ImFire className="w-6 h-6" />
-          <h2>Hot Deals Day</h2>
+        <div className="flex justify-between items-center space-x-4 p-4 border-strokedark border-b font-semibold text-lg">
+          <div className="flex items-center space-x-4">
+            <ImFire className="w-6 h-6" />
+            <h2>Hot Deals Day</h2>
+          </div>
+          <button
+            className="flex items-center space-x-2 rounded-lg text-sm transition-all duration-300 cursor-pointer"
+            onClick={() =>
+              openModal(<ProductListing products={hotDeals} type="hotdeals" />)
+            }
+          >
+            <span>View All</span>
+            <HiArrowRight className="w-4 h-4" />
+          </button>
         </div>
         <div className="p-4 text-black">
           <Courasel
             isAutoSlide
             ref={hotListRef}
+            autoSlideInterval={3000}
             itemsLength={hotDeals.length}
             setCurrentIndex={setCurrentHotDealIndex}
             setListContainerWidth={setListContainerWidth}

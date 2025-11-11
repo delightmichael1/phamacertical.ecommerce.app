@@ -1,19 +1,26 @@
 import cn from "@/utils/cn";
 import Image from "next/image";
+import { toast } from "../toast/toast";
 import { BsList } from "react-icons/bs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { IoSearch } from "react-icons/io5";
 import { BiGridAlt } from "react-icons/bi";
+import { useAxios } from "@/hooks/useAxios";
+import { CardSkeleton } from "../ui/Shimmer";
+import SearchInput from "../input/SearchInput";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { MdOutlineFilterList } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import usePersistedStore from "@/stores/PersistedStored";
 import { HiOutlineShoppingBag, HiShoppingBag } from "react-icons/hi";
-import { IoSearch } from "react-icons/io5";
+import Pagination from "../Pagination";
 
 interface ProductListingProps {
+  page?: number;
   products: IProduct[];
   searchQuery?: string;
   isLoading?: boolean;
+  type: "products" | "hotdeals";
 }
 
 type ViewMode = "grid" | "list";
@@ -21,20 +28,66 @@ type SortOption = "relevance" | "price-low" | "price-high" | "name";
 
 const ProductListing: React.FC<ProductListingProps> = ({
   products,
+  page,
   searchQuery = "",
   isLoading = false,
+  type = "products",
 }) => {
+  const { secureAxios } = useAxios();
   const { cart, wishList } = usePersistedStore();
+  const [pageNumber, setPageNumber] = useState(page ?? 1);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("relevance");
+  const [searchFilter, setSearchFilter] = useState<string>(searchQuery);
+  const [isFetchingProducts, setIsFetchingProducts] = useState(isLoading);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchProducts, setSearchproducts] = useState<IProduct[]>(products);
+
+  useEffect(() => {
+    if (type === "hotdeals") getHotDeals();
+  }, [pageNumber]);
+
+  const getHotDeals = async () => {
+    setIsFetchingProducts(true);
+    await secureAxios
+      .get(`/shop/hotdeals?page=${pageNumber}&limit=10`)
+      .then((res) => {
+        if (res.data.products) {
+          setSearchproducts(res.data.products);
+        }
+      })
+      .catch((err) => {})
+      .finally(() => {
+        setIsFetchingProducts(false);
+      });
+  };
+
+  const onSearch = async () => {
+    setIsFetchingProducts(true);
+    await secureAxios
+      .get("/shop/products?search=" + searchFilter)
+      .then((res) => {
+        if (res.data.products) {
+          setSearchproducts(res.data.products);
+        } else {
+          setSearchproducts([]);
+        }
+      })
+      .catch((err) => {
+        toast({
+          description: err.response?.data?.message || err.message,
+          variant: "error",
+        });
+      })
+      .finally(() => setIsFetchingProducts(false));
+  };
 
   const categories = [
     "all",
-    ...Array.from(new Set(products.map((p) => p.category))),
+    ...Array.from(new Set(searchProducts.map((p) => p.category))),
   ];
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = searchProducts.filter((product) => {
     if (selectedCategory !== "all" && product.category !== selectedCategory) {
       return false;
     }
@@ -86,42 +139,35 @@ const ProductListing: React.FC<ProductListingProps> = ({
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="py-20">
-        <div className="mx-auto container">
-          <div className="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white shadow-md rounded-lg overflow-hidden animate-pulse"
-              >
-                <div className="bg-gray-200 w-full h-64" />
-                <div className="space-y-3 p-4">
-                  <div className="bg-gray-200 rounded w-3/4 h-4" />
-                  <div className="bg-gray-200 rounded w-1/2 h-4" />
-                  <div className="bg-gray-200 rounded w-full h-8" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="py-8">
-      <div className="mx-auto px-4 container">
+    <div className="flex flex-col space-y-4 mx-auto px-4 py-8 w-[40rem] md:w-[48rem] lg:w-[64rem] 2xl:w-[96rem] xl:w-[80rem] h-[90vh] overflow-y-hidden">
+      <div className="flex flex-col space-y-4">
         <div className="mb-6">
           <h1 className="mb-2 font-bold text-gray-900 text-3xl">
-            {searchQuery ? `Search Results for "${searchQuery}"` : "Products"}
+            {type === "hotdeals"
+              ? "Hot Deals"
+              : searchFilter
+              ? `Search Results for "${searchFilter}"`
+              : "Products"}
           </h1>
           <p className="text-gray-600">
             {sortedProducts.length}{" "}
             {sortedProducts.length === 1 ? "product" : "products"} found
           </p>
         </div>
+        {type === "products" && (
+          <SearchInput
+            onClick={onSearch}
+            value={searchFilter}
+            className="text-black"
+            isLoading={isFetchingProducts}
+            onChange={setSearchFilter}
+            classNames={{
+              container: "bg-gray-100 shadow-md mb-6",
+              overlay: "bg-gray-100",
+            }}
+          />
+        )}
 
         <div className="bg-white shadow-sm mb-6 p-4 rounded-lg">
           <div className="flex md:flex-row flex-col justify-between items-start md:items-center gap-4">
@@ -143,7 +189,6 @@ const ProductListing: React.FC<ProductListingProps> = ({
               ))}
             </div>
 
-            {/* Sort and View Controls */}
             <div className="flex items-center gap-4">
               <select
                 value={sortBy}
@@ -183,65 +228,75 @@ const ProductListing: React.FC<ProductListingProps> = ({
             </div>
           </div>
         </div>
-
-        {sortedProducts.length === 0 ? (
-          <div className="flex flex-col justify-center items-center py-20 text-center">
-            <div className="mb-4 text-6xl">
-              <IoSearch />
-            </div>
-            <h3 className="mb-2 font-semibold text-gray-900 text-2xl">
-              No products found
-            </h3>
-            <p className="text-gray-600">
-              {searchQuery
-                ? `No results for "${searchQuery}". Try adjusting your search.`
-                : "Try changing your filters to see more products."}
-            </p>
-          </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={viewMode}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className={cn(
-                viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "flex flex-col gap-4"
-              )}
-            >
-              {sortedProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.3 }}
-                >
-                  {viewMode === "grid" ? (
-                    <ProductCardGrid
-                      product={product}
-                      isInWishlist={isInWishlist(product.id)}
-                      isInCart={isInCart(product.id)}
-                      onToggleWishlist={() => toggleWishlist(product)}
-                      onAddToCart={() => addToCart(product)}
-                    />
-                  ) : (
-                    <ProductCardList
-                      product={product}
-                      isInWishlist={isInWishlist(product.id)}
-                      isInCart={isInCart(product.id)}
-                      onToggleWishlist={() => toggleWishlist(product)}
-                      onAddToCart={() => addToCart(product)}
-                    />
-                  )}
-                </motion.div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        )}
       </div>
+
+      {sortedProducts.length === 0 ? (
+        <div className="flex flex-col justify-center items-center py-20 w-full text-center">
+          <div className="mb-4 text-6xl">
+            <IoSearch />
+          </div>
+          <h3 className="mb-2 font-semibold text-gray-900 text-2xl">
+            No products found
+          </h3>
+          <p className="text-gray-600">
+            {searchQuery
+              ? `No results for "${searchQuery}". Try adjusting your search.`
+              : "Try changing your filters to see more products."}
+          </p>
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={viewMode}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className={cn(
+              viewMode === "grid"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full overflow-y-auto"
+                : "flex flex-col gap-4 h-full overflow-y-auto"
+            )}
+          >
+            {isFetchingProducts
+              ? [...Array(8)].map((_, i) => (
+                  <CardSkeleton key={i} className="min-w-72" />
+                ))
+              : sortedProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                  >
+                    {viewMode === "grid" ? (
+                      <ProductCardGrid
+                        product={product}
+                        isInWishlist={isInWishlist(product.id)}
+                        isInCart={isInCart(product.id)}
+                        onToggleWishlist={() => toggleWishlist(product)}
+                        onAddToCart={() => addToCart(product)}
+                      />
+                    ) : (
+                      <ProductCardList
+                        product={product}
+                        isInWishlist={isInWishlist(product.id)}
+                        isInCart={isInCart(product.id)}
+                        onToggleWishlist={() => toggleWishlist(product)}
+                        onAddToCart={() => addToCart(product)}
+                      />
+                    )}
+                  </motion.div>
+                ))}
+          </motion.div>
+        </AnimatePresence>
+      )}
+      <Pagination
+        className="min-h-12"
+        pageNumber={pageNumber}
+        setPageNumber={setPageNumber}
+        contentsLength={searchProducts.length}
+      />
     </div>
   );
 };
@@ -257,7 +312,7 @@ const ProductCardGrid: React.FC<{
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div className="group relative bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden transition-all duration-300">
+    <div className="group relative bg-white shadow-md hover:shadow-xl rounded-lg min-w-72 overflow-hidden transition-all duration-300">
       {/* Image Section */}
       <div className="relative bg-gray-100 h-64 overflow-hidden">
         <Image
@@ -360,7 +415,7 @@ const ProductCardList: React.FC<{
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div className="flex md:flex-row flex-col bg-white shadow-md hover:shadow-lg p-4 rounded-lg overflow-hidden transition-all duration-300">
+    <div className="flex md:flex-row flex-col bg-white shadow-md hover:shadow-lg p-4 rounded-lg lg:min-w-2xl overflow-hidden transition-all duration-300">
       {/* Image Section */}
       <div className="relative flex-shrink-0 bg-gray-100 rounded-lg w-full md:w-48 h-48 overflow-hidden">
         <Image

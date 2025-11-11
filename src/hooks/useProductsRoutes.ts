@@ -45,6 +45,7 @@ function useProductsRoutes() {
       })
       .finally(() => setIsLoading && setIsLoading(false));
   };
+
   return { getProducts };
 }
 

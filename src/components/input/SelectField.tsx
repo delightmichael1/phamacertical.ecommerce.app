@@ -93,7 +93,6 @@ export default function SelectField(props: Props) {
               <span className="text-red-500">: {meta.error}</span>
             )}
           </div>
-
           <div
             onClick={() => !props.isDisabled && setShowDropdown(!showDropdown)}
             className={cn(

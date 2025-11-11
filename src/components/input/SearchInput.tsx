@@ -3,16 +3,20 @@ import cn from "@/utils/cn";
 import { motion } from "framer-motion";
 import Button from "../buttons/Button";
 import { FiSearch } from "react-icons/fi";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface Props {
+  value?: string;
   className?: string;
   placeholder?: string;
   classNames?: {
     container?: string;
     input?: string;
     button?: string;
+    overlay?: string;
   };
   onClick?: () => void;
+  isLoading?: boolean;
   onChange?: (value: string) => void;
 }
 
@@ -29,6 +33,7 @@ function SearchInput(props: Props) {
         <input
           id="search"
           name="search"
+          value={props.value}
           className={cn(
             "bg-transparent px-6 outline-none w-full placeholder:text-gray-500",
             props.classNames?.input
@@ -42,7 +47,10 @@ function SearchInput(props: Props) {
           initial={{ x: 0, rotate: 180 }}
           animate={{ x: [300, 0, 300], rotate: 180 }}
           transition={{ repeat: Infinity, duration: 3 }}
-          className="group-focus-within:hidden top-1 bottom-1 left-1 absolute bg-background rounded-l-full w-56 cursor-text"
+          className={cn(
+            "group-focus-within:hidden top-1 bottom-1 left-1 absolute bg-background rounded-l-full w-56 cursor-text",
+            props.classNames?.overlay
+          )}
         />
       </label>
       <Button
@@ -53,7 +61,11 @@ function SearchInput(props: Props) {
         )}
         onClick={props.onClick}
       >
-        <FiSearch className="w-5 h-5" />
+        {props.isLoading ? (
+          <AiOutlineLoading3Quarters className="w-5 h-5 animate-spin" />
+        ) : (
+          <FiSearch className="w-5 h-5" />
+        )}
       </Button>
     </div>
   );

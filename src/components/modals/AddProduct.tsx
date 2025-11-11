@@ -116,7 +116,7 @@ function AddProduct() {
         onSubmit={handleSubmit}
       >
         {({ isSubmitting }) => (
-          <Form className="flex items-center gap-6 w-full">
+          <Form className="flex lg:flex-row flex-col items-center gap-6 w-full">
             <DropZone
               file={image}
               setFile={setImage}
@@ -125,7 +125,7 @@ function AddProduct() {
               className="max-w-full aspect-square"
               // label="Upload product image"
             />
-            <div className="flex flex-col gap-4 min-w-md">
+            <div className="flex flex-col gap-4 w-full lg:w-fit lg:min-w-md">
               <TextField
                 label="Title"
                 type="text"

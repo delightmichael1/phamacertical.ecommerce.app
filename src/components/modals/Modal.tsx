@@ -91,17 +91,19 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
         )}
         onClick={handleBackdropClick}
       >
-        <div
-          className="relative bg-card shadow-black/10 shadow-md p-4 rounded-xl min-w-xl overflow-y-auto"
-          style={{ maxHeight: `${0.9 * windowHeight}px` }}
-        >
+        <div className="relative bg-card shadow-black/10 shadow-md p-4 rounded-xl min-w-xl">
           <button
             onClick={onClose}
-            className="top-4 right-4 absolute flex justify-center items-center hover:bg-red-500/10 px-2 py-2 rounded-full w-10 max-w-10 h-10 hover:text-red-500 duration-300 cursor-pointer"
+            className="top-4 right-4 z-20 absolute flex justify-center items-center hover:bg-red-500/10 px-2 py-2 rounded-full w-10 max-w-10 h-10 hover:text-red-500 duration-300 cursor-pointer"
           >
             <FaXmark className="min-w-4 h-4" />
           </button>
-          {children}
+          <div
+            className="flex flex-col overflow-y-auto"
+            style={{ maxHeight: `${0.9 * windowHeight}px` }}
+          >
+            {children}
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>,

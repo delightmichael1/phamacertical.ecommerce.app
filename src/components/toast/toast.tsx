@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { useState } from "react";
 import { HiXMark } from "react-icons/hi2";
 import { immer } from "zustand/middleware/immer";
 import { VscVerifiedFilled } from "react-icons/vsc";
+import { useEffect, useRef, useState } from "react";
 import { BiSolidErrorCircle } from "react-icons/bi";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -28,7 +28,6 @@ const useToastState = create<ToastState>()(
         state.toasts.push({ ...content, id });
       });
 
-      // Auto remove after 5 seconds
       setTimeout(() => {
         set((state) => {
           state.toasts = state.toasts.filter((toast) => toast.id !== id);
@@ -45,15 +44,23 @@ const useToastState = create<ToastState>()(
 const ToastItem = ({
   content,
   index,
+  showAllToasts,
 }: {
   content: ToastContent;
+  showAllToasts: boolean;
   index: number;
 }) => {
+  const [height, setHeight] = useState(0);
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const translateX = isSwiping ? currentX - startX : 0;
+  const toastRef = useRef<HTMLDivElement | null>(null);
   const removeToast = useToastState((state) => state.removeToast);
+
+  useEffect(() => {
+    if (toastRef.current) setHeight(toastRef.current.clientHeight);
+  }, [toastRef]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
@@ -83,10 +90,15 @@ const ToastItem = ({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.5, y: -20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
+      ref={toastRef}
       exit={{ opacity: 0, scale: 0.5, x: 100 }}
+      initial={{ opacity: 0, scale: 0.5, y: -20 }}
       transition={{ duration: 0.3, type: "spring" }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: index === 0 ? 0 : showAllToasts ? height * index : index + 10,
+      }}
       className={` left-0 absolute flex justify-center items-center px-4 w-full`}
     >
       <div
@@ -94,8 +106,10 @@ const ToastItem = ({
         onTouchMove={handleTouchMove}
         onTouchStart={handleTouchStart}
         className={`${
-          content.variant === "success" ? "bg-green-600" : "bg-red-500"
-        } relative flex min-w-[20rem] max-w-md w-full flex-col space-y-1 rounded-2xl p-2 px-6 shadow-lg`}
+          content.variant === "success"
+            ? "bg-green-600 border-green-400"
+            : "bg-red-500 border-red-400"
+        } relative flex min-w-[20rem] max-w-md w-full flex-col space-y-1 rounded-2xl p-2 px-6 shadow-lg border`}
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isSwiping ? "none" : "transform 0.3s ease",
@@ -103,8 +117,10 @@ const ToastItem = ({
       >
         <div
           className={`${
-            content.variant === "success" ? "bg-green-800" : "bg-red-700"
-          } absolute -left-4 -top-4 rounded-full p-2`}
+            content.variant === "success"
+              ? "bg-green-800 border-green-600"
+              : "bg-red-700 border-red-500"
+          } absolute -left-4 -top-4 rounded-full p-2 border`}
         >
           {content.variant === "success" ? (
             <VscVerifiedFilled className="w-6 h-6 text-white" />
@@ -128,14 +144,34 @@ const ToastItem = ({
 };
 
 const Toast = () => {
+  const divRef = useRef<HTMLDivElement | null>(null);
   const toasts = useToastState((state) => state.toasts);
+  const [showAllToasts, setShowAllToasts] = useState(false);
+
+  const handleMouseEnter = () => {
+    setShowAllToasts(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowAllToasts(false);
+  };
 
   return (
     <div className="top-8 left-1/2 z-[1000000] fixed w-full max-w-md -translate-x-1/2 pointer-events-none">
-      <div className="relative flex flex-col gap-3 pointer-events-auto">
+      <div
+        ref={divRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className="relative flex flex-col gap-3 pointer-events-auto"
+      >
         <AnimatePresence mode="popLayout">
           {toasts.map((toast, index) => (
-            <ToastItem key={toast.id} content={toast} index={index} />
+            <ToastItem
+              key={toast.id}
+              content={toast}
+              index={index}
+              showAllToasts={showAllToasts}
+            />
           ))}
         </AnimatePresence>
       </div>
