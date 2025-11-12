@@ -3,17 +3,17 @@ import Card from "./ui/Card";
 import Image from "next/image";
 import Button from "./buttons/Button";
 import { toast } from "./toast/toast";
-import { FaRegCircleXmark, FaXmark } from "react-icons/fa6";
+import Pagination from "./Pagination";
 import { useAxios } from "@/hooks/useAxios";
 import useAppStore from "@/stores/AppStore";
-import React, { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useClickOutside } from "@/hooks/useOutsideClick";
-import usePersistedStore from "@/stores/PersistedStored";
-import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
 import { HiShoppingBag } from "react-icons/hi2";
-import Pagination from "./Pagination";
 import useUserStore from "@/stores/useUserStore";
+import { AnimatePresence, motion } from "framer-motion";
+import usePersistedStore from "@/stores/PersistedStored";
+import { useClickOutside } from "@/hooks/useOutsideClick";
+import React, { useEffect, useRef, useState } from "react";
+import { FaRegCircleXmark, FaXmark } from "react-icons/fa6";
+import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
 
 function SideBar() {
   const barRef = useRef<HTMLDivElement>(null);
@@ -21,6 +21,7 @@ function SideBar() {
   useClickOutside(barRef, () => {
     useAppStore.setState({ showSideBar: { open: false, value: "" } });
   });
+
   return (
     <AnimatePresence>
       {showSideBar.open && (
@@ -159,7 +160,6 @@ function Cart(props: Props) {
         product: item.id,
         quantity: item.quantity,
       })),
-      suppliers: Array.from(new Set(data.map((p) => p.supplier.id))),
     };
     setIsLoading(true);
     await secureAxios

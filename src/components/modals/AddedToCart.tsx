@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Button from "../buttons/Button";
-import { BiCart } from "react-icons/bi";
+import { BiCart, BiChevronDown, BiChevronUp } from "react-icons/bi";
 import useAppStore from "@/stores/AppStore";
 import { GiCheckMark } from "react-icons/gi";
 import usePersistedStore from "@/stores/PersistedStored";
@@ -13,6 +13,8 @@ interface Props {
 
 function AddedToCart(props: Props) {
   const cart = usePersistedStore((state) => state.cart);
+  const productInCart = cart.find((c) => c.id === props.product?.id);
+  const productQuantity = productInCart ? productInCart.quantity ?? 1 : 0;
 
   return (
     <div className="flex flex-col space-y-10 w-full h-full overflow-y-auto">
@@ -30,7 +32,38 @@ function AddedToCart(props: Props) {
           <div className="flex flex-col">
             <span className="font-bold text-sm">{props.product?.title}</span>
             <span className="text-sm">${props.product?.price}</span>
-            <span className="text-sm">Quantity: 1</span>
+            <div className="flex items-center space-x-4 mt-6 pl-3 border border-border rounded-lg overflow-hidden">
+              <span className="text-sm">Quantity: {productQuantity}</span>
+              <div className="flex flex-col divide-strokedark divide">
+                <BiChevronUp
+                  className="hover:bg-primary/20 p-1 w-8 h-6 cursor-pointer"
+                  onClick={() =>
+                    usePersistedStore.setState((state) => {
+                      state.cart = state.cart.map((c) =>
+                        c.id === props.product?.id
+                          ? { ...c, quantity: (c.quantity ?? 0) + 1 }
+                          : c
+                      );
+                    })
+                  }
+                />
+                <BiChevronDown
+                  onClick={() =>
+                    usePersistedStore.setState((state) => {
+                      state.cart = state.cart.map((c) =>
+                        c.id === props.product?.id
+                          ? {
+                              ...c,
+                              quantity: Math.max((c.quantity ?? 1) - 1, 1),
+                            }
+                          : c
+                      );
+                    })
+                  }
+                  className="hover:bg-primary/20 p-1 w-8 h-6 cursor-pointer"
+                />
+              </div>
+            </div>
           </div>
         </div>
         <hr className="border-strokedark" />
