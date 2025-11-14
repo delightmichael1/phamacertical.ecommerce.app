@@ -88,13 +88,6 @@ function Index() {
               className="rounded-xl w-full max-w-[10rem] object-cover aspect-square"
             />
             <span className="font-bold text-xl">There are no users yet</span>
-            <Button
-              className="bg-primary h-10"
-              onClick={() => openModal(<AddUser />)}
-            >
-              <IoMdAdd />
-              <span>Add new user</span>
-            </Button>
           </div>
         )}
         {pages > 1 && (

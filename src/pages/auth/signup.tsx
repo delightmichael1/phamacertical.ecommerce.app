@@ -16,7 +16,6 @@ import Button from "@/components/buttons/Button";
 import { FaCity, FaFilePdf } from "react-icons/fa6";
 import TextField from "@/components/input/TextField";
 import { AuthValidationSchema } from "@/types/schema";
-import Dropdown from "@/components/dropdown/Dropdown";
 import { MdOutlineMail, MdPhone } from "react-icons/md";
 import { HiMiniXMark, HiOutlineDocument } from "react-icons/hi2";
 import { IoDocumentAttachSharp, IoLocationOutline } from "react-icons/io5";
@@ -24,6 +23,8 @@ import useAuthSession from "@/hooks/useAuthSession";
 import Checkbox from "@/components/input/Checkbox";
 import SelectField from "@/components/input/SelectField";
 import { cities } from "@/utils/constants";
+import PricingCard from "@/components/ui/PricingCard";
+import Plasma from "@/components/ui/Plasma";
 
 type UploadedFile = {
   url: string;
@@ -54,16 +55,16 @@ const FormControls = React.memo(
 
 function Signup() {
   const router = useRouter();
-  const { signIn } = useAuthSession();
   const { axios } = useAxios();
-  const [step, setStep] = useState(1);
+  const { signIn } = useAuthSession();
+  const [step, setStep] = useState(0);
+  const { selectedPlan } = useAppStore();
   const [values, setValues] = useState<any>(null);
   const deviceId = useAppStore((state) => state.deviceId);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pdfPreview, setPdfPreview] = useState<string>("");
   const [finalPdf, setFinalPdf] = useState<Blob | null>(null);
   const [uploadMode, setUploadMode] = useState<UploadMode>("pdf");
-  const [type, setType] = useState<"retailer" | "supplier">("retailer");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const handleSubmitForm = async (values: any) => {
@@ -72,10 +73,16 @@ function Signup() {
   };
 
   const signUp = async (values: any) => {
+    const data = {
+      ...values,
+      subscription: selectedPlan,
+    };
     try {
-      const response = await axios.post("/user/signup", values, {
+      const response = await axios.post("/user/signup", data, {
         headers: {
-          "X-Platform": type,
+          "X-Platform": selectedPlan.includes("distributor")
+            ? "supplier"
+            : "retailer",
         },
       });
       return {
@@ -114,14 +121,18 @@ function Signup() {
           {
             headers: {
               Authorization: `Bearer ${res.accessToken}`,
-              "X-Platform": type,
+              "X-Platform": selectedPlan.includes("distributor")
+                ? "supplier"
+                : "retailer",
               "X-Device-Id": deviceId,
               "Content-Type": "multipart/form-data",
             },
           }
         )
         .then((res) => {
-          router.replace(type === "supplier" ? "/supplier" : "/shop");
+          router.replace(
+            selectedPlan.includes("distributor") ? "/supplier" : "/shop"
+          );
           toast({
             title: "Success",
             description: res.data.message,
@@ -187,14 +198,12 @@ function Signup() {
     if (!files || files.length === 0) return;
 
     if (uploadMode === "pdf") {
-      // Only allow one PDF file
       const file = files[0];
       if (file.type === "application/pdf") {
         const url = URL.createObjectURL(file);
         setUploadedFiles([{ url, type: "pdf" }]);
         setFinalPdf(file);
 
-        // Generate preview
         const preview = await generatePdfPreview(file);
         setPdfPreview(preview);
       } else {
@@ -204,7 +213,6 @@ function Signup() {
         });
       }
     } else if (uploadMode === "images") {
-      // Allow multiple images
       const newFiles: UploadedFile[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -223,13 +231,11 @@ function Signup() {
       }
     }
 
-    // Reset input
     e.target.value = "";
   };
 
   const removeFile = (index: number) => {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-    // Reset final PDF if removed
     if (uploadedFiles[index]?.type === "pdf") {
       setFinalPdf(null);
       setPdfPreview("");
@@ -249,7 +255,6 @@ function Signup() {
     for (let i = 0; i < imageUrls.length; i++) {
       const imgUrl = imageUrls[i];
 
-      // Load image
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
         const image = new window.Image();
         image.onload = () => resolve(image);
@@ -257,7 +262,6 @@ function Signup() {
         image.src = imgUrl;
       });
 
-      // Calculate dimensions to fit page
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgRatio = img.width / img.height;
@@ -272,12 +276,9 @@ function Signup() {
         width = height * imgRatio;
       }
 
-      // Add new page if not first image
       if (i > 0) {
         pdf.addPage();
       }
-
-      // Add image to PDF
       pdf.addImage(img, "JPEG", 0, 0, width, height);
     }
 
@@ -285,14 +286,75 @@ function Signup() {
   };
 
   return (
-    <AuthLayout>
+    <AuthLayout isHideImage={step === 0}>
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
         whileInView={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", duration: 1 }}
-        className="flex flex-col justify-center items-center gap-6 mx-auto w-full max-w-[30rem] h-full"
+        className={cn(
+          "relative flex flex-col justify-center items-center gap-6 mx-auto w-full max-w-[30rem] h-full",
+          step === 0 && "max-w-full"
+        )}
       >
-        <span className="font-bold text-2xl">CREATE ACCOUNT</span>
+        <div className="flex flex-col justify-center items-center space-y-2">
+          {step !== 0 && (
+            <span className="z-10 font-bold text-2xl capitalize">
+              {selectedPlan.replaceAll("_", " ")}
+            </span>
+          )}
+          <span className="z-10 font-bold text-2xl capitalize">
+            {step === 0 ? "Select Package" : "Sign Up "}
+          </span>
+        </div>
+        {step === 0 && (
+          <div className="w-full max-w-[70rem]">
+            <div className="top-0 left-0 absolute w-full h-full">
+              <Plasma
+                color="#9fbff1"
+                speed={0.6}
+                direction="forward"
+                scale={1.1}
+                opacity={0.8}
+                mouseInteractive={true}
+              />
+            </div>
+            <div className="items-center gap-6 grid grid-cols-3 w-full">
+              <PricingCard
+                side="left"
+                offer="$30"
+                setStep={setStep}
+                title="Pharmacy Plan"
+                options={[
+                  "Order processing",
+                  "Market analysis",
+                  "Customer support",
+                ]}
+              />
+              <PricingCard
+                side="center"
+                offer="$100"
+                setStep={setStep}
+                title="Distributor Premium"
+                options={[
+                  "All Basic Features",
+                  "AI data analysis",
+                  "Advertisement",
+                ]}
+              />
+              <PricingCard
+                side="right"
+                offer="$60"
+                setStep={setStep}
+                title="Distributor Basic"
+                options={[
+                  "Order processing",
+                  "Market analysis",
+                  "Customer support",
+                ]}
+              />
+            </div>
+          </div>
+        )}
         {step === 1 && (
           <Formik
             initialValues={{
@@ -374,22 +436,6 @@ function Signup() {
                     placeholder="Enter your password"
                     icon={<LuLock size={20} />}
                   />
-                  <div className="gap-4 grid grid-cols-2 w-full">
-                    <Checkbox
-                      label="Retailer"
-                      checked={type === "retailer"}
-                      onChange={(checked) =>
-                        setType(checked ? "retailer" : "supplier")
-                      }
-                    />
-                    <Checkbox
-                      label="Supplier"
-                      checked={type === "supplier"}
-                      onChange={(checked) =>
-                        setType(checked ? "supplier" : "retailer")
-                      }
-                    />
-                  </div>
                 </>
                 <FormControls isSubmitting={isSubmitting} />
               </Form>

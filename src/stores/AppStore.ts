@@ -11,6 +11,7 @@ interface AppStore {
     open: boolean;
     value: string;
   };
+  selectedPlan: string;
   notications: INotification[];
   showCartConfirmDialog: boolean;
   isViewedNotifications: boolean;
@@ -29,6 +30,7 @@ const useAppStore = create<AppStore>()(
       open: false,
       value: "",
     },
+    selectedPlan: "",
     selectedProduct: undefined,
     showCartConfirmDialog: true,
     isViewedNotifications: false,

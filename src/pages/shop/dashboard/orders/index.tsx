@@ -11,6 +11,7 @@ import usePersistedStore from "@/stores/PersistedStored";
 import React, { useEffect, useMemo, useState } from "react";
 import { formatDate, getStatusBadgeClass } from "@/utils/constants";
 import { del } from "framer-motion/client";
+import { TableRowSkeleton } from "@/components/ui/Shimmer";
 
 function Orders() {
   const router = useRouter();
@@ -18,6 +19,7 @@ function Orders() {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("Newest");
   const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const orders = usePersistedStore((state) => state.orders);
 
@@ -29,6 +31,7 @@ function Orders() {
   }, [orders, searchQuery]);
 
   const fetchOrders = async () => {
+    setIsLoading(true);
     let fxsort = -1;
     if (sortBy === "Newest") fxsort = -1;
     else if (sortBy === "Oldest") fxsort = 1;
@@ -43,6 +46,7 @@ function Orders() {
         });
         return;
       }
+      console.log(response.data);
       usePersistedStore.setState((state) => {
         state.orders = response.data.orders;
         setTotalPages(response.data.pages);
@@ -54,12 +58,14 @@ function Orders() {
         }`,
         variant: "error",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [page, sortBy]);
 
   return (
     <DashboardLayout title="Orders" description="Manage my orders list">
@@ -120,7 +126,11 @@ function Orders() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredOrders.length === 0 ? (
+                    {isLoading ? (
+                      Array.from({ length: 5 }).map((_, index) => (
+                        <TableRowSkeleton columns={6} key={index} />
+                      ))
+                    ) : filteredOrders.length === 0 ? (
                       <tr>
                         <td
                           colSpan={7}
