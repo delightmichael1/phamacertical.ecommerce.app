@@ -1,12 +1,15 @@
 import Card from "@/components/ui/Card";
-import React, { useEffect } from "react";
 import { ApexOptions } from "apexcharts";
+import { cities } from "@/utils/constants";
 import { useAxios } from "@/hooks/useAxios";
 import { toast } from "@/components/toast/toast";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import SelectFieldWithOnChange from "@/components/input/SelectFieldWithOnChange";
 
 function Index() {
   const { secureAxios } = useAxios();
+  const [city, setCity] = useState("");
   const [orderStats, setOrderStats] = React.useState<OrderStats>({
     acceptedOrders: 0,
     cancelledOrders: 0,
@@ -19,8 +22,11 @@ function Index() {
 
   useEffect(() => {
     fetchData();
-    getAds();
   }, []);
+
+  useEffect(() => {
+    getAds();
+  }, [city]);
 
   useEffect(() => {
     let priceChart: any;
@@ -116,7 +122,9 @@ function Index() {
 
   const getAds = async () => {
     try {
-      const response = await secureAxios.get(`/shop/topselling`);
+      const response = await secureAxios.get(
+        `/shop/topselling?limit=5&city=${city}`
+      );
       if (response.data.topSelling) {
         setTopSelling(response.data.topSelling);
       } else {
@@ -184,6 +192,21 @@ function Index() {
           <Card className="flex flex-col space-y-4 p-6 w-full">
             <div className="flex justify-between items-center space-x-2">
               <h2 className="font-semibold text-lg">Top Selling Products</h2>
+              <SelectFieldWithOnChange
+                label="City"
+                name="city"
+                options={[
+                  {
+                    label: "All",
+                    value: "",
+                  },
+                  ...cities,
+                ]}
+                value={city}
+                className="w-56"
+                onChange={(value: string) => setCity(value)}
+                placeholder="Select city"
+              />
             </div>
             <div className="overflow-x-auto">
               <table className="bg-gray-50 rounded-xl w-full">

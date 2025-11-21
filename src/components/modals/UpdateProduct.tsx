@@ -106,7 +106,7 @@ function UpdateProduct(props: Props) {
 
   return (
     <div
-      className="flex flex-col items-center space-y-4 px-6 pb-10 w-full h-full overflow-y-auto"
+      className="flex flex-col items-center space-y-4 px-6 pb-10 w-full lg:w-[60rem] h-full overflow-y-auto"
       style={{ maxHeight: `${0.8 * height}px` }}
     >
       <span className="mt-1 mb-10 font-bold text-2xl">
@@ -129,8 +129,34 @@ function UpdateProduct(props: Props) {
         onSubmit={handleSubmit}
       >
         {({ isSubmitting }) => (
-          <Form className="flex flex-col items-center gap-6 w-full">
-            <>
+          <Form className="flex lg:flex-row flex-col items-center gap-6 w-full">
+            {isUpdateImage ? (
+              <DropZone
+                file={image}
+                setFile={setImage}
+                fileType="image"
+                icon={RiUploadCloud2Fill}
+                label="Upload product image"
+              />
+            ) : (
+              <div className="group relative flex justify-center items-center rounded-xl w-full h-fit overflow-hidden">
+                <Image
+                  src={props.selectedProduct?.image ?? ""}
+                  alt={props.selectedProduct?.title ?? ""}
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="w-full max-w-[15rem] object-cover aspect-square"
+                />
+                <div
+                  onClick={() => setUpdateImage(true)}
+                  className="top-0 left-0 absolute flex justify-center items-center bg-black/50 opacity-0 group-hover:opacity-100 w-full h-full text-white transition-all duration-300 cursor-pointer"
+                >
+                  <FiEdit2 size={20} />
+                </div>
+              </div>
+            )}
+            <div className="flex flex-col space-y-4 w-full">
               <TextField
                 label="Title"
                 type="text"
@@ -178,41 +204,14 @@ function UpdateProduct(props: Props) {
                   };
                 })}
               />
-            </>
-            {isUpdateImage ? (
-              <DropZone
-                file={image}
-                setFile={setImage}
-                fileType="image"
-                icon={RiUploadCloud2Fill}
-                label="Upload product image"
-              />
-            ) : (
-              <div className="group relative flex justify-center items-center rounded-xl w-full h-fit overflow-hidden">
-                <Image
-                  src={props.selectedProduct?.image ?? ""}
-                  alt={props.selectedProduct?.title ?? ""}
-                  width={0}
-                  height={0}
-                  sizes="100vw"
-                  className="w-full max-w-[15rem] object-cover aspect-square"
-                />
-                <div
-                  onClick={() => setUpdateImage(true)}
-                  className="top-0 left-0 absolute flex justify-center items-center bg-black/50 opacity-0 group-hover:opacity-100 w-full h-full text-white transition-all duration-300 cursor-pointer"
-                >
-                  <FiEdit2 size={20} />
-                </div>
-              </div>
-            )}
-
-            <Button
-              isLoading={isSubmitting}
-              type="submit"
-              className="bg-primary w-full h-10"
-            >
-              Update
-            </Button>
+              <Button
+                isLoading={isSubmitting}
+                type="submit"
+                className="bg-primary w-full h-10"
+              >
+                Update
+              </Button>
+            </div>
           </Form>
         )}
       </Formik>

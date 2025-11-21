@@ -1,3 +1,4 @@
+import "@/utils/extensions";
 import Head from "next/head";
 import "@/styles/globals.css";
 import Script from "next/script";

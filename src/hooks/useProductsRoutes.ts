@@ -31,6 +31,7 @@ function useProductsRoutes() {
         )
       )
       .then((res) => {
+        console.log("################", res);
         useAppStore.setState((state) => {
           state.products = res.data.products ? res.data.products : [];
           setPages && setPages(res.data.pages);

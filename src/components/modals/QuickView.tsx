@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Button from "../buttons/Button";
 import { toast } from "../toast/toast";
+import { useAxios } from "@/hooks/useAxios";
 import React, { useEffect, useState } from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import usePersistedStore from "@/stores/PersistedStored";
 import { BiChevronDown, BiChevronUp } from "react-icons/bi";
+import useUserStore from "@/stores/useUserStore";
 
 interface Props {
   product: IProduct | null;
@@ -13,6 +15,8 @@ interface Props {
 }
 
 function QuickView(props: Props) {
+  const { secureAxios } = useAxios();
+  const id = useUserStore((state) => state.id);
   const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
 
   useEffect(() => {
@@ -46,7 +50,7 @@ function QuickView(props: Props) {
   };
 
   return (
-    <div className="gap-8 grid grid-cols-2 p-4 pt-6 w-full max-w-[60rem] h-full overflow-y-auto">
+    <div className="gap-8 grid grid-cols-2 p-4 pt-6 w-full lg:w-[60rem] min-w-[40rem] h-full overflow-y-auto">
       <Image
         src={selectedProduct?.image ?? ""}
         alt={selectedProduct?.title ?? ""}
@@ -56,12 +60,17 @@ function QuickView(props: Props) {
         className="bg-gray-300 rounded-xl w-full object-cover aspect-square"
       />
       <div className="flex flex-col space-y-4 w-full">
-        <span>{selectedProduct?.supplier.name}</span>
+        {!props.isSupplier && <span>{selectedProduct?.supplier.name}</span>}
         <h2 className="font-bold text-2xl">{selectedProduct?.title}</h2>
         <p className="text-sm">{selectedProduct?.description}</p>
         <span className="font-bold text-primary text-xl">
           ${selectedProduct?.price}
         </span>
+        {props.isSupplier && (
+          <span className="text-sm">
+            {selectedProduct?.quantity} units available
+          </span>
+        )}
         {!props.isSupplier && (
           <div className="flex border border-strokedark rounded-lg w-fit overflow-hidden divider divider-strokedark">
             <input

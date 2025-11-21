@@ -125,6 +125,12 @@ const adminPages = [
     role: "admin",
   },
   {
+    name: "Products",
+    icon: AiFillProduct,
+    href: "/admin/products",
+    role: "admin",
+  },
+  {
     name: "Account Management",
     icon: FaUserCog,
     href: "/admin/account",

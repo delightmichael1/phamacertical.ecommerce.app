@@ -7,6 +7,7 @@ import { useAxios } from "@/hooks/useAxios";
 import { GoVerified } from "react-icons/go";
 import { GiCheckMark } from "react-icons/gi";
 import Pagination from "@/components/Pagination";
+import { toast } from "@/components/toast/toast";
 import { useModal } from "@/components/modals/Modal";
 import Dropdown from "@/components/dropdown/Dropdown";
 import { CardSkeleton } from "@/components/ui/Shimmer";
@@ -17,7 +18,6 @@ import SearchInput from "@/components/input/SearchInput";
 import AcceptOrderModal from "@/components/modals/Order";
 import usePersistedStore from "@/stores/PersistedStored";
 import FxDropdown, { DropdownItem } from "@/components/dropdown/FxDropDown";
-import { toast } from "@/components/toast/toast";
 
 function Order() {
   const router = useRouter();

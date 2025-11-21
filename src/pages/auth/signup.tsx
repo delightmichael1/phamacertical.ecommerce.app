@@ -318,7 +318,7 @@ function Signup() {
                 mouseInteractive={true}
               />
             </div>
-            <div className="items-center gap-6 grid grid-cols-3 w-full">
+            <div className="items-center gap-6 grid grid-cols-2 w-full">
               <PricingCard
                 side="left"
                 offer="$30"
@@ -330,7 +330,7 @@ function Signup() {
                   "Customer support",
                 ]}
               />
-              <PricingCard
+              {/* <PricingCard
                 side="center"
                 offer="$100"
                 setStep={setStep}
@@ -340,7 +340,7 @@ function Signup() {
                   "AI data analysis",
                   "Advertisement",
                 ]}
-              />
+              /> */}
               <PricingCard
                 side="right"
                 offer="$60"
