@@ -68,7 +68,7 @@ function ProductAnalysis(props: Props) {
     tooltip: {
       y: {
         formatter: function (val: any) {
-          return val + " units";
+          return val;
         },
       },
     },
